@@ -24,6 +24,11 @@
 
 // You need to declare hooks with SHK_HOOK before you can use them.
 SHK_HOOK( bool, FUN_00425b0c, u16 unitID );
+SHK_HOOK( void, FUN_0025b888, btlUnit_Unit* unitID );
+SHK_HOOK( void, FUN_0025b7b8, btlUnit_Unit* unitID, int bullets );
+SHK_HOOK( int, FUN_0025b740, btlUnit_Unit* unitID );
+SHK_HOOK( void, FUN_0024bb54, void );
+SHK_HOOK( void, FUN_00661220, u64 a1, u64 a2, u64 a3 );
 SHK_HOOK( int, FUN_00425de0, partyMemberMenu* partyMenu );
 SHK_HOOK( btlUnit_Unit*, FUN_00af22e4, structB* a1 );
 SHK_HOOK( void, FUN_00b20618, struct_2_pointers* param_1, navi_dialogue_function_a2* param_2, struct_2_pointers* param_3, u16 param_4, int param_5, int param_6 );
@@ -1234,6 +1239,120 @@ static int BuildPartyMemberStatsMenu ( partyMemberMenu* partyMenu )
   return count;
 }
 
+static void NewGameSetup( void )
+{
+  SHK_CALL_HOOK( FUN_0024bb54 );
+  CheckKasumiEquipment( GetBtlPlayerUnitFromID( 10 ) );
+  return;
+}
+
+int BulletAmountList[]                = { 0, 8,  4,  5, 12, 12,  6, 2, 0,  6,  5 };
+int BulletAmountList_ConfidantBoost[] = { 0, 16, 8, 10, 24, 24, 12, 4, 0, 12, 10 };
+
+static void SetBulletsToMax(btlUnit_Unit* a1)
+{
+  u32 bullets;
+  u32 unitID;
+  
+  unitID = a1->unitID;
+  if ((a1->unitType == 2) || (10 < unitID)) 
+  {
+    bullets = 0;
+  }
+  else 
+  {
+    if (!IsConfidantBonusObtained(165)) 
+    {
+      bullets = BulletAmountList[unitID];
+    }
+    else 
+    {
+      bullets = BulletAmountList_ConfidantBoost[unitID];
+    }
+  }
+  a1->context.player.numOfBullets = bullets;
+
+  return;
+}
+
+static int GetMaxBullets(btlUnit_Unit* a1)
+{
+  int bullets;
+  u32 unitID;
+  
+  unitID = a1->unitID;
+  if ((a1->unitType == 2) || (10 < unitID)) 
+  {
+    bullets = 0;
+  }
+  else 
+  {
+    if (!IsConfidantBonusObtained(165)) 
+    {
+      bullets = BulletAmountList[unitID];
+    }
+    else 
+    {
+      bullets = BulletAmountList_ConfidantBoost[unitID];
+    }
+  }
+  return bullets;
+}
+
+static void SetBullets( btlUnit_Unit* a1, int targetBullets)
+{
+  u32 bullets;
+  u32 unitID;
+  
+  unitID = a1->unitID;
+  if ((a1->unitType == 2) || (10 < unitID)) 
+  {
+    bullets = 0;
+  }
+  else 
+  {
+    if (!IsConfidantBonusObtained(165)) 
+    {
+      bullets = BulletAmountList[unitID];
+    }
+    else 
+    {
+      bullets = BulletAmountList_ConfidantBoost[unitID];
+    }
+  }
+
+  u32 newBullets = a1->context.player.numOfBullets +  targetBullets;
+
+  if (newBullets < bullets) // prevent going over max
+  {
+    bullets = newBullets;
+  }
+  a1->context.player.numOfBullets = newBullets;
+  return;
+}
+
+void CheckKasumiEquipment(btlUnit_Unit* Kasumi)
+{
+  if ( Kasumi->context.player.meleeID == 1 )
+  {
+    Kasumi->context.player.meleeID = 248;
+    Kasumi->context.player.rangedWeaponID = 0x8000 + 223;
+    Kasumi->context.player.protectorID = 0x1000 + 101;
+    Kasumi->Flags = GetBtlPlayerUnitFromID( 6 )->Flags; //Copy unit flags from existing female party member
+  }
+  return;
+}
+
+static void BattleEndSkillChecks( u64 a1, u64 a2, u64 a3 )
+{
+  SHK_CALL_HOOK( FUN_00661220, a1, a2, a3 );
+  for ( int i = 1; i <= 10; i++ )
+  {
+    SetBulletsToMax( GetBtlPlayerUnitFromID(i) );
+  }
+  return;
+}
+
 // The start function of the PRX. This gets executed when the loader loads the PRX at boot.
 // This means game data is not initialized yet! If you want to modify anything that is initialized after boot,
 // hook a function that is called after initialisation.
@@ -1258,6 +1377,11 @@ void KasumiInit( void )
   SHK_BIND_HOOK( FUN_00b22138, PartyMemberGetUp_NaviDialogue );
   SHK_BIND_HOOK( FUN_00b22f60, PartyMemberRunAway_NaviDialogue );
   SHK_BIND_HOOK( FUN_00b1bf38, PartyMemberDied_NaviDialogue );
+  SHK_BIND_HOOK( FUN_0025b888, SetBulletsToMax );
+  SHK_BIND_HOOK( FUN_0025b740, GetMaxBullets );
+  SHK_BIND_HOOK( FUN_0025b7b8, SetBullets );
+  SHK_BIND_HOOK( FUN_0024bb54, NewGameSetup );
+  SHK_BIND_HOOK( FUN_00661220, BattleEndSkillChecks );
 }
 
 void KasumiShutdown( void )

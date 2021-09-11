@@ -16,18 +16,17 @@ u32 GlobalEnemyID;
 u32 GlobalCounts[256];
 bool isAmbush;
 bool isAmbushed;
-bool wasBGMReplaced;
 bool needsReplace;
 bool wasBGMRandom;
 bool isMidwinter;
 int rngBGM;
 int lastAccessedUnitType;
-int EncounterIDBGM;
 int lastUsedFieldMajorID;
 int lastUsedFieldMinorID;
 int JokerModel;
 u32 titleScreenBGM;
 u16 ActiveGlobalSkillSlot;
+u16 L2R2PadAddress;
 
 typedef struct
 {
@@ -76,7 +75,7 @@ typedef struct GFDModelMaterial_Processed
 } GFDModelMaterial_Processed;
 
 
-btlEquipBgmTableEntry btlEquipBgmTable[20];
+btlEquipBgmTableEntry btlEquipBgmTable[29];
 
 int sVanillaBits[6];
 int sRoyalBits[6];
@@ -644,6 +643,38 @@ typedef struct
 	u16 Field18;
 	u16 Field1A;
 } resrcNPCTblEntry;
+
+typedef struct JokerFieldControl
+{
+  u32 field00;
+  u32 field04;
+  u32 JokerAnimationIndex;
+  u32 field0c;
+  u32 field10;
+  u32 field14;
+  u32 field18;
+  u32 field1c;
+  u32 field20;
+  u32 field24;
+  u32 field28;
+  u32 field2c;
+  u32 field30;
+  u32 field34;
+  u32 field38;
+  u32 field3c;
+  u32 field40;
+  u32 field44;
+  u32 field48;
+  u32 field4c;
+} JokerFieldControl;
+
+typedef struct JokerFieldControl2
+{
+  u32 field00;
+  u32 JokerTargetAnim;
+  u32 field08;
+  u32 field0c;
+} JokerFieldControl2;
 
 typedef struct
 {

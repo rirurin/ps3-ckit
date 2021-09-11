@@ -47,12 +47,6 @@ static void setBgmHook( int id )
   {
     u32 btlEquipBgmTableEntryCount = sizeof( btlEquipBgmTable ) / sizeof( btlEquipBgmTableEntry );
     u32 playerOutfitModel = PlayerUnitGetModelMinorID( 1, 50, 0 );
-    if ( id == 340 && wasBGMReplaced ) // fix replaced music
-    {
-      encounterIDTBL* result = GetEncounterEntryFromTBL( EncounterIDBGM );
-      result->BGMID = 0;
-      wasBGMReplaced = false;
-    }
     if ( id == 340 && CONFIG_ENABLED( randomDLCBGM )) // Victory theme
     { 
       isAmbush = false;
@@ -100,7 +94,6 @@ static void setBgmHook( int id )
       }
     }
   }
-  else wasBGMReplaced = false;
 
   printf("SetBGM Called with BGM ID -> %d\n", id);
   SHK_CALL_HOOK( setBgm, id );

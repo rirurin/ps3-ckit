@@ -67,6 +67,8 @@ SHK_HOOK( u64*, ReturnAddressOfUNITTBL_Segment3, s64 a1 );
 SHK_HOOK( u64*, ReturnAddressOfELSAITBL_Segment1, u32 a1 );
 SHK_HOOK( u64, CalculateShdPersonaEnemyEntry, shdHelper* a1, u32 a2 );
 SHK_HOOK( void, FUN_003735d8, fechance* a1, u64 a2, u64 a3, u64 a4, u64 a5 );
+SHK_HOOK( bool, FUN_00338a04, void );
+SHK_HOOK( bool, FUN_00364498, JokerFieldControl* a1, JokerFieldControl2* a2 );
 SHK_HOOK( bool, FUN_00259148, btlUnit_Unit* a1, u32 skillID );
 SHK_HOOK( int, FUN_00256830, btlUnit_Unit* a1, u32 skillID );
 
@@ -124,24 +126,27 @@ static void* BlackMaskBossVoiceHook( structA* a1 )
   char acStack1056 [128];
 
   someAddressPointer = MallocAndReturn(0x20);
-  if (someAddressPointer != (void*)0x0) {
-  SomethingAboutLoadingVoices(someAddressPointer);
-  someAddressPointer->ptr1 = 0x00ba90e4;
-  ppuVar3 = someAddressPointer;
+  if (someAddressPointer != (void*)0x0) 
+  {
+    SomethingAboutLoadingVoices(someAddressPointer);
+    someAddressPointer->ptr1 = 0x00ba90e4;
+    ppuVar3 = someAddressPointer;
   }
   CalculateAddressWithPointer(&ppuVar3->ptr2,a1);
-  uVar1 = BtlUnitGetUnitIDHook(a1->field0C->btlUnitPointer);
+  uVar1 = a1->field0C->btlUnitPointer->unitID;
   uVar2 = uVar1;
   uVar1 = GetSavedataBitflagAlt(0x218f);
-  if (uVar1 == 0) {
-  sprintf(acStack2080,"sound/battle/be_boss_%04d.acb",uVar2);
-  sprintf(acStack1056,"sound/battle/be_boss_%04d.awb",uVar2);
+  if (uVar1 == 0) 
+  {
+    sprintf(acStack2080,"sound/battle/be_boss_%04d.acb",uVar2);
+    sprintf(acStack1056,"sound/battle/be_boss_%04d.awb",uVar2);
   }
-  else {
-  sprintf(acStack2080,"sound_JP/battle/be_boss_%04d.acb",uVar2);
-  sprintf(acStack1056,"sound_JP/battle/be_boss_%04d.awb",uVar2);
+  else 
+  {
+    sprintf(acStack2080,"sound_JP/battle/be_boss_%04d.acb",uVar2);
+    sprintf(acStack1056,"sound_JP/battle/be_boss_%04d.awb",uVar2);
   }
-  FUN_0074ae50(ppuVar3, acStack2080, acStack1056, 0x100e8);
+  FUN_0074ae50(ppuVar3, acStack2080, acStack1056, 0x10000 + a1->field0C->btlUnitPointer->unitID );
 
   // enable Fast Persona Summon Animation from config
   // This is done here because this needs to happen before
@@ -932,102 +937,104 @@ static bool EnemyHasCombatCutinHook( int a1, int a2 )
 static int SetUpEncounterFlagsHook( EncounterFuncStruct* a1, EncounterStructShort* a2)
 {
   int encounterIDReal = a2->encounterIDLocal;
-  EncounterIDBGM = encounterIDReal;
   printf("Starting Encounter %d\n", encounterIDReal);
   int previousBGM = GetCurrentBGMCueID();
   bool isLifeWillChange = false;
-  if ( previousBGM == 471 )
+  if ( previousBGM == 471 ) // Life Will Change
   {
     isLifeWillChange = true;
   }
-  if ( previousBGM == 904 )
+  else if ( previousBGM == 904 ) // I Believe
   {
     isLifeWillChange = true;
   }
 
-  if ( CONFIG_ENABLED( enableExpandedBGM ) && !isLifeWillChange )
-  {
-    encounterIDTBL* CurrentEncounter = GetEncounterEntryFromTBL(EncounterIDBGM);
-    int CurrentEncounterBGMID = CurrentEncounter->BGMID;
-    // DLC BGM Stuff
-    u32 btlEquipBgmTableEntryCount = sizeof( btlEquipBgmTable ) / sizeof( btlEquipBgmTableEntry );
-    u32 playerOutfitModel = PlayerUnitGetModelMinorID( 1, 50, 0 );
-    if ( CurrentEncounterBGMID == 0 && !CONFIG_ENABLED( randomDLCBGM ) && isAmbush )
-    {
-      int AmbushRNG = GetRandom( 2 );
-      //printf("Ambush RNG -> %d\n", AmbushRNG);
-      if ( AmbushRNG == 0 )
-      {
-        CurrentEncounter->BGMID = 907; // Take Over
-      }
-      else if ( AmbushRNG == 1 )
-      {
-        CurrentEncounter->BGMID = 999; // What you wish for
-      }
-      else if ( AmbushRNG == 2 )
-      {
-        CurrentEncounter->BGMID = 1000; // Axe to grind
-      }
-      wasBGMReplaced = true;
-    }
-    if ( CurrentEncounterBGMID == 0 && !CONFIG_ENABLED( randomDLCBGM ) && isAmbushed )
-    {
-      CurrentEncounter->BGMID = 1004; // Last Surprise (Strikers)
-      wasBGMReplaced = true;
-    }
-    // Apply DLC BGM directly to tbl
-    if ( CurrentEncounterBGMID == 0 && !CONFIG_ENABLED( randomDLCBGM ) ) // Last Surprise
-    {
-      for ( u32 i = 0; i < btlEquipBgmTableEntryCount; ++i )
-      {
-        btlEquipBgmTableEntry* pEntry = &btlEquipBgmTable[i];
-        if ( pEntry->modelID == playerOutfitModel )
-        {
-          CurrentEncounter->BGMID = pEntry->bgmId;
-          wasBGMReplaced = true;
-          break;
-        }
-      }
-    }
-    else if ( CurrentEncounterBGMID == 0 && CONFIG_ENABLED( randomDLCBGM ) ) // Last Surprise
-    {
-      btlEquipBgmTableEntry* pEntry = &btlEquipBgmTable[rngBGM];
-      CurrentEncounter->BGMID = pEntry->bgmId;
-      wasBGMReplaced = true;
-    }
-    // Allow Ambush Themes to override DLC
-    if ( CurrentEncounterBGMID == 0 && CONFIG_ENABLED( DLCAmbush ) && isAmbush )
-    {
-      int AmbushRNG = GetRandom( 2 );
-      //printf("Ambush RNG -> %d\n", AmbushRNG);
-      if ( AmbushRNG == 0 )
-      {
-        CurrentEncounter->BGMID = 907; // Take Over
-      }
-      else if ( AmbushRNG == 1 )
-      {
-        CurrentEncounter->BGMID = 999; // What you wish for
-      }
-      else if ( AmbushRNG == 2 )
-      {
-        CurrentEncounter->BGMID = 1000; // Axe to grind
-      }
-      wasBGMReplaced = true;
-    }
-    if ( CurrentEncounterBGMID == 0 && CONFIG_ENABLED( DLCAmbush ) && isAmbushed )
-    {
-      CurrentEncounter->BGMID = 1004; // Last Surprise (Strikers)
-      wasBGMReplaced = true;
-    }
-  }
-
-  if ( encounterIDReal >= 830 && encounterIDReal < 990 )
+ if ( encounterIDReal >= 830 && encounterIDReal < 990 )
   {
     a2->encounterIDLocal = 780;
   }
   int result = SHK_CALL_HOOK( SetUpEncounterFlags, a1, a2 );
   a1->encounterIDLocal = encounterIDReal;
   a2->encounterIDLocal = (u16)encounterIDReal;
+
+  if ( CONFIG_ENABLED( enableExpandedBGM ) && !isLifeWillChange )
+  {
+    int CurrentEncounterBGMID = GetEncounterEntryFromTBL(encounterIDReal)->BGMID;
+    // Non destructive Unhardcoded BGM
+    if ( CurrentEncounterBGMID > 20 )
+    {
+      a1->BGMID = CurrentEncounterBGMID;
+    }
+    // DLC BGM Stuff
+    u32 btlEquipBgmTableEntryCount = sizeof( btlEquipBgmTable ) / sizeof( btlEquipBgmTableEntry );
+    u32 playerOutfitModel = PlayerUnitGetModelMinorID( 1, 50, 0 );
+
+    if ( a1->BGMID == 300 || a1->BGMID == -1 ) // Only Execute DLC Music code on Last Surprise
+    {
+      if ( !CONFIG_ENABLED( randomDLCBGM ) && isAmbush )
+      {
+        int AmbushRNG = GetRandom( 2 );
+        //printf("Ambush RNG -> %d\n", AmbushRNG);
+        if ( AmbushRNG == 0 )
+        {
+          a1->BGMID = 907; // Take Over
+        }
+        else if ( AmbushRNG == 1 )
+        {
+          a1->BGMID = 999; // What you wish for
+        }
+        else if ( AmbushRNG == 2 )
+        {
+          a1->BGMID = 1000; // Axe to grind
+        }
+      }
+      if ( !CONFIG_ENABLED( randomDLCBGM ) && isAmbushed )
+      {
+        a1->BGMID = 1004; // Last Surprise (Strikers)
+      }
+      // Apply DLC BGM directly to tbl
+      if ( !CONFIG_ENABLED( randomDLCBGM ) ) // Last Surprise
+      {
+        for ( u32 i = 0; i < btlEquipBgmTableEntryCount; ++i )
+        {
+          btlEquipBgmTableEntry* pEntry = &btlEquipBgmTable[i];
+          if ( pEntry->modelID == playerOutfitModel )
+          {
+            a1->BGMID = pEntry->bgmId;
+            break;
+          }
+        }
+      }
+      else if ( CONFIG_ENABLED( randomDLCBGM ) ) // Last Surprise
+      {
+        btlEquipBgmTableEntry* pEntry = &btlEquipBgmTable[rngBGM];
+        a1->BGMID = pEntry->bgmId;
+        //printf("Setting BGM Cue ID to %d from BGM Entry %d\n", pEntry->bgmId, rngBGM );
+      }
+      // Allow Ambush Themes to override DLC
+      if ( CONFIG_ENABLED( DLCAmbush ) && isAmbush )
+      {
+        int AmbushRNG = GetRandom( 2 );
+        //printf("Ambush RNG -> %d\n", AmbushRNG);
+        if ( AmbushRNG == 0 )
+        {
+          a1->BGMID = 907; // Take Over
+        }
+        else if ( AmbushRNG == 1 )
+        {
+          a1->BGMID = 999; // What you wish for
+        }
+        else if ( AmbushRNG == 2 )
+        {
+          a1->BGMID = 1000; // Axe to grind
+        }
+      }
+      if ( CONFIG_ENABLED( DLCAmbush ) && isAmbushed )
+      {
+        a1->BGMID = 1004; // Last Surprise (Strikers)
+      }
+    }
+  }
 
   for ( int i = 0; i <= 11; i++) // navi stuff
   {
@@ -1037,6 +1044,8 @@ static int SetUpEncounterFlagsHook( EncounterFuncStruct* a1, EncounterStructShor
   UzukiDebuffAttackWarn = false;
   UzukiDebuffDeffenseWarn = false;
   UzukiDebuffSpeedWarn = false;
+
+  //printf("Encounter ID %d has BGM ID %d\n", encounterIDReal, a1->BGMID);
 
   return result;
 }
@@ -1063,7 +1072,7 @@ static encounterIDTBL* FUN_00263b94Hook( int a1 )
   u32 btlEquipBgmTableEntryCount = sizeof( btlEquipBgmTable ) / sizeof( btlEquipBgmTableEntry );
   if (!wasBGMRandom)
   {
-    rngBGM = randomIntBetween(0, btlEquipBgmTableEntryCount-1);
+    rngBGM = randomIntBetween(0, btlEquipBgmTableEntryCount - 1);
     wasBGMRandom = true;
   }
   return result;
@@ -1163,7 +1172,7 @@ static int FUN_00829ce8Hook( ActiveCombatUnitStruct* a1 )
 
 static resrcNPCTblEntry* GetNPCTBLEntry( int a1 )
 {
-  printf("NPC TBL NPC ID %d loaded\n", a1 );
+  //printf("NPC TBL NPC ID %d loaded\n", a1 );
   //printf("NPC TBL Entry %d loaded\n",  ( (int)SHK_CALL_HOOK( FUN_00043fac, a1 ) - (int)SHK_CALL_HOOK( FUN_00043fac, 0 ) ) / 0x1C );
   return SHK_CALL_HOOK( FUN_00043fac, a1 );
 }
@@ -1210,10 +1219,10 @@ bool CheckPartyMemberConfidantCombatAbilities(u32 playerID, int param_2)
         {
           sVar5 = 86;
         }
-        if (playerID == 10) // Follow Up Attack
+        /*if (playerID == 10) // Follow Up Attack
         {
           sVar5 = 12;
-        }
+        }*/
         else 
         {
           if (playerID == 7) 
@@ -1263,6 +1272,10 @@ bool CheckPartyMemberConfidantCombatAbilities(u32 playerID, int param_2)
       {
         if (0 < param_2) 
         {
+          if ( CONFIG_ENABLED( AutoUnlockBatonPass ) )
+          {
+            return true;
+          }
           if (playerID == 1) // Baton Pass
           {
             return 1;
@@ -1271,7 +1284,7 @@ bool CheckPartyMemberConfidantCombatAbilities(u32 playerID, int param_2)
           {
             sVar5 = 88;
           }
-          if (playerID == 10) // Kasumi, use Morgana as placeholder
+          else if (playerID == 10) // Kasumi, use Morgana as placeholder
           {
             sVar5 = 13;
           }
@@ -1319,10 +1332,6 @@ bool CheckPartyMemberConfidantCombatAbilities(u32 playerID, int param_2)
             }
           }
           result = IsConfidantBonusObtained(sVar5);
-          if ( CONFIG_ENABLED( AutoUnlockBatonPass ) )
-          {
-            result = true;
-          }
           return result;
         }
         iVar3 = GetBitflagState(8202);
@@ -1462,55 +1471,37 @@ bool CheckPartyMemberConfidantCombatAbilities(u32 playerID, int param_2)
           result = IsConfidantBonusObtained(68);
           return result;
         }
-        if (playerID < 11) // Protect
+        if (playerID != 0) // Protect
         {
-          if (playerID == 9) // Akechi, Use Mona as placeholder
+          switch ( playerID )
           {
-            sVar5 = 19;
-          }
-          if (playerID == 10) // Kasumi, Use Mona as placeholder
-          {
-            sVar5 = 19;
-          }
-          if (playerID == 7) 
-          {
-            sVar5 = 39;
-          }
-          else 
-          {
-            if (playerID == 6) 
-            {
+            case 10:
+              sVar5 = 19;
+              break;
+            case 9:
+              sVar5 = 51;
+              break;
+            case 7:
+              sVar5 = 39;
+              break;
+            case 6:
               sVar5 = 29;
-            }
-            else 
-            {
-              if (playerID == 5) 
-              {
-                sVar5 = 49;
-              }
-              else 
-              {
-                if (playerID == 4) 
-                {
-                  sVar5 = 69;
-                }
-                else 
-                {
-                  if (playerID == 3) 
-                  {
-                    sVar5 = 19;
-                  }
-                  else 
-                  {
-                    if (playerID != 2) 
-                    {
-                      return 0;
-                    }
-                    sVar5 = 79;
-                  }
-                }
-              }
-            }
+              break;
+            case 5:
+              sVar5 = 49;
+              break;
+            case 4:
+              sVar5 = 69;
+              break;
+            case 3:
+              sVar5 = 19;
+              break;
+            case 2:
+              sVar5 = 79;
+              break;
+            default:
+              return false;
+              break;
           }
           result = IsConfidantBonusObtained(sVar5);
           return result;
@@ -1546,7 +1537,7 @@ bool CheckPartyMemberConfidantCombatAbilities(u32 playerID, int param_2)
       }
     }
   }
-  return 0;
+  return SHK_CALL_HOOK( FUN_00745e28, playerID, param_2 );
 }
 
 static int CheckUnitIsEndure( btlUnit_Unit* btlUnit, u32 skillID )
@@ -1558,7 +1549,7 @@ static int CheckUnitIsEndure( btlUnit_Unit* btlUnit, u32 skillID )
     u32 confidantEndureBonusID;
     if ( unitID == 9 ) // Akechi
     {
-      confidantEndureBonusID = 17;// Morgana as Placeholder
+      confidantEndureBonusID = 50;// Morgana as Placeholder
     }
     else if ( unitID == 10 ) // Kasumi
     {
@@ -1570,6 +1561,33 @@ static int CheckUnitIsEndure( btlUnit_Unit* btlUnit, u32 skillID )
     }
   }
   return result;
+}
+
+static bool CheckRyujiInstakill( void )
+{
+  bool result = IsConfidantBonusObtained( 80 );
+  if ( CONFIG_ENABLED( DisableInstakill ) )
+  {
+    result = false;
+  }
+  return result;
+}
+
+static bool FUN_00364498Hook( JokerFieldControl* a1, JokerFieldControl2* a2)
+{
+  /*u16* pad_val = 0x1166B10;
+  if ( (*pad_val) & 0x200 && lastUsedFieldMajorID < 100 ) 
+  { 
+    if ( a1->JokerAnimationIndex == 2 || a1->JokerAnimationIndex == 5 )
+    {
+      if ( a2->JokerTargetAnim == 2 )
+      {
+        a2->JokerTargetAnim = 5;
+      }
+    }
+  }*/
+  //printf("FUN_00364498 called, args; a1 + 8 -> 0x%x; a2 + 4 -> 0x%x\n", a1->JokerAnimationIndex, a2->JokerTargetAnim);
+  return SHK_CALL_HOOK( FUN_00364498, a1, a2 );
 }
 
 // The start function of the PRX. This gets executed when the loader loads the PRX at boot.
@@ -1625,6 +1643,8 @@ void dcInit( void )
   SHK_BIND_HOOK( FUN_00259148, Unit_CheckHasSkillHook );
   SHK_BIND_HOOK( FUN_00745e28, CheckPartyMemberConfidantCombatAbilities );
   SHK_BIND_HOOK( FUN_00256830, CheckUnitIsEndure );
+  SHK_BIND_HOOK( FUN_00338a04, CheckRyujiInstakill );
+  SHK_BIND_HOOK( FUN_00364498, FUN_00364498Hook );
   wasBGMRandom = false;
 }
 

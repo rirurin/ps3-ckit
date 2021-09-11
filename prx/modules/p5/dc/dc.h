@@ -374,7 +374,7 @@ typedef struct EncounterFuncStruct
     u32 field530;
     u32 field534;
     u32 field538;
-    u32 field53c;
+    u32 BGMID;
     u32 field540;
     u32 field544;
     u32 field548;

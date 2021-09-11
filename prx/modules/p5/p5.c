@@ -27,6 +27,15 @@ btlEquipBgmTableEntry btlEquipBgmTable[] =
   { 177, 2332 }, // DLC_018
   { 178, 2334 }, // DLC_019
   { 179, 2336 }, // DLC_020
+  {  -1, 2338 }, // DLC_RND
+  {  -1, 2340 }, // DLC_RND
+  {  -1, 2342 }, // DLC_RND
+  {  -1, 2344 }, // DLC_RND
+  {  -1, 2346 }, // DLC_RND
+  {  -1, 2348 }, // DLC_RND
+  {  -1, 2350 }, // DLC_RND
+  {  -1, 2352 }, // DLC_RND
+  {  -1, 2354 }, // DLC_RND
 };
 
 int RECOVERY_ALL( void )

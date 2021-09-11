@@ -184,13 +184,15 @@ static int PERSONA_EVOLUTIONHook( void )
 static int EX_FLW_PersonaEvolution( void )
 {
   u32 unitID;
-  u32 uVar1;
-  u32 uVar2;
+  u32 personaID;
 
   unitID = FLW_GetIntArg(0);
-  uVar1 = FUN_0025bdf8(unitID);
-  uVar2 = FLW_GetIntArg(1);
-  FUN_0025cb8c(uVar1,uVar2);
+  if ( unitID == 0 || unitID == 1 || 11 <= unitID ) // do not execute on Joker or IDs higher than 10
+  {
+    return 1;
+  }
+  personaID = FLW_GetIntArg(1);
+  GetBtlPlayerUnitFromID(unitID)->context.player.StockPersona[0].personaID = personaID;
   return 1;
 }
 
@@ -727,6 +729,14 @@ static TtyCmdStatus ttyGetDays( TtyCmd* cmd, const char** args, u32 argc, char**
   return TTY_CMD_STATUS_OK;
 }
 
+static TtyCmdStatus ttyGetFieldWorkData( TtyCmd* cmd, const char** args, u32 argc, char** error )
+{
+  fieldworkdataStruct* FieldData = GetFieldWorkData();
+  printf( "Current FieldWorkData struct is at 0x%x\n", FieldData );
+  hexDump( "FieldWorkData", FieldData, sizeof(fieldworkdataStruct) );
+  return TTY_CMD_STATUS_OK;
+}
+
 fileHandleStruct* FutabaNavi = 0;
 static undefined4* LoadFutabaNaviBMDHook(void)
 {
@@ -870,6 +880,8 @@ static TtyCmd ttyCommands[] =
     TTY_CMD_PARAM( "int", "resource handle id", TTY_CMD_PARAM_FLAG_REQUIRED, TTY_CMD_PARAM_TYPE_INT )),
     
   TTY_CMD( ttyGetDays, "getdays", "Get current amount of days passed", TTY_CMD_FLAG_NONE),
+
+  TTY_CMD( ttyGetFieldWorkData, "getfieldworkdata", "Returns and prints current fieldworkdata struct", TTY_CMD_FLAG_NONE),
 
   TTY_CMD( ttyGetEnemyBtlUnitCmd, "getenemy", "Prints address and contents of currently saved enemy battle struct", TTY_CMD_FLAG_NONE ),
 

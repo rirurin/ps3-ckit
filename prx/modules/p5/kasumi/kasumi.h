@@ -87,7 +87,7 @@ typedef struct
     u16 partyMemberID[10];
 }partyMemberMenu;
 
-
+void CheckKasumiEquipment(btlUnit_Unit* a1);
 
 void KasumiInit( void );
 void KasumiShutdown( void );

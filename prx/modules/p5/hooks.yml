@@ -52,18 +52,6 @@ FLW_AI_ACT_SKILL:
     addr: 0x7ba448
     replacedInstr: stdu  r1, -0x80(r1)
 
-BIT_CHK_FUNC:
-    addr: 0x24beac
-    replacedInstr: srawi  r4, r3, 0x5
-
-BIT_SET_FUNC:
-    addr: 0x24bef8
-    replacedInstr: srawi  r7, r3, 0x5
-
-BIT_CHK_FUNC_ALT:
-    addr: 0x116a94
-    replacedInstr: lis  r4, 0x107
-
 BlackMaskBossVoice:
     addr: 0x74c12c
     replacedInstr: stdu  r1, -0x890(r1)
@@ -467,3 +455,47 @@ FUN_00338a04:
 FUN_00364498:
     addr: 0x364498
     replacedInstr: stdu r1, -0x90(r1)
+
+FUN_007ed620:
+    addr: 0x7ed620
+    replacedInstr: stdu r1, -0x90(r1)
+
+FUN_00258950:
+    addr: 0x258950
+    replacedInstr: stdu r1, -0x70(r1)
+
+FUN_002590d8:
+    addr: 0x2590d8
+    replacedInstr: lwz r3, 0x14(r3)
+
+FUN_002590ac:
+    addr: 0x2590ac
+    replacedInstr: lwz r3, 0x14(r3)
+
+FUN_00258d1c:
+    addr: 0x258d1c
+    replacedInstr: stdu r1, -0x90(r1)
+
+FUN_007af1c0:
+    addr: 0x7af1c0
+    replacedInstr: stdu r1, -0x90(r1)
+
+FUN_007d8e5c:
+    addr: 0x7d8e5c
+    replacedInstr: stdu r1, -0xf0(r1)
+
+FUN_007dc308:
+    addr: 0x7dc308
+    replacedInstr: stdu r1, -0xb0(r1)
+
+FUN_00784d18:
+    addr: 0x784d18
+    replacedInstr: stdu r1, -0x140(r1)
+
+FUN_001144ac:
+    addr: 0x1144ac
+    replacedInstr: stdu r1, -0x390(r1)
+
+FUN_002589c0:
+    addr: 0x2589c0
+    emitTrampoline: no

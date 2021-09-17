@@ -425,6 +425,66 @@ typedef struct EncounterFuncStruct
     u32 field5fc;
 } EncounterFuncStruct;
 
+typedef struct OkumuraSummonThingy
+{
+    u16 field00;
+    u16 field02;
+    u16 field04;
+    u16 field06;
+    u16 field08;
+    u16 field0a;
+    u16 field0c;
+    u16 field0e;
+    u16 field10;
+    u16 field12;
+    u16 field14;
+    u16 field16;
+    u16 field18;
+    u16 field1a;
+    u16 field1c;
+    u16 field1e;
+    u16 field20;
+    u16 field22;
+    u16 field24;
+    u16 field26;
+    u16 field28;
+    u16 field2a;
+    u16 field2c;
+    u16 field2e;
+    u16 field30;
+    u16 field32;
+    u16 field34;
+    u16 field36;
+    u16 field38;
+    u16 field3a;
+    u16 field3c;
+    u16 field3e;
+    u16 field40;
+    u16 field42;
+    u16 field44;
+    u16 field46;
+    u16 field48;
+    u16 field4a;
+    u16 field4c;
+    u16 field4e;
+    u16 field50;
+    u16 field52;
+    u16 field54;
+    u16 field56;
+    u16 field58;
+    u16 field5a;
+    u16 field5c;
+    u16 field5e;
+    u16 field60;
+    u16 field62;
+    u16 field64;
+    u16 field66;
+    u16 field68;
+    u16 field6a;
+    u16 field6c;
+    u16 field6e;
+} OkumuraSummonThingy;
+
 typedef struct
 {
     u16 field00;

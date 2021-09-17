@@ -40,7 +40,7 @@ SHK_HOOK( encounterIDTBL*, FUN_00263b94, int a1 );
 SHK_HOOK( resrcNPCTblEntry*, FUN_00043fac, int a1 );
 SHK_HOOK( int, LoadShdPersonaEnemy, char* result );
 SHK_HOOK( int, SetEnemyAkechiPersona, u64 a1, u64 a2, EnemyPersonaFunctionStruct1* a3 );
-SHK_HOOK( bool, EnemyHasCombatCutin, int a1, int a2 );
+SHK_HOOK( bool, EnemyHasCombatCutin, int a1, EnemyPersonaFunctionStruct1* a2 );
 SHK_HOOK( bool, FUN_00745e28, u32 a1, int a2 );
 SHK_HOOK( int, SetUpEncounterFlags, EncounterFuncStruct* a1, EncounterStructShort* a2);
 SHK_HOOK( int, BlackMaskEncounterIntroBCD, int a1, int a2, EncounterFuncStruct* a3);
@@ -68,10 +68,22 @@ SHK_HOOK( u64*, ReturnAddressOfELSAITBL_Segment1, u32 a1 );
 SHK_HOOK( u64, CalculateShdPersonaEnemyEntry, shdHelper* a1, u32 a2 );
 SHK_HOOK( void, FUN_003735d8, fechance* a1, u64 a2, u64 a3, u64 a4, u64 a5 );
 SHK_HOOK( bool, FUN_00338a04, void );
+SHK_HOOK( bool, FUN_007ed620, structA_2* a1 );
+SHK_HOOK( int, FUN_007dc308, structA_2* a1 );
 SHK_HOOK( bool, FUN_00364498, JokerFieldControl* a1, JokerFieldControl2* a2 );
 SHK_HOOK( bool, FUN_00259148, btlUnit_Unit* a1, u32 skillID );
 SHK_HOOK( int, FUN_00256830, btlUnit_Unit* a1, u32 skillID );
+SHK_HOOK( int, FUN_00258d1c, btlUnit_Unit* a1 );
+SHK_HOOK( int, FUN_002589c0, btlUnit_Unit* a1 );
+SHK_HOOK( int, FUN_00258950, btlUnit_Unit* a1 );
+SHK_HOOK( int, FUN_002590ac, btlUnit_Unit* a1 );
+SHK_HOOK( int, FUN_002590d8, btlUnit_Unit* a1, u32 a2 );
+SHK_HOOK( int, FUN_007d8e5c, structA_2 * param_1, u32 HP_Amount, u32 UnitID, u32 UnitType, u32 SomePointer );
+SHK_HOOK( u32, FUN_007af1c0, u32 a1, u32 a2 );
+SHK_HOOK( u32, FUN_00784d18, u32 a1, u32 a2 );
+SHK_HOOK( fileHandleStruct*, FUN_001144ac, char* a1, u32 a2 );
 
+static s32 pattern[] = { 0x00, 0xBA, 0x69, 0x98, -1, -1, -1, -1, -1, -1, -1, -1, 0x00, 0xBA, 0x23, 0x88, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 static u64 BtlUnitGetUnitIDHook( btlUnit_Unit* btlUnit  )
 {
   u64 unitType = btlUnit->unitType;
@@ -83,12 +95,10 @@ static u64 BtlUnitGetUnitIDHook( btlUnit_Unit* btlUnit  )
     if ( unitType == 2 )
     {
       GlobalEnemyID = unitID;
-      enemyBtlUnit = btlUnit;
     }
     else
     {
       GlobalEnemyID = 0;
-      enemyBtlUnit = 0;
     }
   }
   return unitID;
@@ -155,7 +165,7 @@ static void* BlackMaskBossVoiceHook( structA* a1 )
   {
     if ( (u16)CONFIG_INT_ARRAY( fastSummonEnemy )[i] == uVar2)
     {
-      a1->field0C->btlUnitPointer->context.player.TacticsState = 4;
+      a1->field0C->btlUnitPointer->TacticsState = 4;
     }
   }
     
@@ -231,6 +241,12 @@ static void* LoadBEDFileHook(char* a1, char a2)
   else if ( CONFIG_ENABLED( enableAkechiMod ) && strcmp( a1, "battle/skill/0416.BED" ) == 0  && GetEquippedPersonaFunction(9) != Persona_RobinHood )
   {
     a1 = "battle/skill/0416b.BED";
+  }
+  else if ( SummonCustomBED > 0 && strcmp( a1, "battle/skill/0406.BED" ) == 0 )
+  {
+    char newBED[32];
+    sprintf( newBED, "battle/skill/0406_%d.BED", SummonCustomBED);
+    a1 = newBED;
   }
   return SHK_CALL_HOOK( LoadBEDFile, a1, a2 );
 }
@@ -887,6 +903,7 @@ static int isPartyMemberExist4(u16 a1)
 
 static int SetEnemyAkechiPersonaHook( u64 a1, u64 a2, EnemyPersonaFunctionStruct1* a3 )
 {
+  //printf("Checking Persona ID for unit ID %d; unit type %d\n", a3->field0c->field18->field04->unitID, a3->field0c->field18->field04->unitType);
   // Field04 is pointer to battle struct of the battle unit currently acting
   if ( a3->field0c->field18->field04->unitType == 2) // only execute on enemy units
   {
@@ -920,7 +937,7 @@ static int SetEnemyAkechiPersonaHook( u64 a1, u64 a2, EnemyPersonaFunctionStruct
   return SHK_CALL_HOOK( SetEnemyAkechiPersona, a1, a2, a3 ); // Player unit is executing this function, use original function
 }
 
-static bool EnemyHasCombatCutinHook( int a1, int a2 )
+static bool EnemyHasCombatCutinHook( int a1, EnemyPersonaFunctionStruct1* a2 )
 {
   bool result = SHK_CALL_HOOK( EnemyHasCombatCutin, a1, a2 );
   if ( GlobalEnemyID >= 350 )
@@ -937,19 +954,7 @@ static bool EnemyHasCombatCutinHook( int a1, int a2 )
 static int SetUpEncounterFlagsHook( EncounterFuncStruct* a1, EncounterStructShort* a2)
 {
   int encounterIDReal = a2->encounterIDLocal;
-  printf("Starting Encounter %d\n", encounterIDReal);
-  int previousBGM = GetCurrentBGMCueID();
-  bool isLifeWillChange = false;
-  if ( previousBGM == 471 ) // Life Will Change
-  {
-    isLifeWillChange = true;
-  }
-  else if ( previousBGM == 904 ) // I Believe
-  {
-    isLifeWillChange = true;
-  }
-
- if ( encounterIDReal >= 830 && encounterIDReal < 990 )
+  if ( encounterIDReal >= 830 && encounterIDReal < 990 )
   {
     a2->encounterIDLocal = 780;
   }
@@ -957,7 +962,7 @@ static int SetUpEncounterFlagsHook( EncounterFuncStruct* a1, EncounterStructShor
   a1->encounterIDLocal = encounterIDReal;
   a2->encounterIDLocal = (u16)encounterIDReal;
 
-  if ( CONFIG_ENABLED( enableExpandedBGM ) && !isLifeWillChange )
+  if ( CONFIG_ENABLED( enableExpandedBGM ) )
   {
     int CurrentEncounterBGMID = GetEncounterEntryFromTBL(encounterIDReal)->BGMID;
     // Non destructive Unhardcoded BGM
@@ -1009,13 +1014,11 @@ static int SetUpEncounterFlagsHook( EncounterFuncStruct* a1, EncounterStructShor
       {
         btlEquipBgmTableEntry* pEntry = &btlEquipBgmTable[rngBGM];
         a1->BGMID = pEntry->bgmId;
-        //printf("Setting BGM Cue ID to %d from BGM Entry %d\n", pEntry->bgmId, rngBGM );
       }
       // Allow Ambush Themes to override DLC
       if ( CONFIG_ENABLED( DLCAmbush ) && isAmbush )
       {
         int AmbushRNG = GetRandom( 2 );
-        //printf("Ambush RNG -> %d\n", AmbushRNG);
         if ( AmbushRNG == 0 )
         {
           a1->BGMID = 907; // Take Over
@@ -1034,6 +1037,7 @@ static int SetUpEncounterFlagsHook( EncounterFuncStruct* a1, EncounterStructShor
         a1->BGMID = 1004; // Last Surprise (Strikers)
       }
     }
+    printf("Starting Encounter ID %d with BGM ID %d\n", encounterIDReal, a1->BGMID);
   }
 
   for ( int i = 0; i <= 11; i++) // navi stuff
@@ -1045,7 +1049,8 @@ static int SetUpEncounterFlagsHook( EncounterFuncStruct* a1, EncounterStructShor
   UzukiDebuffDeffenseWarn = false;
   UzukiDebuffSpeedWarn = false;
 
-  //printf("Encounter ID %d has BGM ID %d\n", encounterIDReal, a1->BGMID);
+  EncounterIDGlobal = encounterIDReal;
+  SetBitflagState( 0x209C, 0 ); // flag checked for ending twins encounter early
 
   return result;
 }
@@ -1126,7 +1131,7 @@ static int FUN_00829ce8Hook( ActiveCombatUnitStruct* a1 )
 { 
   int currentUnitID = a1->field30->field18->field04->unitID;
   //printf( "FUN_00829ce8 called; a1 -> 0x%x; UnitID -> %d\n", a1, currentUnitID );
-  int accessoryID = a1->field30->field18->field04->context.player.accessoryID;
+  int accessoryID = a1->field30->field18->field04->accessoryID;
   accessoryID = accessoryID - 0x2000;
   //printf("Unit ID %d has accessory %d\n", currentUnitID, accessoryID);
   int skillID = GetAccessoryTBLEntry( accessoryID )->RESERVE;
@@ -1219,7 +1224,7 @@ bool CheckPartyMemberConfidantCombatAbilities(u32 playerID, int param_2)
         {
           sVar5 = 86;
         }
-        /*if (playerID == 10) // Follow Up Attack
+        /*else if (playerID == 10) // Follow Up Attack
         {
           sVar5 = 12;
         }*/
@@ -1416,7 +1421,7 @@ bool CheckPartyMemberConfidantCombatAbilities(u32 playerID, int param_2)
           {
             sVar5 = 85;
           }
-          if (playerID == 10)  // Kasumi, use Morgana as placeholder
+          else if (playerID == 10)  // Kasumi, use Morgana as placeholder
           {
             sVar5 = 18;
           }
@@ -1542,17 +1547,20 @@ bool CheckPartyMemberConfidantCombatAbilities(u32 playerID, int param_2)
 
 static int CheckUnitIsEndure( btlUnit_Unit* btlUnit, u32 skillID )
 {
+  //printf("Checking Endure on unit ID %d; unit type %d\n", btlUnit->unitID, btlUnit->unitType);
   int result = SHK_CALL_HOOK( FUN_00256830, btlUnit, skillID );
-  if ( btlUnit->unitType == 1 && btlUnit->Flags & 0x400 != 0) // emulate same exact check as original code for consistency
+  if ( btlUnit->unitType == 1 ) // emulate same exact check as original code for consistency
   {
     u32 unitID = btlUnit->unitID;
     u32 confidantEndureBonusID;
-    if ( unitID == 9 ) // Akechi
+    if ( unitID == 9 && !hasAkechiEndured ) // Akechi
     {
-      confidantEndureBonusID = 50;// Morgana as Placeholder
+      confidantEndureBonusID = 50;
+      hasAkechiEndured = true;
     }
-    else if ( unitID == 10 ) // Kasumi
+    else if ( unitID == 10  && !hasSumiEndured ) // Kasumi
     {
+      hasSumiEndured = true;
       confidantEndureBonusID = 17;// Morgana as Placeholder
     }
     if ( IsConfidantBonusObtained(confidantEndureBonusID) )
@@ -1588,6 +1596,101 @@ static bool FUN_00364498Hook( JokerFieldControl* a1, JokerFieldControl2* a2)
   }*/
   //printf("FUN_00364498 called, args; a1 + 8 -> 0x%x; a2 + 4 -> 0x%x\n", a1->JokerAnimationIndex, a2->JokerTargetAnim);
   return SHK_CALL_HOOK( FUN_00364498, a1, a2 );
+}
+
+static bool FUN_007ed620Hook( structA_2* a1 )
+{
+  //printf("Unit Type %d with unit ID %d CHECK_SLIP\n", a1->Field0C->Field18->btlUnitPointer->unitType, a1->Field0C->Field18->btlUnitPointer->unitID);
+  enemyBtlUnit = a1->Field0C->Field18->btlUnitPointer;
+  //printf("Current Active Battle Unit being checked; printing pointer chain\na1 ->0x%x\nField0C -> 0x%x\nField18 -> 0x%x\nbtlUnit Pointer -> 0x%x\n", a1, a1->Field0C, a1->Field0C->Field18, a1->Field0C->Field18->btlUnitPointer);
+  return SHK_CALL_HOOK( FUN_007ed620, a1 );
+}
+
+static int btlUnitGetMaxHP( btlUnit_Unit* a1 )
+{
+  int result = SHK_CALL_HOOK( FUN_00258d1c, a1 );
+  /*if ( sequenceIDGlobal == 4 )
+  {
+    printf("Checking Max HP for unit ID %d; unit type %d\n", a1->unitID, a1->unitType);
+  }*/
+  return result;
+}
+
+static int btlUnitGetCurrentHP( btlUnit_Unit* a1 )
+{
+  int result = a1->currentHP;
+  /*if ( sequenceIDGlobal == 4 )
+  {
+    printf("Checking Current HP for unit ID %d; unit type %d\n", a1->unitID, a1->unitType);
+  }*/
+  return result;
+}
+
+static int FUN_00258950Hook( btlUnit_Unit* a1 )
+{
+  int result = SHK_CALL_HOOK( FUN_00258950, a1 );
+  /*if ( sequenceIDGlobal == 4 )
+  {
+    printf("Checking unit ID %d; unit type %d\n", a1->unitID, a1->unitType);
+  }*/
+  return result;
+}
+
+static int FUN_002590acHook( btlUnit_Unit* a1 )
+{
+  int result = SHK_CALL_HOOK( FUN_002590ac, a1 );
+  /*if ( sequenceIDGlobal == 4 )
+  {
+    printf("Checking ailments on unit ID %d; unit type %d\n", a1->unitID, a1->unitType);
+  }*/
+  return result;
+}
+
+static int FUN_002590d8Hook( btlUnit_Unit* a1, u32 a2 )
+{
+  int result = SHK_CALL_HOOK( FUN_002590d8, a1, a2 );
+  /*if ( sequenceIDGlobal == 4 )
+  {
+    printf("Checking Ailments on unit ID %d; unit type %d\n", a1->unitID, a1->unitType);
+  }*/
+  return result;
+}
+
+static int FUN_007d8e5cHook( structA_2 * param_1, u32 HP_Amount, u32 UnitID, u32 UnitType, u32 SomePointer )
+{
+  int result = SHK_CALL_HOOK( FUN_007d8e5c, param_1, HP_Amount, UnitID, UnitType, SomePointer );
+  return result;
+}
+
+static int FUN_007dc308Hook( structA_2* a1 )
+{
+  int result = SHK_CALL_HOOK( FUN_007dc308, a1 );
+  ENID_enemyBtlUnit = a1->Field0C->Field18->btlUnitPointer;
+  return result;
+}
+
+static u32 TwinsStoryEncounterEndBattleEarly( u32 a1, u32 a2 )
+{
+  u32 result = SHK_CALL_HOOK( FUN_007af1c0, a1, a2 );
+  return result;
+}
+
+static u32 AkechiEncounterCheckEnd( u32 a1, u32 a2 )
+{
+  u32 result;
+  if ( EncounterIDGlobal >= 830 )
+  {
+    result = SHK_CALL_HOOK( FUN_007af1c0, a1, a2 ); // call twins early end function
+  }
+  else result = SHK_CALL_HOOK( FUN_00784d18, a1, a2 ); // call original
+
+  return result;
+}
+
+static fileHandleStruct* FileOpenHook( char* a1, u32 a2 )
+{
+  //printf("file open called with mode %d; filepath is %s\n", a2, a1);
+  return SHK_CALL_HOOK( FUN_001144ac, a1, a2 ); // call original
 }
 
 // The start function of the PRX. This gets executed when the loader loads the PRX at boot.
@@ -1645,6 +1748,17 @@ void dcInit( void )
   SHK_BIND_HOOK( FUN_00256830, CheckUnitIsEndure );
   SHK_BIND_HOOK( FUN_00338a04, CheckRyujiInstakill );
   SHK_BIND_HOOK( FUN_00364498, FUN_00364498Hook );
+  SHK_BIND_HOOK( FUN_007ed620, FUN_007ed620Hook );
+  SHK_BIND_HOOK( FUN_00258950, FUN_00258950Hook );
+  SHK_BIND_HOOK( FUN_00258d1c, btlUnitGetMaxHP );
+  SHK_BIND_HOOK( FUN_002589c0, btlUnitGetCurrentHP );
+  SHK_BIND_HOOK( FUN_002590d8, FUN_002590d8Hook );
+  SHK_BIND_HOOK( FUN_002590ac, FUN_002590acHook );
+  SHK_BIND_HOOK( FUN_007d8e5c, FUN_007d8e5cHook );
+  SHK_BIND_HOOK( FUN_007dc308, FUN_007dc308Hook );
+  SHK_BIND_HOOK( FUN_007af1c0, TwinsStoryEncounterEndBattleEarly );
+  SHK_BIND_HOOK( FUN_00784d18, AkechiEncounterCheckEnd );
+  SHK_BIND_HOOK( FUN_001144ac, FileOpenHook );
   wasBGMRandom = false;
 }
 

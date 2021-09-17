@@ -171,6 +171,10 @@ static int GenericCharacterModelLoaderHook( char* result, u64 modelType, u64 cha
     {
       modelID = 6;
     }
+    if ( characterID == 10 ) //Saving Kasumi model for later use
+    {
+      KasumiModelSubID = modelID;
+    }
     //printf("Character ID %d loading model ID %d\n", characterID, modelID);
   }
   else if ( modelType == 4 ) // Persona models
@@ -190,6 +194,13 @@ static int GenericCharacterModelLoaderHook( char* result, u64 modelType, u64 cha
     else if ( characterID >= 322 ) // only force this on reserve personas
     {
       modelType = 3; // force load regular Persona models instead of using PSZ/Enemy model
+    }
+  }
+  else if ( modelType == 16 && characterID == 8020 ) //Atlus hardcoded Kasumi bag for whoever knows what fucking reason
+  {
+    if ( KasumiModelSubID != 1 && KasumiModelSubID != 2 )
+    {
+      characterID = 659;
     }
   }
   return SHK_CALL_HOOK( GenericCharacterModelLoader, result, modelType, characterID, modelID, modelSubID );
@@ -259,7 +270,7 @@ static int criFs_InitializeHook( void )
   {
     iVar1 = sprintf(acStack288,"%s%s/%s.cpk",pcVar2,pcVar3, CONFIG_STRING(modCPKName));
     iVar1 = criFsBinder_BindCpkHook(acStack288);
-    if (iVar1 > 0) criFsBinder_SetPriority(iVar1, 20 + CONFIG_INT( extraModCPK ) + 1);
+    if (iVar1 > 0) criFsBinder_SetPriority(iVar1, 30 + CONFIG_INT( extraModCPK ) + 1);
   }
 
   u32 extraCPK = CONFIG_INT( extraModCPK );
@@ -269,7 +280,7 @@ static int criFs_InitializeHook( void )
     {
       iVar1 = sprintf(acStack288,"%s%s/%s_%02d.cpk", pcVar2, pcVar3, CONFIG_STRING_ARRAY(extraModCPKName)[i], i + 1);
       iVar1 = criFsBinder_BindCpkHook(acStack288);
-      if (iVar1 > 0) criFsBinder_SetPriority(iVar1, 20 + i);
+      if (iVar1 > 0) criFsBinder_SetPriority(iVar1, 30 + CONFIG_INT( extraModCPK ) - i);
     }
   }
 

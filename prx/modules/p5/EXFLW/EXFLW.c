@@ -37,9 +37,6 @@ SHK_HOOK( int, FUN_3b9644, int charID, int expressionID);
 SHK_HOOK( s32, setSeq, s32 seqId, void* params, s32 paramsSize, s32 r6 );
 SHK_HOOK( void, SetCountFunction, u32 a1, u32 a2 );
 SHK_HOOK( int, GetCountFunction, u32 a1 );
-SHK_HOOK( bool, BIT_CHK_FUNC, u64 a1 );
-SHK_HOOK( int, BIT_SET_FUNC, u64 flag, u8 targetState );
-SHK_HOOK( bool, BIT_CHK_FUNC_ALT, u64 a1 );
 SHK_HOOK( bool, scrGetCommandExist, u32 a1 );
 SHK_HOOK( void, LoadSoundByCueIDCombatVoiceFunction, CueIDThingy* a1, u32* a2, u32 cueID, u8 idk );
 SHK_HOOK( u32, scrGetCommandArgCount, u32 a1 );
@@ -49,54 +46,6 @@ SHK_HOOK( undefined4*, LoadFutabaNaviBMD, void );
 SHK_HOOK( undefined4*, LoadMonaNaviBMD, void );
 SHK_HOOK( u64, LoadNaviSoundFile, u64 a1, u64 a2, char* acb_path, char* awb_path, u64 a5 );
 SHK_HOOK( u64, FUN_00748d78, int* param_1, int param_2, int param_3, int param_4, int param_5, int param_6, char param_7, short param_7_00, double param_9);
-
-static bool BIT_CHK_FUNCHook( u64 a1 )
-{
-  bool result = SHK_CALL_HOOK( BIT_CHK_FUNC, a1 );
-  for ( u32 i = 0; i < CONFIG_ARRAY_COUNT( bitChkLogIgnore ); ++i )
-  {
-    if ( a1 == CONFIG_INT_ARRAY( bitChkLogIgnore )[i] )
-      return result;
-  }
-  for ( u32 i = 0; i < CONFIG_ARRAY_COUNT( bitChkLogIgnore2 ); ++i )
-  {
-    if ( a1 == CONFIG_INT_ARRAY( bitChkLogIgnore2 )[i] )
-      return result;
-  }
-  DEBUG_LOG("BIT_CHK called on flag 0x%04x, result -- 0x%x\n", a1, result);
-  return result;
-}
-
-static int BIT_SET_FUNCHook( u64 flag, u8 targetState )
-{
-  int result = SHK_CALL_HOOK( BIT_SET_FUNC, flag, targetState );
-  for ( u32 i = 0; i < CONFIG_ARRAY_COUNT( bitChkLogIgnore ); ++i )
-  {
-    if ( flag == CONFIG_INT_ARRAY( bitSetLogIgnore )[i] )
-      return result;
-  }
-  if ( targetState == 0 )
-  {
-    DEBUG_LOG("BIT_OFF called for flag 0x%04x\n", flag);
-  }
-  else DEBUG_LOG("BIT_ON called for flag 0x%04x\n", flag);
-  return result;
-}
-
-static bool BIT_CHK_FUNC_ALTHook( u64 a1 )
-{
-  bool result = SHK_CALL_HOOK( BIT_CHK_FUNC, a1 );
-  if ( CONFIG_ENABLED( debug ) )
-  {
-    for ( u32 i = 0; i < CONFIG_ARRAY_COUNT( bitChkLogIgnore ); ++i )
-    {
-      if ( a1 == CONFIG_INT_ARRAY( bitChkLogIgnore )[i] )
-        return result;
-    }
-    DEBUG_LOG("BIT_CHK_ALT called on flag 0x%04x, result -- 0x%x\n", a1, result);
-  }
-  return result;
-}
 
 static s32 setSeqHook( s32 seqId, void* params, s32 paramsSize, s32 r6 )
 {
@@ -192,7 +141,7 @@ static int EX_FLW_PersonaEvolution( void )
     return 1;
   }
   personaID = FLW_GetIntArg(1);
-  GetBtlPlayerUnitFromID(unitID)->context.player.StockPersona[0].personaID = personaID;
+  GetBtlPlayerUnitFromID(unitID)->StockPersona[0].personaID = personaID;
   return 1;
 }
 
@@ -318,7 +267,6 @@ static int EX_FLW_PRINTF( void ) //TGE made this into printf lol
 
 static void SetCountFunctionHook( u32 COUNT, u32 VALUE )
 {
-  DEBUG_LOG("SET_COUNT called, COUNT %03d -- VALUE %d\n", COUNT, VALUE);
   if ( COUNT >= 256 )
   {
     GlobalCounts[COUNT-256] = VALUE;
@@ -330,25 +278,18 @@ static u32 GetCountFunctionHook( u32 COUNT )
 {
   if ( COUNT >= 256 )
   {
-    DEBUG_LOG("GET_COUNT called, COUNT %03d -- VALUE %d\n", COUNT, GlobalCounts[COUNT-256]);
     return GlobalCounts[COUNT-256];
   }
   else
   {
     u32 returnVal = SHK_CALL_HOOK( GetCountFunction, COUNT );
-    for ( u32 i = 0; i < CONFIG_ARRAY_COUNT( getCountLogIgnore ); ++i )
-    {
-      if ( COUNT == CONFIG_INT_ARRAY( getCountLogIgnore )[i] )
-        return returnVal;
-    }
-    DEBUG_LOG("GET_COUNT called, COUNT %03d -- VALUE %d\n", COUNT, returnVal);
     return returnVal;
   }
 }
 
 static int EX_FLW_AI_ACT_PERSONA_SKILL( void )
 {
-  btlUnit_Unit* EnemyUnit = FLW_GetBattleUnitStructFromContext();
+  AI_UnitStruct* EnemyUnit = FLW_GetBattleUnitStructFromContext();
   if ( CONFIG_ENABLED( enablePersonaEnemies ) )
   {
     EnemyPersona = FLW_GetIntArg(0);
@@ -357,20 +298,22 @@ static int EX_FLW_AI_ACT_PERSONA_SKILL( void )
 
   if ( EnemyPersona > 0 ) DEBUG_LOG("AI_ACT_PERSONA_SKILL Persona ID %03d with skill ID %03d\n", EnemyPersona, FLW_GetIntArg(1));
 
-  EnemyUnit->context.enemy.ActSkillID = FLW_GetIntArg(1);
-  EnemyUnit->context.enemy.Act_Type = 1;
+  EnemyUnit->ActSkillID = FLW_GetIntArg(1);
+  EnemyUnit->Act_Type = 1;
   return 1;
 }
 
 static int FLW_AI_ACT_SKILLHook( void )
 {
   EnemyPersona = 0;
+  SummonCustomBED = 0;
   return SHK_CALL_HOOK(FLW_AI_ACT_SKILL);
 }
 
 static int FLW_AI_ACT_ATTACKHook( void )
 {
   EnemyPersona = 0;
+  SummonCustomBED = 0;
   return SHK_CALL_HOOK(FLW_AI_ACT_ATTACK);
 }
 
@@ -607,7 +550,7 @@ static TtyCmdStatus ttyBITONCmd( TtyCmd* cmd, const char** args, u32 argc, char*
     *error = "Bit ID should not exceed 8959";
     return TTY_CMD_STATUS_INVALID_ARG;
   }
-  BIT_SET_FUNCHook( bit, 1 );
+  SetBitflagState( bit, 1 );
   return TTY_CMD_STATUS_OK;
 }
 
@@ -619,7 +562,7 @@ static TtyCmdStatus ttyBITOFFCmd( TtyCmd* cmd, const char** args, u32 argc, char
     *error = "Bit ID should not exceed 8959";
     return TTY_CMD_STATUS_INVALID_ARG;
   }
-  BIT_SET_FUNCHook( bit, 0 );
+  SetBitflagState( bit, 0 );
   return TTY_CMD_STATUS_OK;
 }
 
@@ -631,7 +574,7 @@ static TtyCmdStatus ttyGetBITCmd( TtyCmd* cmd, const char** args, u32 argc, char
     *error = "Bit ID should not exceed 8959";
     return TTY_CMD_STATUS_INVALID_ARG;
   }
-  printf( "BIT_CHK status %d\n", BIT_CHK_FUNCHook( bit ) );
+  printf( "BIT_CHK status %d\n", GetBitflagState( bit ) );
   return TTY_CMD_STATUS_OK;
 }
 
@@ -718,8 +661,14 @@ static TtyCmdStatus ttyPartyOutCmd( TtyCmd* cmd, const char** args, u32 argc, ch
 
 static TtyCmdStatus ttyGetEnemyBtlUnitCmd( TtyCmd* cmd, const char** args, u32 argc, char** error )
 {
-  printf( "Enemy unit struct address 0x%08x\n", &enemyBtlUnit );
-  hexDump( "Enemy unit struct", enemyBtlUnit, sizeof(btlUnit_Unit) );
+  for ( int i = 0; i < 5; i++ )
+  {
+    if( enemyBtlUnit != 0x0 )
+    {
+      printf( "Enemy unit struct address 0x%08x\n", enemyBtlUnit );
+      //hexDump( "Enemy unit struct", enemyBtlUnit, sizeof(btlUnit_Unit) );
+    }
+  }
   return TTY_CMD_STATUS_OK;
 }
 
@@ -734,6 +683,17 @@ static TtyCmdStatus ttyGetFieldWorkData( TtyCmd* cmd, const char** args, u32 arg
   fieldworkdataStruct* FieldData = GetFieldWorkData();
   printf( "Current FieldWorkData struct is at 0x%x\n", FieldData );
   hexDump( "FieldWorkData", FieldData, sizeof(fieldworkdataStruct) );
+  return TTY_CMD_STATUS_OK;
+}
+
+static TtyCmdStatus ttyloadBFFile( TtyCmd* cmd, const char** args, u32 argc, char** error )
+{
+  char bfPath[64];
+  sprintf( bfPath, "script/%s.bf", args[0]);
+  fileHandleStruct* newBF = open_file( bfPath, 1 );
+  u64 fsSyncResult = fsSync((int)newBF);
+  printf("Executing BF script %s\n", newBF);
+  scrRunScript(0, newBF->pointerToFile, newBF->bufferSize, 0);
   return TTY_CMD_STATUS_OK;
 }
 
@@ -812,6 +772,20 @@ static TtyCmdStatus ttyTestModelResHndCmd( TtyCmd* cmd, const char** args, u32 a
   return TTY_CMD_STATUS_OK;
 }
 
+static TtyCmdStatus ttyFadeIn( TtyCmd* cmd, const char** args, u32 argc, char** error )
+{
+  u32 fadetype = intParse( args[0] );
+  FadeInFunction( fadetype, 10 );
+  return TTY_CMD_STATUS_OK;
+}
+
+static TtyCmdStatus ttyFadeOut( TtyCmd* cmd, const char** args, u32 argc, char** error )
+{
+  u32 fadetype = intParse( args[0] );
+  FadeOutFunction( fadetype, 10 );
+  return TTY_CMD_STATUS_OK;
+}
+
 static u64 LoadNaviSoundFileHook( u64 a1, u64 a2, char* acb_path, char* awb_path, u64 a5 )
 {
   char new_acb_path[128];
@@ -876,8 +850,17 @@ static TtyCmd ttyCommands[] =
   TTY_CMD( ttyPartyOutCmd, "partyout", "Removes a party member from current active party", TTY_CMD_FLAG_NONE,
     TTY_CMD_PARAM( "playerID", "ID of party member to remove", TTY_CMD_PARAM_FLAG_REQUIRED, TTY_CMD_PARAM_TYPE_INT )),
 
+  TTY_CMD( ttyFadeIn, "fadein", "Removes a party member from current active party", TTY_CMD_FLAG_NONE,
+    TTY_CMD_PARAM( "fadetype", "fade value", TTY_CMD_PARAM_FLAG_REQUIRED, TTY_CMD_PARAM_TYPE_INT )),
+
+  TTY_CMD( ttyFadeOut, "fadeout", "Removes a party member from current active party", TTY_CMD_FLAG_NONE,
+    TTY_CMD_PARAM( "fadetype", "fade value", TTY_CMD_PARAM_FLAG_REQUIRED, TTY_CMD_PARAM_TYPE_INT )),
+
   TTY_CMD( ttyTestModelResHndCmd, "testmodel", "Test Resource handle function", TTY_CMD_FLAG_NONE,
     TTY_CMD_PARAM( "int", "resource handle id", TTY_CMD_PARAM_FLAG_REQUIRED, TTY_CMD_PARAM_TYPE_INT )),
+
+  TTY_CMD( ttyloadBFFile, "loadbf", "Loads and executes a bf file", TTY_CMD_FLAG_NONE,
+    TTY_CMD_PARAM( "bf name", "The Cue ID of the BGM to play", TTY_CMD_PARAM_FLAG_REQUIRED, TTY_CMD_PARAM_TYPE_STRING )),
     
   TTY_CMD( ttyGetDays, "getdays", "Get current amount of days passed", TTY_CMD_FLAG_NONE),
 
@@ -937,7 +920,7 @@ static int EX_GET_LEARNABLE_SKILL( void )
 
   if ( playerPersona->skills->canLearn && playerPersona->skills[targetSkillEntry].LvReq != 0 && targetSkillEntry <= 31 )
   {
-    if ( playerPersona->skills[targetSkillEntry].LvReq >= previousLv && Player->context.player.StockPersona[0].personaLv >= playerPersona->skills[targetSkillEntry].LvReq )
+    if ( playerPersona->skills[targetSkillEntry].LvReq >= previousLv && Player->StockPersona[0].personaLv >= playerPersona->skills[targetSkillEntry].LvReq )
     {
       returnValue = playerPersona->skills[targetSkillEntry].skillID;
       printf("EX_GET_LEARNABLE_SKILL: Returning Skill ID %d\n", returnValue);
@@ -963,8 +946,8 @@ static int EX_GET_PLAYER_LV( void )
   }
   else
   {
-    FLW_SetIntReturn( Player->context.player.StockPersona[0].personaLv );
-    printf("GET_PLAYER_LV: Unit ID %d is lv %d\n", partyMemberID, Player->context.player.StockPersona[0].personaLv);
+    FLW_SetIntReturn( Player->StockPersona[0].personaLv );
+    printf("GET_PLAYER_LV: Unit ID %d is lv %d\n", partyMemberID, Player->StockPersona[0].personaLv);
   }
 
   return 1;
@@ -984,7 +967,7 @@ static int EX_SET_TACTICS_STATE( void )
     printf("EX_SET_TACTICS_STATE: Warning, Joker tactics have been changed!");
   }
 
-  Player->context.player.TacticsState = tacticsID;
+  Player->TacticsState = tacticsID;
   printf("EX_SET_TACTICS_STATE: Unit ID %d tactics set to %d\n", partyMemberID, tacticsID);
 
   return 1;
@@ -1063,8 +1046,123 @@ static int EX_CLEAR_PERSONA_SKILLS( void )
   btlUnit_Unit* PlayerUnit = GetBtlPlayerUnitFromID( charID );
   for ( int i = 0; i < 8; i++ )
   {
-    PlayerUnit->context.player.StockPersona[0].SkillID[i] = 0;
+    PlayerUnit->StockPersona[0].SkillID[i] = 0;
   }
+  return 1;
+}
+
+static int EX_IS_PLAYER_CHEATING( void )
+{
+  int total = 0;
+
+  if ( GetBtlPlayerUnitFromID(1)->accessoryID == 232 + 0x2000 ) // Omnipotent Orb
+  {
+    total += 2;
+  }
+  
+  for( int i = 1; i <= 3; i++ )
+  {
+    btlUnit_Unit* PartyMember = GetBtlPlayerUnitFromID( GetUnitIDFromPartySlot(i) );
+    if ( PartyMember->accessoryID == 232 + 0x2000 ) // Omnipotent Orb
+    {
+      total += 2;
+    }
+    if ( GetBtlUnitMaxHP(PartyMember) < PartyMember->currentHP )
+    {
+      total += 1;
+    }
+    if ( GetBtlUnitMaxSP(PartyMember) < PartyMember->currentSP )
+    {
+      total += 1;
+    }
+    if ( GetBtlUnitMaxHP(PartyMember) == 999 )
+    {
+      total += 1;
+    }
+    if ( GetBtlUnitMaxSP(PartyMember) == 999 )
+    {
+      total += 1;
+    }
+  }
+
+  if ( total >= 7 )
+  {
+    FLW_SetIntReturn( 1 );
+  }
+  else FLW_SetIntReturn( 0 );
+  
+  return 1;
+}
+
+static int EX_AI_SUMMON_UNITS( void )
+{
+  AI_UnitStruct* EnemyUnit = FLW_GetBattleUnitStructFromContext();
+  int enemyID1 = FLW_GetIntArg( 0 );
+  int enemyID2 = FLW_GetIntArg( 1 );
+  int enemyID3 = FLW_GetIntArg( 2 );
+  int enemyID4 = FLW_GetIntArg( 3 );
+  SummonCustomBED = FLW_GetIntArg( 4 );
+
+  EnemyUnit->Act_Type = 1;
+  EnemyUnit->ActSkillID = 0x196;
+
+  printf("AI_ACT_SUMMON_UNITS called!\n");
+
+  EnemyUnit->argArray[EnemyUnit->argCount] = enemyID1;
+  EnemyUnit->argCount += 1;
+  
+  if ( enemyID2 > 0 )
+  {
+    EnemyUnit->argArray[EnemyUnit->argCount] = enemyID2;
+    EnemyUnit->argCount += 1;
+  }
+  else return 1;
+  
+  if ( enemyID3 > 0 )
+  {
+    EnemyUnit->argArray[EnemyUnit->argCount] = enemyID3;
+    EnemyUnit->argCount += 1;
+  }
+  else return 1;
+  
+  if ( enemyID4 > 0 )
+  {
+    EnemyUnit->argArray[EnemyUnit->argCount] = enemyID4;
+    EnemyUnit->argCount += 1;
+  }
+  else return 1;
+
+  return 1;
+}
+
+static int EX_AI_SET_TARGETABLE_STATE( void )
+{
+  int state = FLW_GetIntArg( 0 );
+  AI_CHK_SLIP(); // needed to store btlUnit struct of current acting enemy
+  if ( state > 0 )
+  {
+    state = 1;
+  }
+
+  enemyBtlUnit->Flags = (enemyBtlUnit->Flags & ~(1UL << 15)) | (state << 15);
+  
+  return 1;
+}
+
+static int EX_AI_SET_ENID_TARGETABLE_STATE( void )
+{
+  int enemyID = FLW_GetIntArg( 0 );
+  int state = FLW_GetIntArg( 1 );
+  AI_CHK_ENIDHP(); // needed to store btlUnit struct of target enemy
+  if ( state > 0 )
+  {
+    state = 1;
+  }
+
+  printf("Setting Target status of enemy ID %d to %d\n", enemyID, state);
+
+  ENID_enemyBtlUnit->Flags = (ENID_enemyBtlUnit->Flags & ~(1UL << 15)) | (state << 15);
+  
   return 1;
 }
 
@@ -1081,6 +1179,10 @@ scrCommandTableEntry exCommandTable[] =
   { EX_SET_TACTICS_STATE, 2, "SET_TACTICS_STATE" },
   { EX_CALL_NAVI_DIALOGUE, 4, "CALL_NAVI_DIALOGUE" },
   { EX_CLEAR_PERSONA_SKILLS, 1, "CLEAR_PERSONA_SKILLS" },
+  { EX_IS_PLAYER_CHEATING, 0, "IS_PLAYER_CHEATING" },
+  { EX_AI_SUMMON_UNITS, 5, "AI_ACT_SUMMON_UNITS" },
+  { EX_AI_SET_TARGETABLE_STATE, 1, "AI_SET_TARGETABLE_STATE" },
+  { EX_AI_SET_ENID_TARGETABLE_STATE, 2, "AI_SET_ENID_TARGETABLE_STATE" },
 };
 
 static scrCommandTableEntry* scrGetCommandFuncHook( u32 id )
@@ -1187,22 +1289,22 @@ static int EX_SET_PERSONA_LV ( void )
   //printf("EX_SET_PERSONA_LV called, target exp -> %d\n", ExpNeeded);
 
   btlUnit_Unit* playerUnit = GetBtlPlayerUnitFromID( partyMemberID );
-  int unitLv = playerUnit->context.player.StockPersona[0].personaLv;
+  int unitLv = playerUnit->StockPersona[0].personaLv;
 
   if ( unitLv >= targetLv )
   {
     printf("EX_SET_PERSONA_LV: Unit is already at target level or higher!\n");
     return 1;
   }
-  playerUnit->context.player.StockPersona[0].personaLv = targetLv;
-  playerUnit->context.player.StockPersona[0].personaExp = ExpNeeded;
+  playerUnit->StockPersona[0].personaLv = targetLv;
+  playerUnit->StockPersona[0].personaExp = ExpNeeded;
   PartyMemberPersonaBlock* playerPersona = GetPartyMemberPersonaBlock( GetEquippedPersonaFunction( partyMemberID ) );
 
-  int targetStr = playerUnit->context.player.StockPersona[0].St;
-  int targetMa = playerUnit->context.player.StockPersona[0].Ma;
-  int targetEn = playerUnit->context.player.StockPersona[0].En;
-  int targetAg = playerUnit->context.player.StockPersona[0].Ag; 
-  int targetLck = playerUnit->context.player.StockPersona[0].Lu;
+  int targetStr = playerUnit->StockPersona[0].St;
+  int targetMa = playerUnit->StockPersona[0].Ma;
+  int targetEn = playerUnit->StockPersona[0].En;
+  int targetAg = playerUnit->StockPersona[0].Ag; 
+  int targetLck = playerUnit->StockPersona[0].Lu;
   int i;
 
   for ( i = ( unitLv - 1 ); i < targetLv - 1; i++ )
@@ -1214,11 +1316,11 @@ static int EX_SET_PERSONA_LV ( void )
     targetLck += playerPersona->stats[i].lck;
   }
   
-  playerUnit->context.player.StockPersona[0].St = targetStr;
-  playerUnit->context.player.StockPersona[0].Ma = targetMa;
-  playerUnit->context.player.StockPersona[0].En = targetEn;
-  playerUnit->context.player.StockPersona[0].Ag = targetAg;
-  playerUnit->context.player.StockPersona[0].Lu = targetLck;
+  playerUnit->StockPersona[0].St = targetStr;
+  playerUnit->StockPersona[0].Ma = targetMa;
+  playerUnit->StockPersona[0].En = targetEn;
+  playerUnit->StockPersona[0].Ag = targetAg;
+  playerUnit->StockPersona[0].Lu = targetLck;
 
   //printf("Calculated stats for lv %d\nstr -> %d\nma -> %d\nen -> %d\nag -> %d\nlck -> %d\n", i + 1, targetStr, targetMa, targetEn, targetAg, targetLck);
   
@@ -1245,9 +1347,6 @@ void EXFLWInit( void )
   SHK_BIND_HOOK( PERSONA_EVOLUTION, PERSONA_EVOLUTIONHook );
   SHK_BIND_HOOK( FLW_AI_ACT_SKILL, FLW_AI_ACT_SKILLHook );
   SHK_BIND_HOOK( FLW_AI_ACT_ATTACK, FLW_AI_ACT_ATTACKHook );
-  SHK_BIND_HOOK( BIT_SET_FUNC, BIT_SET_FUNCHook );
-  SHK_BIND_HOOK( BIT_CHK_FUNC, BIT_CHK_FUNCHook );
-  SHK_BIND_HOOK( BIT_CHK_FUNC_ALT, BIT_CHK_FUNC_ALTHook );
   SHK_BIND_HOOK( scrGetCommandFunc, scrGetCommandFuncHook );
   SHK_BIND_HOOK( scrGetCommandExist, scrGetCommandExistHook );
   SHK_BIND_HOOK( scrGetCommandName, scrGetCommandNameHook );

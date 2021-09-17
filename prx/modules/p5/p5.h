@@ -19,6 +19,8 @@ bool isAmbushed;
 bool needsReplace;
 bool wasBGMRandom;
 bool isMidwinter;
+bool hasAkechiEndured;
+bool hasSumiEndured;
 int rngBGM;
 int lastAccessedUnitType;
 int lastUsedFieldMajorID;
@@ -27,6 +29,8 @@ int JokerModel;
 u32 titleScreenBGM;
 u16 ActiveGlobalSkillSlot;
 u16 L2R2PadAddress;
+u16 SummonCustomBED;
+u16 KasumiModelSubID;
 
 typedef struct
 {
@@ -809,37 +813,17 @@ typedef struct
   u32 BuffDur_ : 4;
 } BuffMeta;
 
-
-typedef struct
+typedef struct btlUnit_Unit
 {
-  u32 Act_Type; // 1C
-  u32 useGun; // 20
-  u32 BuffStatus1; // 24
-  u32 BuffStatus2; // 28
-  u32 BuffDirection; // 2C
-  u32 Field30;
-  u32 ActSkillID; // 34
-  u32 Field38;
-  u32 Field3C;
-  u16 Field40; // 40
-  u16 Field42;
-  u32 Field44;
-  u32 Field48;
-  u32 Field4C;
-  u32 Field50;
-  u32 Field54;
-  u32 waitMSGID; // 58
-  u16 argArray[2]; // 5C
-  u32 Field60;
-  u32 Field64;
-  u32 Field68;
-  u16 Field6C;
-  u16 argCount; // 6E
-  u8 structPad[0x230]; // 0x2A0 - 0x70
-} btlUnitEnemyInfo;
-
-typedef struct
-{
+  u32 Flags; // 0
+  u16 unitType; // 4
+  u16 Field06; // 6
+  u32 unitID; // 8
+  u32 currentHP; // C
+  u32 currentSP; // 10
+  u32 StatusAilments; // 14
+  u16 Field16; // 16
+  u16 Lv; // 18
   u32 Joker_EXP; // 1C
   u32 PhaseID; // 20
   BuffStatus Buffs; // 24
@@ -860,41 +844,74 @@ typedef struct
   u16 Field29A;
   u16 HPGainNextLv; // 29C
   u16 SPGainNextLv; // 29E
-} btlUnitPlayerInfo;
-
-typedef union
-{
-  btlUnitPlayerInfo player;
-  btlUnitEnemyInfo  enemy;
-} btlUnitContextInfo;
-
-typedef struct
-{
-  u32 Flags; // 0
-  u16 unitType; // 4
-  u16 Field06; // 6
-  u32 unitID; // 8
-  u32 currentHP; // C
-  u32 currentSP; // 10
-  u32 StatusAilments; // 14
-  u16 Field16; // 16
-  u16 Lv; // 18
-  btlUnitContextInfo context;
 } btlUnit_Unit;
 
-typedef struct
+typedef struct AI_UnitStruct 
+{ 
+  u32 field_0x0;
+  u32 field_0x4;
+  u32 field_0x8;
+  struct structA * field_0xc;
+  u32 field_0x10;
+  u32 field_0x14;
+  u32 field_0x18;
+  u32 Act_Type;
+  u32 useGun;
+  u32 field_0x24;
+  u32 field_0x28;
+  u32 field_0x2c;
+  u32 field_0x30;
+  u32 ActSkillID;
+  u32 unk_0x38;
+  u32 field_0x3c;
+  u32 field_0x40;
+  u32 field_0x44;
+  u32 field_0x48;
+  u32 field_0x4c;
+  u32 field_0x50;
+  u32 field_0x54;
+  u32 waitMSGID;
+  u16 argArray[9]; /* Created by retype action */
+  u16 argCount; /* Created by retype action */
+} AI_UnitStruct;
+
+typedef struct structB
 {
   u32 field00;
   btlUnit_Unit* btlUnitPointer;
 } structB;
 
-typedef struct
+typedef struct structA
 {
   u32 field00;
   u32 field04;
   u32 field08;
   structB* field0C;
+  u32 field10;
+  u32 Field14;
+  structB* Field18;
+  u32 Field1C;
+  u32 Field20;
+  u32 Field24;
+  u32 Field28;
+  u32 Field2C;
 } structA;
+
+typedef struct structA_2
+{
+  u32 Field00;
+  u32 Field04;
+  u32 Field08;
+  structA* Field0C;
+  u32 Field10;
+  u32 Field14;
+  structB* Field18;
+  u32 Field1C;
+  u32 Field20;
+  u32 Field24;
+  u32 Field28;
+  u32 Field2C;
+} structA_2;
 
 typedef struct
 {
@@ -1586,6 +1603,7 @@ unitTBLVisualIndex NewVisualIndexTBL;
 ELSAI_Segment2TBL NewSegment2TBL;
 
 btlUnit_Unit* enemyBtlUnit;
+btlUnit_Unit* ENID_enemyBtlUnit;
 btlUnit_Unit* lastAccessedBtlUnit;
 
 struct
@@ -1626,9 +1644,9 @@ int BULLET_RECOVERY( void );
 /**
  * @brief Context based function, in AI functions returns the bltUnit struct of the unit running it
  * 
- * @return btlUnit struct 
+ * @return AI_UnitStruct struct 
  */
-btlUnit_Unit* FLW_GetBattleUnitStructFromContext( void );
+AI_UnitStruct* FLW_GetBattleUnitStructFromContext( void );
 
 /**
  * @brief Returns btlUnit struct from a given player ID
@@ -1824,6 +1842,7 @@ int FUN_748ff0( int arg );
 int FUN_0024b28c( int arg );
 void LoadEncounterEventSoundbank( int encounterID );
 bool GetBitflagState( int bitFlagID );
+bool SetBitflagState( int bitFlagID, u8 state );
 int FUN_007489a8( int a1, int a2 );
 int FUN_0074805c( int a1, int a2 );
 bool FUN_002588b4( btlUnit_Unit* a1 );
@@ -1832,6 +1851,8 @@ bool FUN_0031f9cc( void );
 int FUN_0091da04( void );
 int GetCurrentBGMCueID( void );
 static s32 sys_time_get_current_time( u64* secs, u64* nsecs );
+s32 sys_dbg_read_process_memory(s32 pid, u32 process_ea, u32 size, void* data);
+void* sigscan( void* start, void* end, s32* pattern, s32 patternLength );
 u64 getTicks(void);
 void CallNaviDialogue (struct_2_pointers * param_1, int param_2, int param_3, int param_4, int param_5, int param_6, char param_7, short param_8, double param_9);
 bool FUN_007490a4( struct_2_pointers* a1, int a2 );
@@ -1867,6 +1888,11 @@ u64 FUN_252980(u16 SkillId,btlUnit_Unit *btlUnit_1,btlUnit_Unit *btlUnit_2,u8 mo
 u64 FUN_25294C(u16 SkillId,btlUnit_Unit *btlUnit_1,btlUnit_Unit *btlUnit_2,u8 mode);
 u32 Function_GetCurrentHP(btlUnit_Unit *param_1);
 u32 Function_GetCurrentSP(btlUnit_Unit *param_1);
+void FadeInFunction( u32 a1, u32 a2 );
+void FadeOutFunction( u32 a1, u32 a2 );
+bool AICheckSlipfunction( structA_2* a1 );
+bool AI_CHK_SLIP( void );
+int AI_CHK_ENIDHP( void );
 
 /**
  * @brief Set priority of target CPK
@@ -1884,6 +1910,7 @@ int criFsBinder_SetPriority(int cpkBind, int priority);
  * @return MaxHP of player unit 
  */
 int GetBtlUnitMaxHP(btlUnit_Unit* param_1);
+int GetBtlUnitMaxSP(btlUnit_Unit* param_1);
 
 encounterIDTBL* GetEncounterEntryFromTBL( int encounterID);
 

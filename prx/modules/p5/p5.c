@@ -1,6 +1,12 @@
 #ifdef GAME_P5
-
 // PS3 system includes
+#include <sys/prx.h>
+#include <sys/tty.h>
+#include <sys/syscall.h>
+// Pre-prepared libraries exist in lib
+// Common includes things like printf for printing, strlen, etc.
+// PRX dont have access to the usual C libraries, so any functionality that you need from it
+// will have to be reimplemented in there.
 #include "lib/common.h"
 #include "lib/shk.h"
 #include "p5.h"
@@ -48,9 +54,9 @@ int BULLET_RECOVERY( void )
     SHK_FUNCTION_CALL_0( 0x1f113c, int );
 }
 
-btlUnit_Unit* FLW_GetBattleUnitStructFromContext( void )
+AI_UnitStruct* FLW_GetBattleUnitStructFromContext( void )
 {
-    SHK_FUNCTION_CALL_0( 0x1f2974, btlUnit_Unit* );
+    SHK_FUNCTION_CALL_0( 0x1f2974, AI_UnitStruct* );
 }
 
 btlUnit_Unit* GetBtlPlayerUnitFromID( u32 id )
@@ -221,6 +227,16 @@ u64 FUN_00118280( char *param_1, char *param_2, char *param_3, u8 param_4 )
 void FUN_00747f48( int* a1, int a2, int a3 )
 {
     SHK_FUNCTION_CALL_3( 0x747f48, void, int*, a1, int, a2, int, a3 );
+}
+
+void FadeInFunction( u32 a1, u32 a2 )
+{
+    SHK_FUNCTION_CALL_2( 0x281918, void, u32, a1, u32, a2 );
+}
+
+void FadeOutFunction( u32 a1, u32 a2 )
+{
+    SHK_FUNCTION_CALL_2( 0x281d4c, void, u32, a1, u32, a2 );
 }
 
 u64 fsSync( int a1 )
@@ -433,9 +449,19 @@ bool GetBitflagState ( int bitFlagID )
     SHK_FUNCTION_CALL_1(0x263b94, bool, int, bitFlagID);
 }
 
+bool SetBitflagState ( int bitFlagID, u8 state )
+{
+    SHK_FUNCTION_CALL_2(0x24bef8, bool, int, bitFlagID, u8, state);
+}
+
 int GetBtlUnitMaxHP(btlUnit_Unit* param_1)
 {
     SHK_FUNCTION_CALL_1(0x258d1c, int, btlUnit_Unit*, param_1);
+}
+
+int GetBtlUnitMaxSP(btlUnit_Unit* param_1)
+{
+    SHK_FUNCTION_CALL_1(0x258e48, int, btlUnit_Unit*, param_1);
 }
 
 void CallNaviDialogue (struct_2_pointers* param_1, int param_2, int param_3, int param_4, int param_5, int param_6, char param_7, short param_8, double param_9)
@@ -461,6 +487,16 @@ fieldworkdataStruct* GetFieldWorkData( void )
 u16 GetTotalDays( void )
 {
     SHK_FUNCTION_CALL_0( 0x48e80, u16 );
+}
+
+bool AI_CHK_SLIP( void )
+{
+    SHK_FUNCTION_CALL_0( 0x7bf3b0, bool );
+}
+
+int AI_CHK_ENIDHP( void )
+{
+    SHK_FUNCTION_CALL_0( 0x7bde18, int );
 }
 
 bool FUN_0031f9cc( void )
@@ -559,6 +595,10 @@ bool FUN_25963C(btlUnit_Unit* param_1){
     SHK_FUNCTION_CALL_1( 0x25963C, bool, btlUnit_Unit*, param_1 );
 }
 
+bool AICheckSlipfunction(structA_2* param_1){
+    SHK_FUNCTION_CALL_1( 0x6c9c60, bool, structA_2*, param_1 );
+}
+
 bool FUN_0025b6ac(btlUnit_Unit* param_1){
     SHK_FUNCTION_CALL_1( 0x25b6ac, bool, btlUnit_Unit*, param_1 );
 }
@@ -646,6 +686,64 @@ u64 getTicks(void)
     ticks_micro =  secs * 1000000UL + (nsecs / 1000);
 
     return ticks_micro;                                                                         
+}
+
+s32 sys_dbg_read_process_memory(s32 pid, u32 process_ea, u32 size, void* data)
+{
+  system_call_4( 904, (u64)pid, (u64)process_ea, (u64)size, (u32)data );
+  return_to_user_prog( int );
+}
+
+static s32 pattern[] = { 0x00, 0xBA, 0x69, 0x98, -1, -1, -1, -1, -1, -1, -1, -1, 0x00, 0xBA, 0x23, 0x88, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+
+void* sigscan( void* start, void* end, s32* pattern, s32 patternLength )
+{
+  if ( start == NULL ) start = 0x100000; // should be elf start
+  if ( end == NULL ) end = (void*)0x40000000 - start; // need to determine sane default
+
+  printf("sigscan starting; range 0x%x to 0x%x\n", start, end);
+
+  for ( void* cur = start; cur < end; ++cur )
+  {
+    u32 remainder = end - cur;
+    
+    if ( remainder % 0x100 == 0 )
+    {
+        //printf("sigscan in progress; cur addr 0x%x; remainder 0x%x\n", cur, remainder);
+    }
+
+    if ( remainder < patternLength )
+      return NULL; 
+
+    bool found = true;
+    for ( u32 i = 0; i < patternLength; ++i )
+    {
+      if ( pattern[i] == -1 )
+      {
+        // wildcard
+        continue;
+      }
+
+      u8 curVal;
+      if ( sys_dbg_read_process_memory( 1, cur + i, 1, &curVal ) != CELL_OK )
+      {
+        // memory unreadable
+        printf("Failed to read memory at 0x%x\n", cur + i);
+        found = false;
+        break;
+      }
+
+      if ( curVal != pattern[i] )
+      {
+        // not a match
+        found = false;
+        break;
+      }
+    }
+
+    if ( found )
+      return cur;
+  }
 }
 
 #endif

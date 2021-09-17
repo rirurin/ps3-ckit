@@ -56,7 +56,7 @@ static bool isPartyMemberUnlocked( u16 unitID )
 static btlUnit_Unit* returnBtlUnitPointer( structB* a1 )
 {
   lastAccessedBtlUnit = a1 ->btlUnitPointer;
-  return a1 ->btlUnitPointer;
+  return a1->btlUnitPointer;
 }
 
 static void PartyMemberFinishedLastEnemy_NaviDialogue( struct_2_pointers* param_1, navi_dialogue_function_a2* param_2, struct_2_pointers* param_3, u16 param_4, int param_5, int param_6 )
@@ -903,7 +903,7 @@ static void PartyMemberWarnAilment_NaviDialogue( struct_2_pointers* param_1, nav
   int messageIndex = -1;
   int uVar10;
   int uVar9;
-
+  
   if ( !CONFIG_ENABLED( enableKasumi ) )
   {
     SHK_CALL_HOOK( FUN_00b1ca18, param_1, param_2, param_3, param_4, param_5, param_6 );
@@ -926,25 +926,25 @@ static void PartyMemberWarnAilment_NaviDialogue( struct_2_pointers* param_1, nav
     messageIndex = 880;
     UzukiLowHPWarn = true;
   }
-  else if ( Kasumi->context.player.Buffs.BuffStatus_ATK && 
-          Kasumi->context.player.BuffsDirDur.BuffDir_ATK == 14 && 
-          Kasumi->context.player.BuffsDirDur.BuffDur_ATK >= 1 && 
+  else if ( Kasumi->Buffs.BuffStatus_ATK && 
+          Kasumi->BuffsDirDur.BuffDir_ATK == 14 && 
+          Kasumi->BuffsDirDur.BuffDur_ATK >= 1 && 
           !UzukiDebuffAttackWarn )
   {
     messageIndex = 877;
     UzukiDebuffAttackWarn = true;
   }
-  else if ( Kasumi->context.player.Buffs.BuffStatus_DEF && 
-          Kasumi->context.player.BuffsDirDur.BuffDir_DEF == 14 && 
-          Kasumi->context.player.BuffsDirDur.BuffDur_DEF >= 1 && 
+  else if ( Kasumi->Buffs.BuffStatus_DEF && 
+          Kasumi->BuffsDirDur.BuffDir_DEF == 14 && 
+          Kasumi->BuffsDirDur.BuffDur_DEF >= 1 && 
           !UzukiDebuffDeffenseWarn )
   {
     messageIndex = 878;
     UzukiDebuffDeffenseWarn = true;
   }
-  else if ( Kasumi->context.player.Buffs.BuffStatus_EVA && 
-          Kasumi->context.player.BuffsDirDur.BuffDir_EVA == 14 && 
-          Kasumi->context.player.BuffsDirDur.BuffDur_EVA >= 1 && 
+  else if ( Kasumi->Buffs.BuffStatus_EVA && 
+          Kasumi->BuffsDirDur.BuffDir_EVA == 14 && 
+          Kasumi->BuffsDirDur.BuffDur_EVA >= 1 && 
           !UzukiDebuffSpeedWarn )
   {
     messageIndex = 879;
@@ -958,15 +958,15 @@ static void PartyMemberWarnAilment_NaviDialogue( struct_2_pointers* param_1, nav
     param_1->field2c = messageIndex;
   }
   else SHK_CALL_HOOK( FUN_00b1ca18, param_1, param_2, param_3, param_4, param_5, param_6 );
-  /*printf("Kasumi->context.player.BuffsDirDur.BuffDir_ATK -> %d\n", Kasumi->context.player.BuffsDirDur.BuffDir_ATK);
-  printf("Kasumi->context.player.BuffsDirDur.BuffDir_ACC -> %d\n", Kasumi->context.player.BuffsDirDur.BuffDir_ACC);
-  printf("Kasumi->context.player.BuffsDirDur.BuffDir_DEF -> %d\n", Kasumi->context.player.BuffsDirDur.BuffDir_DEF);
-  printf("Kasumi->context.player.BuffsDirDur.BuffDir_EVA -> %d\n", Kasumi->context.player.BuffsDirDur.BuffDir_EVA);
-  printf("Kasumi->context.player.BuffsDirDur.BuffDur_ATK -> %d\n", Kasumi->context.player.BuffsDirDur.BuffDur_ATK);
-  printf("Kasumi->context.player.BuffsDirDur.BuffDur_ACC -> %d\n", Kasumi->context.player.BuffsDirDur.BuffDur_ACC);
-  printf("Kasumi->context.player.BuffsDirDur.BuffDur_DEF -> %d\n", Kasumi->context.player.BuffsDirDur.BuffDur_DEF);
-  printf("Kasumi->context.player.BuffsDirDur.BuffDur_EVA -> %d\n", Kasumi->context.player.BuffsDirDur.BuffDur_EVA);
-  printf("Kasumi->context.player.BuffsDirDur.BuffDir_ -> %d\n", Kasumi->context.player.BuffsDirDur.BuffDir_);*/
+  /*printf("Kasumi->BuffsDirDur.BuffDir_ATK -> %d\n", Kasumi->BuffsDirDur.BuffDir_ATK);
+  printf("Kasumi->BuffsDirDur.BuffDir_ACC -> %d\n", Kasumi->BuffsDirDur.BuffDir_ACC);
+  printf("Kasumi->BuffsDirDur.BuffDir_DEF -> %d\n", Kasumi->BuffsDirDur.BuffDir_DEF);
+  printf("Kasumi->BuffsDirDur.BuffDir_EVA -> %d\n", Kasumi->BuffsDirDur.BuffDir_EVA);
+  printf("Kasumi->BuffsDirDur.BuffDur_ATK -> %d\n", Kasumi->BuffsDirDur.BuffDur_ATK);
+  printf("Kasumi->BuffsDirDur.BuffDur_ACC -> %d\n", Kasumi->BuffsDirDur.BuffDur_ACC);
+  printf("Kasumi->BuffsDirDur.BuffDur_DEF -> %d\n", Kasumi->BuffsDirDur.BuffDur_DEF);
+  printf("Kasumi->BuffsDirDur.BuffDur_EVA -> %d\n", Kasumi->BuffsDirDur.BuffDur_EVA);
+  printf("Kasumi->BuffsDirDur.BuffDir_ -> %d\n", Kasumi->BuffsDirDur.BuffDir_);*/
   return;
 }
 
@@ -1270,7 +1270,7 @@ static void SetBulletsToMax(btlUnit_Unit* a1)
       bullets = BulletAmountList_ConfidantBoost[unitID];
     }
   }
-  a1->context.player.numOfBullets = bullets;
+  a1->numOfBullets = bullets;
 
   return;
 }
@@ -1321,23 +1321,23 @@ static void SetBullets( btlUnit_Unit* a1, int targetBullets)
     }
   }
 
-  u32 newBullets = a1->context.player.numOfBullets +  targetBullets;
+  u32 newBullets = a1->numOfBullets +  targetBullets;
 
   if (newBullets < bullets) // prevent going over max
   {
     bullets = newBullets;
   }
-  a1->context.player.numOfBullets = newBullets;
+  a1->numOfBullets = newBullets;
   return;
 }
 
 void CheckKasumiEquipment(btlUnit_Unit* Kasumi)
 {
-  if ( Kasumi->context.player.meleeID == 1 )
+  if ( Kasumi->meleeID == 1 )
   {
-    Kasumi->context.player.meleeID = 248;
-    Kasumi->context.player.rangedWeaponID = 0x8000 + 223;
-    Kasumi->context.player.protectorID = 0x1000 + 101;
+    Kasumi->meleeID = 248;
+    Kasumi->rangedWeaponID = 0x8000 + 223;
+    Kasumi->protectorID = 0x1000 + 101;
     Kasumi->Flags = GetBtlPlayerUnitFromID( 6 )->Flags; //Copy unit flags from existing female party member
   }
   return;
@@ -1350,6 +1350,8 @@ static void BattleEndSkillChecks( u64 a1, u64 a2, u64 a3 )
   {
     SetBulletsToMax( GetBtlPlayerUnitFromID(i) );
   }
+  hasAkechiEndured = false;
+  hasSumiEndured = false;
   return;
 }
 

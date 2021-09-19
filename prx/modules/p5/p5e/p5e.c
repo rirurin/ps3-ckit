@@ -23,9 +23,6 @@
 
 // You need to declare hooks with SHK_HOOK before you can use them.
 SHK_HOOK( void, setBgm, int id );
-SHK_HOOK( void, FUN_0062b08c, int id );
-SHK_HOOK( void, FUN_0062b080, int id );
-SHK_HOOK( void, FUN_00af4434, int a1, int a2 );
 SHK_HOOK( void, FUN_0063acc8, int a1, int a2 );
 SHK_HOOK( int, FUN_0072360c, int id );
 SHK_HOOK( int, FUN_001cf704, u64 unk, int a1, int a2, int a3 );
@@ -208,13 +205,7 @@ static int GenericCharacterModelLoaderHook( char* result, u64 modelType, u64 cha
 
 static void* LoadEPLHook( char* EPL, u8 a2 )
 {
-  if ( strcmp( EPL, "battle/gui/bes_ui_p_advantage.EPL" ) == 0 ||
-   strcmp( EPL, "battle/event/BCD/chance/bes_chance_solo.EPL" ) == 0 ||
-   strcmp( EPL, "battle/event/BCD/chance/bes_ui_randam.EPL" ) == 0 )
-  {
-    isAmbush = true;
-  }
-  else if ( strcmp( EPL, "battle/event/BCD/j_sien/bes_j_htb.EPL" ) == 0 && CONFIG_ENABLED( enableCutsceneOutfits ) )
+  if ( strcmp( EPL, "battle/event/BCD/j_sien/bes_j_htb.EPL" ) == 0 && CONFIG_ENABLED( enableCutsceneOutfits ) )
   {
     u32 FutabaOutfit = PlayerUnitGetModelMinorID( 8, 50, 0 );
     if ( FutabaOutfit != 51 )
@@ -233,7 +224,10 @@ static int forceSingleGAP( int playerID )
   {
     return 0;
   }
-  else return 1;
+  else
+  {
+    return 1;
+  }
 }
 
 static int criFsBinder_BindCpkHook( char* arg )
@@ -374,24 +368,6 @@ static int FUN_000bee20Hook( int a1, int a2, int a3 )
   return SHK_CALL_HOOK( FUN_000bee20, a1, a2, a3 );
 }
 
-static void FUN_0062b08c_Hook( int a1 )
-{
-  //printf("FUN_0062b08c called with arg %d\n", a1);
-  return SHK_CALL_HOOK( FUN_0062b08c, a1 );
-}
-
-static void FUN_0062b080_Hook( int a1 )
-{
-  //printf("FUN_0062b080 called with arg %d\n", a1);
-  return SHK_CALL_HOOK( FUN_0062b080, a1 );
-}
-
-static void FUN_00af4434Hook( int a1, int a2 )
-{
-  //hexDump( "FUN_00af4434", a1, 0x5E0 );
-  return SHK_CALL_HOOK( FUN_00af4434, a1, a2 );
-}
-
 static void BtlPlayBGM( int a1, int a2 )
 {
   /*char hexdumpString[64];
@@ -410,8 +386,6 @@ void p5eInit( void )
   // Hooks must be 'bound' to a handler like this in the start function.
   // If you don't do this, the game will crash.
   SHK_BIND_HOOK( FUN_0072360c, forceSingleGAP );
-  SHK_BIND_HOOK( FUN_0062b08c, FUN_0062b08c_Hook );
-  SHK_BIND_HOOK( FUN_0062b080, FUN_0062b080_Hook );
   SHK_BIND_HOOK( setBgm, setBgmHook );
   SHK_BIND_HOOK( LoadEPL, LoadEPLHook );
   SHK_BIND_HOOK( GenericCharacterModelLoader, GenericCharacterModelLoaderHook );
@@ -425,7 +399,6 @@ void p5eInit( void )
   SHK_BIND_HOOK( FUN_0003a698, FUN_0003a698Hook );
   SHK_BIND_HOOK( FUN_001cf704, FUN_001cf704Hook );
   SHK_BIND_HOOK( FUN_000bee20, FUN_000bee20Hook );
-  SHK_BIND_HOOK( FUN_00af4434, FUN_00af4434Hook );
   SHK_BIND_HOOK( FUN_0063acc8, BtlPlayBGM );
   titleScreenBGM = 99;
   RandomizeTitleScreenBGM();

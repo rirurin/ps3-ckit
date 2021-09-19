@@ -1663,5 +1663,37 @@ typedef struct ActiveCombatUnitStruct
     u16 ActiveSkillID;
 } ActiveCombatUnitStruct;
 
+typedef struct struct20
+{
+    u32 field00;
+    u32 field04;
+    u32 field08;
+    u32 field0c;
+    u32 field10;
+    u32 field14;
+    u32 field18;
+    u32 TargetValue;
+} struct20;
+
+typedef struct struct40
+{
+    u32 field00;
+    u32 field04;
+    u32 field08;
+    u32 field0c;
+    u32 field10;
+    u32 field14;
+    u32 field18;
+    u32 field1c;
+    u32 field20;
+    u32 field24;
+    u32 field28;
+    u32 field2c;
+    u32 field30;
+    struct20* Pointer;
+    u32 field38;
+    u32 field3c;
+} struct40;
+
 #endif
 #endif

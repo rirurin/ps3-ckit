@@ -58,6 +58,8 @@ SHK_HOOK( int, FUN_0026b1fc, u16 a1 );
 SHK_HOOK( int, FUN_00262258, u16 a1 );
 SHK_HOOK( int, ParseUNITTBL, u64 a1 );
 SHK_HOOK( int, FUN_00af3cb0, int a1 );
+SHK_HOOK( int, FUN_0003a6e4, int a1 );
+SHK_HOOK( int, FUN_0003a70c, int a1 );
 SHK_HOOK( GFDModelMaterial_Processed*, FUN_0094c048, int* a1 );
 SHK_HOOK( int, FUN_00829ce8, ActiveCombatUnitStruct* a1 );
 SHK_HOOK( u64*, ReturnAddressOfUNITTBL_EnemyStats, s64 a1 );
@@ -70,18 +72,9 @@ SHK_HOOK( void, FUN_003735d8, fechance* a1, u64 a2, u64 a3, u64 a4, u64 a5 );
 SHK_HOOK( bool, FUN_00338a04, void );
 SHK_HOOK( bool, FUN_007ed620, structA_2* a1 );
 SHK_HOOK( int, FUN_007dc308, structA_2* a1 );
-SHK_HOOK( bool, FUN_00364498, JokerFieldControl* a1, JokerFieldControl2* a2 );
-SHK_HOOK( bool, FUN_00259148, btlUnit_Unit* a1, u32 skillID );
 SHK_HOOK( int, FUN_00256830, btlUnit_Unit* a1, u32 skillID );
-SHK_HOOK( int, FUN_00258d1c, btlUnit_Unit* a1 );
-SHK_HOOK( int, FUN_002589c0, btlUnit_Unit* a1 );
-SHK_HOOK( int, FUN_00258950, btlUnit_Unit* a1 );
-SHK_HOOK( int, FUN_002590ac, btlUnit_Unit* a1 );
-SHK_HOOK( int, FUN_002590d8, btlUnit_Unit* a1, u32 a2 );
-SHK_HOOK( int, FUN_007d8e5c, structA_2 * param_1, u32 HP_Amount, u32 UnitID, u32 UnitType, u32 SomePointer );
 SHK_HOOK( u32, FUN_007af1c0, u32 a1, u32 a2 );
 SHK_HOOK( u32, FUN_00784d18, u32 a1, u32 a2 );
-SHK_HOOK( fileHandleStruct*, FUN_001144ac, char* a1, u32 a2 );
 
 static s32 pattern[] = { 0x00, 0xBA, 0x69, 0x98, -1, -1, -1, -1, -1, -1, -1, -1, 0x00, 0xBA, 0x23, 0x88, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 static u64 BtlUnitGetUnitIDHook( btlUnit_Unit* btlUnit  )
@@ -349,11 +342,11 @@ static void JokerPersonaNameCueIDHook( CueIDThingy* param_1, int param_2 )
 
 static void Load2DUIDDSHook(u32* a1, char* a2)
 {
-  if ( CONFIG_ENABLED( enableAkechiMod ) && strcmp( a2, "camp/wanted/wanted_09.dds") == 0 && GetEquippedPersonaFunction(9) != Persona_RobinHood )
+  if ( strcmp( a2, "camp/wanted/wanted_09.dds") == 0 && CONFIG_ENABLED( enableAkechiMod ) && GetEquippedPersonaFunction(9) != Persona_RobinHood )
   {
     a2 = "camp/wanted/wanted_09_01.dds";
   }
-  else if ( CONFIG_ENABLED( enableAkechiMod ) && strcmp( a2, "camp/charaTex/c_chara_09.dds") == 0 && GetEquippedPersonaFunction(9) != Persona_RobinHood )
+  else if ( strcmp( a2, "camp/charaTex/c_chara_09.dds") == 0 && CONFIG_ENABLED( enableAkechiMod ) && GetEquippedPersonaFunction(9) != Persona_RobinHood )
   {
     a2 = "camp/charaTex/c_chara_09b.dds";
   }
@@ -362,28 +355,22 @@ static void Load2DUIDDSHook(u32* a1, char* a2)
 
 static void* LoadBCDFunctionHook( char* a1 , u32 a2, u32 a3, int* a4 )
 {
-  if ( CONFIG_ENABLED( enableAkechiMod ) && strcmp( a1, "battle/event/BCD/goodbye/bksk_aketi.BCD" ) == 0 && GetEquippedPersonaFunction(9) != Persona_RobinHood )
+  if ( strcmp( a1, "battle/event/BCD/goodbye/bksk_aketi.BCD" ) == 0 && CONFIG_ENABLED( enableAkechiMod ) && GetEquippedPersonaFunction(9) != Persona_RobinHood )
   {
     a1 = "battle/event/BCD/goodbye/bksk_aketi_b.BCD";
   }
-  else if ( CONFIG_ENABLED( enablePersonaEnemies ) && strcmp( a1, "battle/event/BCD/030c/000/bes_030c_000.BCD" ) == 0 )
+  else if ( strcmp( a1, "battle/event/BCD/030c/000/bes_030c_000.BCD" ) == 0 && CONFIG_ENABLED( enablePersonaEnemies ) )
   {
     char introBCD[128];
     sprintf(introBCD, "battle/event/BCD/%04x/000/bes_%04x_000.BCD", EncounterIDGlobal, EncounterIDGlobal);
     return SHK_CALL_HOOK( LoadBCDFunction, introBCD, a2, a3, a4 );
-  }
-  if ( strcmp( a1, "battle/event/BCD/chance/bes_randomfire_in.BCD" ) == 0 ||
-   strcmp( a1, "battle/event/BCD/chance/bes_randomfire_solo.BCD" ) == 0 ||
-   strcmp( a1, "battle/event/BCD/chance/bes_randomfire.BCD" ) == 0 )
-  {
-    isAmbush = true;
   }
   return SHK_CALL_HOOK( LoadBCDFunction, a1, a2, a3, a4 );
 }
 
 static void* LoadPartyPanelPLGHook(char* a1, u32 a2, u32 a3, char a4)
 {
-  if ( CONFIG_ENABLED( enableAkechiMod ) && strcmp( a1, "battle/gui/battle_active_pp.plg" ) == 0 && GetEquippedPersonaFunction(9) != Persona_RobinHood )
+  if ( strcmp( a1, "battle/gui/battle_active_pp.plg" ) == 0 && CONFIG_ENABLED( enableAkechiMod ) && GetEquippedPersonaFunction(9) != Persona_RobinHood )
   {
       a1 = "battle/gui/battle_active_p5.plg";
   }
@@ -514,7 +501,7 @@ static int LoadAnimationPackHook( u64 param_1, int animationID, char* result, in
   u64 animType = (u32)(param_1 >> 0x3a);
   u64 unitID = (u32)(param_1 >> 0x14) & 0xffff;
   DEBUG_LOG("Anim type %d loaded\n", animType);
-  if ( CONFIG_ENABLED( enableAkechiMod ) && animType == 2 && animationID == 51 )
+  if ( animType == 2 && animationID == 51 && CONFIG_ENABLED( enableAkechiMod ) )
   {
     if( unitID == 6 && GetEquippedPersonaFunction(6) != Persona_Anat )
     {
@@ -1194,11 +1181,6 @@ static GFDModelMaterial_Processed* ReadMaterial( int* a1 )
   return result;
 }
 
-static bool Unit_CheckHasSkillHook( btlUnit_Unit* btlUnit, u32 skillID )
-{
-  return SHK_CALL_HOOK( FUN_00259148, btlUnit, skillID );
-}
-
 bool CheckPartyMemberConfidantCombatAbilities(u32 playerID, int param_2)
 {
   int iVar3;
@@ -1581,85 +1563,12 @@ static bool CheckRyujiInstakill( void )
   return result;
 }
 
-static bool FUN_00364498Hook( JokerFieldControl* a1, JokerFieldControl2* a2)
-{
-  /*u16* pad_val = 0x1166B10;
-  if ( (*pad_val) & 0x200 && lastUsedFieldMajorID < 100 ) 
-  { 
-    if ( a1->JokerAnimationIndex == 2 || a1->JokerAnimationIndex == 5 )
-    {
-      if ( a2->JokerTargetAnim == 2 )
-      {
-        a2->JokerTargetAnim = 5;
-      }
-    }
-  }*/
-  //printf("FUN_00364498 called, args; a1 + 8 -> 0x%x; a2 + 4 -> 0x%x\n", a1->JokerAnimationIndex, a2->JokerTargetAnim);
-  return SHK_CALL_HOOK( FUN_00364498, a1, a2 );
-}
-
 static bool FUN_007ed620Hook( structA_2* a1 )
 {
   //printf("Unit Type %d with unit ID %d CHECK_SLIP\n", a1->Field0C->Field18->btlUnitPointer->unitType, a1->Field0C->Field18->btlUnitPointer->unitID);
   enemyBtlUnit = a1->Field0C->Field18->btlUnitPointer;
   //printf("Current Active Battle Unit being checked; printing pointer chain\na1 ->0x%x\nField0C -> 0x%x\nField18 -> 0x%x\nbtlUnit Pointer -> 0x%x\n", a1, a1->Field0C, a1->Field0C->Field18, a1->Field0C->Field18->btlUnitPointer);
   return SHK_CALL_HOOK( FUN_007ed620, a1 );
-}
-
-static int btlUnitGetMaxHP( btlUnit_Unit* a1 )
-{
-  int result = SHK_CALL_HOOK( FUN_00258d1c, a1 );
-  /*if ( sequenceIDGlobal == 4 )
-  {
-    printf("Checking Max HP for unit ID %d; unit type %d\n", a1->unitID, a1->unitType);
-  }*/
-  return result;
-}
-
-static int btlUnitGetCurrentHP( btlUnit_Unit* a1 )
-{
-  int result = a1->currentHP;
-  /*if ( sequenceIDGlobal == 4 )
-  {
-    printf("Checking Current HP for unit ID %d; unit type %d\n", a1->unitID, a1->unitType);
-  }*/
-  return result;
-}
-
-static int FUN_00258950Hook( btlUnit_Unit* a1 )
-{
-  int result = SHK_CALL_HOOK( FUN_00258950, a1 );
-  /*if ( sequenceIDGlobal == 4 )
-  {
-    printf("Checking unit ID %d; unit type %d\n", a1->unitID, a1->unitType);
-  }*/
-  return result;
-}
-
-static int FUN_002590acHook( btlUnit_Unit* a1 )
-{
-  int result = SHK_CALL_HOOK( FUN_002590ac, a1 );
-  /*if ( sequenceIDGlobal == 4 )
-  {
-    printf("Checking ailments on unit ID %d; unit type %d\n", a1->unitID, a1->unitType);
-  }*/
-  return result;
-}
-
-static int FUN_002590d8Hook( btlUnit_Unit* a1, u32 a2 )
-{
-  int result = SHK_CALL_HOOK( FUN_002590d8, a1, a2 );
-  /*if ( sequenceIDGlobal == 4 )
-  {
-    printf("Checking Ailments on unit ID %d; unit type %d\n", a1->unitID, a1->unitType);
-  }*/
-  return result;
-}
-
-static int FUN_007d8e5cHook( structA_2 * param_1, u32 HP_Amount, u32 UnitID, u32 UnitType, u32 SomePointer )
-{
-  int result = SHK_CALL_HOOK( FUN_007d8e5c, param_1, HP_Amount, UnitID, UnitType, SomePointer );
-  return result;
 }
 
 static int FUN_007dc308Hook( structA_2* a1 )
@@ -1687,10 +1596,18 @@ static u32 AkechiEncounterCheckEnd( u32 a1, u32 a2 )
   return result;
 }
 
-static fileHandleStruct* FileOpenHook( char* a1, u32 a2 )
+static int isMeleeWeaponLeftHanded( int a1 )
 {
-  //printf("file open called with mode %d; filepath is %s\n", a2, a1);
-  return SHK_CALL_HOOK( FUN_001144ac, a1, a2 ); // call original
+  int result = SHK_CALL_HOOK( FUN_0003a6e4, a1 );
+  //printf("FUN_0003a6e4 called; a1 -> %d; result -> %d\n", a1, result);
+  return result;
+}
+
+static int isRangedWeaponLeftHanded( int a1 )
+{
+  int result = SHK_CALL_HOOK( FUN_0003a70c, a1 );
+  //printf("FUN_0003a70c called; a1 -> %d; result -> %d\n", a1, result);
+  return result;
 }
 
 // The start function of the PRX. This gets executed when the loader loads the PRX at boot.
@@ -1743,22 +1660,15 @@ void dcInit( void )
   SHK_BIND_HOOK( FUN_00043fac, GetNPCTBLEntry );
   SHK_BIND_HOOK( FUN_00262258, GetItemTBLMeleeWeaponField0E );
   SHK_BIND_HOOK( FUN_0094c048, ReadMaterial );
-  SHK_BIND_HOOK( FUN_00259148, Unit_CheckHasSkillHook );
   SHK_BIND_HOOK( FUN_00745e28, CheckPartyMemberConfidantCombatAbilities );
   SHK_BIND_HOOK( FUN_00256830, CheckUnitIsEndure );
   SHK_BIND_HOOK( FUN_00338a04, CheckRyujiInstakill );
-  SHK_BIND_HOOK( FUN_00364498, FUN_00364498Hook );
   SHK_BIND_HOOK( FUN_007ed620, FUN_007ed620Hook );
-  SHK_BIND_HOOK( FUN_00258950, FUN_00258950Hook );
-  SHK_BIND_HOOK( FUN_00258d1c, btlUnitGetMaxHP );
-  SHK_BIND_HOOK( FUN_002589c0, btlUnitGetCurrentHP );
-  SHK_BIND_HOOK( FUN_002590d8, FUN_002590d8Hook );
-  SHK_BIND_HOOK( FUN_002590ac, FUN_002590acHook );
-  SHK_BIND_HOOK( FUN_007d8e5c, FUN_007d8e5cHook );
   SHK_BIND_HOOK( FUN_007dc308, FUN_007dc308Hook );
   SHK_BIND_HOOK( FUN_007af1c0, TwinsStoryEncounterEndBattleEarly );
   SHK_BIND_HOOK( FUN_00784d18, AkechiEncounterCheckEnd );
-  SHK_BIND_HOOK( FUN_001144ac, FileOpenHook );
+  SHK_BIND_HOOK( FUN_0003a6e4, isMeleeWeaponLeftHanded );
+  SHK_BIND_HOOK( FUN_0003a70c, isRangedWeaponLeftHanded );
   wasBGMRandom = false;
 }
 

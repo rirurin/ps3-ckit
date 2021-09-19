@@ -376,18 +376,6 @@ FUN_00262258:
     addr: 0x262258
     replacedInstr: stdu r1, -0x70(r1)
 
-FUN_0062b08c:
-    addr: 0x62b08c
-    replacedInstr: lis r4, 0xdf
-
-FUN_0062b080:
-    addr: 0x62b080
-    replacedInstr: lis r4, 0xdf
-
-FUN_00af4434:
-    addr: 0xaf4434
-    replacedInstr: stw r4, 0x53c(r3)
-
 FUN_0063acc8:
     addr: 0x63acc8
     replacedInstr: stdu r1, -0x80(r1)
@@ -415,10 +403,6 @@ ReturnAddressOfSKILLTBL_Segment0:
 ReturnAddressOfSKILLTBL_Segment1:
     addr: 0x2635a0
     emitTrampoline: no
-
-FUN_00259148:
-    addr: 0x259148
-    replacedInstr: stdu r1, -0x80(r1)
 
 FUN_00745e28:
     addr: 0x745e28
@@ -452,37 +436,13 @@ FUN_00338a04:
     addr: 0x338a04
     replacedInstr: stdu r1, -0x70(r1)
 
-FUN_00364498:
-    addr: 0x364498
-    replacedInstr: stdu r1, -0x90(r1)
-
 FUN_007ed620:
     addr: 0x7ed620
-    replacedInstr: stdu r1, -0x90(r1)
-
-FUN_00258950:
-    addr: 0x258950
-    replacedInstr: stdu r1, -0x70(r1)
-
-FUN_002590d8:
-    addr: 0x2590d8
-    replacedInstr: lwz r3, 0x14(r3)
-
-FUN_002590ac:
-    addr: 0x2590ac
-    replacedInstr: lwz r3, 0x14(r3)
-
-FUN_00258d1c:
-    addr: 0x258d1c
     replacedInstr: stdu r1, -0x90(r1)
 
 FUN_007af1c0:
     addr: 0x7af1c0
     replacedInstr: stdu r1, -0x90(r1)
-
-FUN_007d8e5c:
-    addr: 0x7d8e5c
-    replacedInstr: stdu r1, -0xf0(r1)
 
 FUN_007dc308:
     addr: 0x7dc308
@@ -492,10 +452,10 @@ FUN_00784d18:
     addr: 0x784d18
     replacedInstr: stdu r1, -0x140(r1)
 
-FUN_001144ac:
-    addr: 0x1144ac
-    replacedInstr: stdu r1, -0x390(r1)
+FUN_0003a6e4:
+    addr: 0x3a6e4
+    replacedInstr: lis  r4, 0xD0
 
-FUN_002589c0:
-    addr: 0x2589c0
-    emitTrampoline: no
+FUN_0003a70c:
+    addr: 0x3a70c
+    replacedInstr: cmpwi  r3, 0x9

@@ -945,10 +945,36 @@ typedef struct
   u32 Field_0C;
 } sample_int_struct;
 
-typedef struct
+typedef struct PersonaStats
 {
-  u8 stats[68];
-} unitStats;
+  u8 str;
+  u8 mag;
+  u8 en;
+  u8 ag;
+  u8 lck;
+}PersonaStats;
+
+typedef struct unitTBLStats
+{
+  u16 Flags;
+  u8 Arcana;
+  u16 Field03;
+  u8 unitLv;
+  u16 Field06;
+  u32 MaxHP;
+  u32 MaxSP;
+  PersonaStats stats;
+  u8 padding;
+  u16 Skills[8];
+  u16 ExpReward;
+  u16 MoneyReward;
+  u8 itemCategory;
+  u8 itemID;
+  u16 dropChance;
+  u8 unknown[18];
+  u16 MoreFlags;
+  u16 AttackDamage;
+} unitTBLStats;
 
 typedef struct
 {
@@ -993,27 +1019,27 @@ typedef struct
 
 typedef struct
 {
-  unitStats EnemyStats[999];
+  unitTBLStats EnemyStats[1000];
 }EnemyUnitStatsTBL;
 
 typedef struct
 {
-  unitAffinityArray EnemyAffinities[999];
+  unitAffinityArray EnemyAffinities[1000];
 } EnemyAffinityTBL;
 
 typedef struct
 {
-  unitAffinityArray PersonaAffinities[999];
+  unitAffinityArray PersonaAffinities[1000];
 } PersonaAffinityTBL;
 
 typedef struct
 {
-  Segment3 unit[999];
+  Segment3 unit[1000];
 }unitTBLSegment3;
 
 typedef struct
 {
-  VisualIndex unitVisualIndex[999];
+  VisualIndex unitVisualIndex[1000];
 }unitTBLVisualIndex;
 
 typedef struct
@@ -1575,15 +1601,6 @@ typedef struct
   u16 skillID;
 }LearnableSkill;
 
-typedef struct
-{
-  u8 str;
-  u8 mag;
-  u8 en;
-  u8 ag;
-  u8 lck;
-}PersonaStats;
-
 typedef struct 
 {
   u16 charID;
@@ -1919,6 +1936,7 @@ bool isMidWinterValid( void );
 itemTBLAccessoryEntry* GetAccessoryTBLEntry( u16 accessoryID );
 ItemTBL_MeleeWeapon* GetMeleeWeaponTBLEntry( u16 WeaponID );
 ItemTBL_RangedWeapon* GetRangedWeaponTBLEntry( u16 WeaponID );
+unitTBLStats* GetUnitStatsBlockTBLEntry( u16 enemyID );
 
 #pragma pop
 #endif

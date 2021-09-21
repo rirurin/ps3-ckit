@@ -446,7 +446,7 @@ encounterIDTBL* GetEncounterEntryFromTBL( int encounterID)
 
 bool GetBitflagState ( int bitFlagID )
 {
-    SHK_FUNCTION_CALL_1(0x263b94, bool, int, bitFlagID);
+    SHK_FUNCTION_CALL_1(0x24beac, bool, int, bitFlagID);
 }
 
 bool SetBitflagState ( int bitFlagID, u8 state )
@@ -507,6 +507,11 @@ bool FUN_0031f9cc( void )
 itemTBLAccessoryEntry* GetAccessoryTBLEntry( u16 accessoryID )
 {
     SHK_FUNCTION_CALL_1(0x263830, itemTBLAccessoryEntry*, u16, accessoryID);
+}
+
+unitTBLStats* GetUnitStatsBlockTBLEntry( u16 enemyID )
+{
+    SHK_FUNCTION_CALL_1(0x2636dc, unitTBLStats*, u16, enemyID);
 }
 
 ItemTBL_MeleeWeapon* GetMeleeWeaponTBLEntry( u16 WeaponID )

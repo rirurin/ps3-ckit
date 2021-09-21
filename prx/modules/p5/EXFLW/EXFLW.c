@@ -537,7 +537,7 @@ static TtyCmdStatus ttyGetCountCmd( TtyCmd* cmd, const char** args, u32 argc, ch
     *error = "Count should not be higher than 512";
     return TTY_CMD_STATUS_INVALID_ARG;
   }
-  printf("%d\n",GetCountFunctionHook( count ));
+  printf("GetCount %d returned %d\n", count, GetCountFunctionHook( count ));
   return TTY_CMD_STATUS_OK;
 }
 
@@ -574,7 +574,7 @@ static TtyCmdStatus ttyGetBITCmd( TtyCmd* cmd, const char** args, u32 argc, char
     *error = "Bit ID should not exceed 8959";
     return TTY_CMD_STATUS_INVALID_ARG;
   }
-  printf( "BIT_CHK status %d\n", GetBitflagState( bit ) );
+  printf( "BIT_CHK Bit %d returned %d\n", bit, GetBitflagState( bit ) );
   return TTY_CMD_STATUS_OK;
 }
 
@@ -1166,6 +1166,53 @@ static int EX_AI_SET_ENID_TARGETABLE_STATE( void )
   return 1;
 }
 
+static int EX_AI_SET_ENID_ENDURE_STATE( void )
+{
+  int enemyID = FLW_GetIntArg( 0 );
+  int state = FLW_GetIntArg( 1 );
+  AI_CHK_ENIDHP(); // needed to store btlUnit struct of target enemy
+  if ( state > 0 )
+  {
+    state = 1;
+  }
+
+  ENID_enemyBtlUnit->Flags = (ENID_enemyBtlUnit->Flags & ~(1UL << 5)) | (state << 5);
+  
+  return 1;
+}
+
+static int EX_SET_JOKER_ENDURE_STATE( void )
+{
+  int state = FLW_GetIntArg( 0 );
+  if ( state > 0 )
+  {
+    state = 1;
+  }
+  btlUnit_Unit* Joker = GetBtlPlayerUnitFromID( 1 );
+
+  Joker->Flags = (Joker->Flags & ~(1UL << 5)) | (state << 5);
+  
+  return 1;
+}
+
+static int EX_SET_ENID_STATS( void )
+{
+  int enemyID = FLW_GetIntArg( 0 );
+  int str = FLW_GetIntArg( 1 );
+  int mag = FLW_GetIntArg( 2 );
+  int en = FLW_GetIntArg( 3 );
+  int ag = FLW_GetIntArg( 4 );
+  int lck = FLW_GetIntArg( 5 );
+
+  NewEnemyStatsTBL.EnemyStats[enemyID].stats.str = (u8)str;
+  NewEnemyStatsTBL.EnemyStats[enemyID].stats.mag = (u8)mag;
+  NewEnemyStatsTBL.EnemyStats[enemyID].stats.en = (u8)en;
+  NewEnemyStatsTBL.EnemyStats[enemyID].stats.ag = (u8)ag;
+  NewEnemyStatsTBL.EnemyStats[enemyID].stats.lck = (u8)lck;
+  
+  return 1;
+}
+
 scrCommandTableEntry exCommandTable[] =
 {
   { EX_FLW_PRINTF, 1, "EX_PRINTF" },
@@ -1183,6 +1230,9 @@ scrCommandTableEntry exCommandTable[] =
   { EX_AI_SUMMON_UNITS, 5, "AI_ACT_SUMMON_UNITS" },
   { EX_AI_SET_TARGETABLE_STATE, 1, "AI_SET_TARGETABLE_STATE" },
   { EX_AI_SET_ENID_TARGETABLE_STATE, 2, "AI_SET_ENID_TARGETABLE_STATE" },
+  { EX_AI_SET_ENID_ENDURE_STATE, 2, "AI_SET_ENID_ENDURE_STATE" },
+  { EX_SET_JOKER_ENDURE_STATE, 1, "SET_JOKER_ENDURE_STATE" },
+  { EX_SET_ENID_STATS, 6, "SET_ENID_STATS" },
 };
 
 static scrCommandTableEntry* scrGetCommandFuncHook( u32 id )

@@ -43,7 +43,6 @@ SHK_HOOK( int, SetEnemyAkechiPersona, u64 a1, u64 a2, EnemyPersonaFunctionStruct
 SHK_HOOK( bool, EnemyHasCombatCutin, int a1, EnemyPersonaFunctionStruct1* a2 );
 SHK_HOOK( bool, FUN_00745e28, u32 a1, int a2 );
 SHK_HOOK( int, SetUpEncounterFlags, EncounterFuncStruct* a1, EncounterStructShort* a2);
-SHK_HOOK( int, BlackMaskEncounterIntroBCD, int a1, int a2, EncounterFuncStruct* a3);
 // EXIST stuff
 SHK_HOOK( int, FUN_0026b390, u16 a1 );
 SHK_HOOK( int, FUN_0026b360, u16 a1 );
@@ -149,18 +148,7 @@ static void* BlackMaskBossVoiceHook( structA* a1 )
     sprintf(acStack2080,"sound_JP/battle/be_boss_%04d.acb",uVar2);
     sprintf(acStack1056,"sound_JP/battle/be_boss_%04d.awb",uVar2);
   }
-  FUN_0074ae50(ppuVar3, acStack2080, acStack1056, 0x10000 + a1->field0C->btlUnitPointer->unitID );
-
-  // enable Fast Persona Summon Animation from config
-  // This is done here because this needs to happen before
-  // the first AI action
-  for ( int i = 0; i <= sizeof(CONFIG_INT_ARRAY( fastSummonEnemy )); i++ )
-  {
-    if ( (u16)CONFIG_INT_ARRAY( fastSummonEnemy )[i] == uVar2)
-    {
-      a1->field0C->btlUnitPointer->TacticsState = 4;
-    }
-  }
+  FUN_0074ae50(ppuVar3, acStack2080, acStack1056, 0x100 + a1->field0C->btlUnitPointer->unitID );
     
   return ppuVar3;
 }
@@ -359,7 +347,7 @@ static void* LoadBCDFunctionHook( char* a1 , u32 a2, u32 a3, int* a4 )
   {
     a1 = "battle/event/BCD/goodbye/bksk_aketi_b.BCD";
   }
-  else if ( strcmp( a1, "battle/event/BCD/030c/000/bes_030c_000.BCD" ) == 0 && CONFIG_ENABLED( enablePersonaEnemies ) )
+  else if ( strcmp( a1, "battle/event/BCD/030d/000/bes_030d_000.BCD" ) == 0 && CONFIG_ENABLED( enablePersonaEnemies ) )
   {
     char introBCD[128];
     sprintf(introBCD, "battle/event/BCD/%04x/000/bes_%04x_000.BCD", EncounterIDGlobal, EncounterIDGlobal);
@@ -941,13 +929,7 @@ static bool EnemyHasCombatCutinHook( int a1, EnemyPersonaFunctionStruct1* a2 )
 static int SetUpEncounterFlagsHook( EncounterFuncStruct* a1, EncounterStructShort* a2)
 {
   int encounterIDReal = a2->encounterIDLocal;
-  if ( encounterIDReal >= 830 && encounterIDReal < 990 )
-  {
-    a2->encounterIDLocal = 780;
-  }
   int result = SHK_CALL_HOOK( SetUpEncounterFlags, a1, a2 );
-  a1->encounterIDLocal = encounterIDReal;
-  a2->encounterIDLocal = (u16)encounterIDReal;
 
   if ( CONFIG_ENABLED( enableExpandedBGM ) )
   {
@@ -958,11 +940,11 @@ static int SetUpEncounterFlagsHook( EncounterFuncStruct* a1, EncounterStructShor
       a1->BGMID = CurrentEncounterBGMID;
     }
     // DLC BGM Stuff
-    u32 btlEquipBgmTableEntryCount = sizeof( btlEquipBgmTable ) / sizeof( btlEquipBgmTableEntry );
-    u32 playerOutfitModel = PlayerUnitGetModelMinorID( 1, 50, 0 );
-
     if ( a1->BGMID == 300 || a1->BGMID == -1 ) // Only Execute DLC Music code on Last Surprise
     {
+      u32 btlEquipBgmTableEntryCount = sizeof( btlEquipBgmTable ) / sizeof( btlEquipBgmTableEntry );
+      u32 playerOutfitModel = PlayerUnitGetModelMinorID( 1, 50, 0 );
+
       if ( !CONFIG_ENABLED( randomDLCBGM ) && isAmbush )
       {
         int AmbushRNG = GetRandom( 2 );
@@ -1045,17 +1027,9 @@ static int SetUpEncounterFlagsHook( EncounterFuncStruct* a1, EncounterStructShor
 static encounterIDTBL* FUN_00263b94Hook( int a1 )
 {
   encounterIDTBL* result;
-  if ( a1 == 780 && EncounterIDGlobal != 780 ) 
-  {
-    result = SHK_CALL_HOOK( FUN_00263b94, EncounterIDGlobal );
-    LastUsedEncounterID = EncounterIDGlobal;
-  }
-  else 
-  {
-    result = SHK_CALL_HOOK( FUN_00263b94, a1 );
-  }
+  result = SHK_CALL_HOOK( FUN_00263b94, a1 );
 
-  if ( LastUsedEncounterID != a1 && a1 != 780 && a1 < 1000) // prevent spam
+  if ( LastUsedEncounterID != a1 && a1 < 1000) // prevent spam
   {
     printf("Encounter Block %03d loaded\n", a1);
     hexDump("TBL Data", result, 24);
@@ -1067,18 +1041,6 @@ static encounterIDTBL* FUN_00263b94Hook( int a1 )
     rngBGM = randomIntBetween(0, btlEquipBgmTableEntryCount - 1);
     wasBGMRandom = true;
   }
-  return result;
-}
-
-static int BlackMaskEncounterIntroBCDHook( int a1, int a2, EncounterFuncStruct* a3)
-{
-  int encounterIDReal = a3->encounterIDLocal;
-  if ( encounterIDReal >= 830 && 990 > encounterIDReal )
-  {
-    a3->encounterIDLocal = 780;
-  }
-  int result = SHK_CALL_HOOK( BlackMaskEncounterIntroBCD, a1, a2, a3 );
-  a3->encounterIDLocal = encounterIDReal;
   return result;
 }
 
@@ -1589,6 +1551,11 @@ static u32 AkechiEncounterCheckEnd( u32 a1, u32 a2 )
   u32 result;
   if ( EncounterIDGlobal >= 830 )
   {
+    btlUnit_Unit* Joker = GetBtlPlayerUnitFromID( 1 );
+    if ( Joker->Flags & 0x20 && Joker->currentHP == 1 )
+    {
+      SetBitflagState( 8348, 1 ); // end battle if Joker is 1 hp with endure flag
+    }
     result = SHK_CALL_HOOK( FUN_007af1c0, a1, a2 ); // call twins early end function
   }
   else result = SHK_CALL_HOOK( FUN_00784d18, a1, a2 ); // call original
@@ -1652,7 +1619,6 @@ void dcInit( void )
   SHK_BIND_HOOK( SetEnemyAkechiPersona, SetEnemyAkechiPersonaHook );
   SHK_BIND_HOOK( EnemyHasCombatCutin, EnemyHasCombatCutinHook );
   SHK_BIND_HOOK( FUN_00263b94, FUN_00263b94Hook );
-  SHK_BIND_HOOK( BlackMaskEncounterIntroBCD, BlackMaskEncounterIntroBCDHook );
   SHK_BIND_HOOK( IsEncounterEventSoundBankExist, IsEncounterEventSoundBankExistHook );
   SHK_BIND_HOOK( FUN_00af3cb0, CheckIsEncounterAmbush );
   SHK_BIND_HOOK( FUN_003735d8, FUN_003735d8Hook );

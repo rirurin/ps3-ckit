@@ -55,7 +55,7 @@ static bool isPartyMemberUnlocked( u16 unitID )
 
 static btlUnit_Unit* returnBtlUnitPointer( structB* a1 )
 {
-  lastAccessedBtlUnit = a1 ->btlUnitPointer;
+  lastAccessedBtlUnit = a1->btlUnitPointer;
   return a1->btlUnitPointer;
 }
 
@@ -1203,7 +1203,7 @@ static void PartyMemberDied_NaviDialogue( struct_2_pointers* param_1, navi_dialo
 
 static int BuildPartyMemberStatsMenu ( partyMemberMenu* partyMenu )
 {
-  int count = 1;
+  /*int count = 1;
   
   partyMenu->partyMemberID[0] = 1;
 
@@ -1229,14 +1229,15 @@ static int BuildPartyMemberStatsMenu ( partyMemberMenu* partyMenu )
     //printf("Party Member %d added to the menu\n", 9);
     count += 1;
   }
-  /*if ( isPartyMemberUnlocked(10) && CONFIG_ENABLED( enableKasumi ) )
+  if ( isPartyMemberUnlocked(10) && CONFIG_ENABLED( enableKasumi ) )
   {
     partyMenu->partyMemberID[count] = 10;
     //printf("Party Member %d added to the menu\n", 10);
     count += 1;
-  }*/
+  }
 
-  return count;
+  return count;*/
+  return SHK_CALL_HOOK( FUN_00425de0, partyMenu );
 }
 
 static void NewGameSetup( void )

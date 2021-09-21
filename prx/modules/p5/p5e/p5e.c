@@ -66,13 +66,6 @@ static void setBgmHook( int id )
         }
       }  
     }
-    /*if ( id == 471 ) // Life Will Change
-    {
-      if ( GetTotalDays() == 267 ) // ingame date for Qlipoth, 12/24
-      {
-        id = 904;
-      }
-    }*/
     if ( id == 101 && sequenceIDGlobal == 1 && CONFIG_ENABLED( enableExpandedBGM ) && CONFIG_ENABLED( P5RTitleBGM ) )
     {
       if ( titleScreenBGM == 0 ) // P5

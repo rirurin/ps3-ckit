@@ -59,7 +59,6 @@ SHK_HOOK( int, ParseUNITTBL, u64 a1 );
 SHK_HOOK( int, FUN_00af3cb0, int a1 );
 SHK_HOOK( int, FUN_0003a6e4, int a1 );
 SHK_HOOK( int, FUN_0003a70c, int a1 );
-SHK_HOOK( GFDModelMaterial_Processed*, FUN_0094c048, int* a1 );
 SHK_HOOK( int, FUN_00829ce8, ActiveCombatUnitStruct* a1 );
 SHK_HOOK( u64*, ReturnAddressOfUNITTBL_EnemyStats, s64 a1 );
 SHK_HOOK( u16, ReturnAddressOfUNITTBL_EnemyAffinities, u32 a1, u16 a2 );
@@ -981,6 +980,8 @@ static int SetUpEncounterFlagsHook( EncounterFuncStruct* a1, EncounterStructShor
       }
       else if ( CONFIG_ENABLED( randomDLCBGM ) ) // Last Surprise
       {
+        u32 btlEquipBgmTableEntryCount = sizeof( btlEquipBgmTable ) / sizeof( btlEquipBgmTableEntry );
+        rngBGM = randomIntBetween(0, btlEquipBgmTableEntryCount - 1);
         btlEquipBgmTableEntry* pEntry = &btlEquipBgmTable[rngBGM];
         a1->BGMID = pEntry->bgmId;
       }
@@ -1034,12 +1035,6 @@ static encounterIDTBL* FUN_00263b94Hook( int a1 )
     printf("Encounter Block %03d loaded\n", a1);
     hexDump("TBL Data", result, 24);
     LastUsedEncounterID = a1;
-  }
-  u32 btlEquipBgmTableEntryCount = sizeof( btlEquipBgmTable ) / sizeof( btlEquipBgmTableEntry );
-  if (!wasBGMRandom)
-  {
-    rngBGM = randomIntBetween(0, btlEquipBgmTableEntryCount - 1);
-    wasBGMRandom = true;
   }
   return result;
 }
@@ -1134,13 +1129,6 @@ static resrcNPCTblEntry* GetNPCTBLEntry( int a1 )
 static int GetItemTBLMeleeWeaponField0E( u16 a1 )
 {
   return 0;
-}
-
-static GFDModelMaterial_Processed* ReadMaterial( int* a1 )
-{
-  GFDModelMaterial_Processed* result = SHK_CALL_HOOK( FUN_0094c048, a1 );
-  if ( CONFIG_ENABLED( enableModelDebuggingHelp ) ) printf("GFD Material %s at address 0x%x\n", result->MaterialName, (int)result);
-  return result;
 }
 
 bool CheckPartyMemberConfidantCombatAbilities(u32 playerID, int param_2)
@@ -1625,7 +1613,6 @@ void dcInit( void )
   SHK_BIND_HOOK( FUN_00829ce8, FUN_00829ce8Hook );
   SHK_BIND_HOOK( FUN_00043fac, GetNPCTBLEntry );
   SHK_BIND_HOOK( FUN_00262258, GetItemTBLMeleeWeaponField0E );
-  SHK_BIND_HOOK( FUN_0094c048, ReadMaterial );
   SHK_BIND_HOOK( FUN_00745e28, CheckPartyMemberConfidantCombatAbilities );
   SHK_BIND_HOOK( FUN_00256830, CheckUnitIsEndure );
   SHK_BIND_HOOK( FUN_00338a04, CheckRyujiInstakill );
@@ -1635,7 +1622,6 @@ void dcInit( void )
   SHK_BIND_HOOK( FUN_00784d18, AkechiEncounterCheckEnd );
   SHK_BIND_HOOK( FUN_0003a6e4, isMeleeWeaponLeftHanded );
   SHK_BIND_HOOK( FUN_0003a70c, isRangedWeaponLeftHanded );
-  wasBGMRandom = false;
 }
 
 void dcShutdown( void )

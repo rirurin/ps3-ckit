@@ -32,7 +32,6 @@ SHK_HOOK( u16, LoadMeleeWeaponModelTable, int a1 );
 SHK_HOOK( u16, LoadGunWeaponModelTable, int a1 );
 SHK_HOOK( u16, FUN_0003a658, int a1 );
 SHK_HOOK( u16, FUN_0003a698, int a1 );
-SHK_HOOK( int, FUN_000bee20, int a1, int a2, int a3 );
 SHK_HOOK( int, criFsBinder_BindCpk, char* arg );
 SHK_HOOK( u64, criFsBinder_SetPriority, u32 a1, u32 a2 );
 SHK_HOOK( int, crifsloader_load_registered_file, fileAccessStruct* a1, int a2, int a3, int a4, int a5 );
@@ -50,7 +49,6 @@ static void setBgmHook( int id )
       isAmbushed = false;
       btlEquipBgmTableEntry* pEntry = &btlEquipBgmTable[rngBGM];
       id = pEntry->bgmId + 1;
-      wasBGMRandom = false;
     }
     else if ( id == 340 && !CONFIG_ENABLED( randomDLCBGM ) ) // Victory theme
     { 
@@ -353,14 +351,6 @@ static int FUN_001cf704Hook( u64 unk, int charID, int expressionID, int outfitID
   return SHK_CALL_HOOK( FUN_001cf704, unk, charID, expressionID, outfitID );
 }
 
-static int FUN_000bee20Hook( int a1, int a2, int a3 )
-{
-  //printf("Field Pac Loaded -> %03d_%03d\n", a2 % 1000, a3 % 1000 );
-  lastUsedFieldMajorID = a2 % 1000;
-  lastUsedFieldMinorID = a3 % 1000;
-  return SHK_CALL_HOOK( FUN_000bee20, a1, a2, a3 );
-}
-
 static void BtlPlayBGM( int a1, int a2 )
 {
   /*char hexdumpString[64];
@@ -391,7 +381,6 @@ void p5eInit( void )
   SHK_BIND_HOOK( FUN_0003a658, FUN_0003a658Hook );
   SHK_BIND_HOOK( FUN_0003a698, FUN_0003a698Hook );
   SHK_BIND_HOOK( FUN_001cf704, FUN_001cf704Hook );
-  SHK_BIND_HOOK( FUN_000bee20, FUN_000bee20Hook );
   SHK_BIND_HOOK( FUN_0063acc8, BtlPlayBGM );
   titleScreenBGM = 99;
   RandomizeTitleScreenBGM();

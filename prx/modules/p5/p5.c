@@ -660,9 +660,10 @@ bool isMidWinterValid( void )
         isMidwinter = true;
         if ( sequenceIDGlobal == 6 )
         {
-            if ( lastUsedFieldMajorID == 2 )
+            fieldworkdataStruct* FWD = GetFieldWorkData();
+            if ( FWD != 0 && FWD->FieldID_Major == 2 )
             {
-                if ( lastUsedFieldMinorID == 1 || lastUsedFieldMinorID == 4 || lastUsedFieldMinorID == 5 || lastUsedFieldMinorID == 13 )
+                if ( FWD->FieldID_Minor == 1 || FWD->FieldID_Minor == 4 || FWD->FieldID_Minor == 5 || FWD->FieldID_Minor == 13 )
                 {
                     isMidwinter = true;
                 }

@@ -32,7 +32,6 @@ SHK_HOOK( int, PUTS_Function );
 SHK_HOOK( int, FLW_AI_ACT_ATTACK );
 SHK_HOOK( int, FLW_AI_ACT_SKILL );
 SHK_HOOK( int, PERSONA_EVOLUTION );
-SHK_HOOK( u64, FUN_00263634, int a1 );
 SHK_HOOK( int, FUN_3b9644, int charID, int expressionID);
 SHK_HOOK( s32, setSeq, s32 seqId, void* params, s32 paramsSize, s32 r6 );
 SHK_HOOK( void, SetCountFunction, u32 a1, u32 a2 );
@@ -45,7 +44,6 @@ SHK_HOOK( scrCommandTableEntry*, scrGetCommandFunc, u32 id );
 SHK_HOOK( undefined4*, LoadFutabaNaviBMD, void );
 SHK_HOOK( undefined4*, LoadMonaNaviBMD, void );
 SHK_HOOK( u64, LoadNaviSoundFile, u64 a1, u64 a2, char* acb_path, char* awb_path, u64 a5 );
-SHK_HOOK( u64, FUN_00748d78, int* param_1, int param_2, int param_3, int param_4, int param_5, int param_6, char param_7, short param_7_00, double param_9);
 
 static s32 setSeqHook( s32 seqId, void* params, s32 paramsSize, s32 r6 )
 {
@@ -808,11 +806,6 @@ static u64 LoadNaviSoundFileHook( u64 a1, u64 a2, char* acb_path, char* awb_path
   return SHK_CALL_HOOK(LoadNaviSoundFile, a1, a2, acb_path, awb_path, a5);
 }
 
-static u64 FUN_00748d78Hook(int* param_1, int param_2, int param_3, int param_4, int param_5, int param_6, char param_7, short param_7_00, double param_9)
-{
-  //printf("Navi dialogue function called\na1 -> 0x%x\na2 -> %d\na3 -> %d\na4 -> %d\na5 -> %d\na6 -> 0x%x\na7 -> %d\na8 -> %d\na9 -> %f\n", param_1, param_2, param_3, param_4, param_5, param_6, param_7, param_7_00, param_9);
-  return SHK_CALL_HOOK(FUN_00748d78, param_1, param_2, param_3, param_4, param_5, param_6, param_7, param_7_00, param_9);
-}
 // List of commands that can be handled by the command listener
 static TtyCmd ttyCommands[] =
 {
@@ -1305,13 +1298,6 @@ static void LoadSoundByCueIDCombatVoiceFunctionHook( CueIDThingy* a1, u32* a2, u
   return SHK_CALL_HOOK( LoadSoundByCueIDCombatVoiceFunction, a1, a2, cueID, idk );
 }
 
-static u64 FUN_00263634Hook( int a1 )
-{
-  u64 result = SHK_CALL_HOOK(FUN_00263634, a1);
-  //printf("FUN_00263634 called; a1 -> %d, result -> 0x%x\n", a1, result);
-  return result;
-}
-
 static int EX_SET_PERSONA_LV ( void )
 {
   int partyMemberID = FLW_GetIntArg( 0 );
@@ -1409,8 +1395,6 @@ void EXFLWInit( void )
   SHK_BIND_HOOK( LoadFutabaNaviBMD, LoadFutabaNaviBMDHook );
   SHK_BIND_HOOK( LoadMonaNaviBMD, LoadMonaNaviBMDHook );
   SHK_BIND_HOOK( LoadNaviSoundFile, LoadNaviSoundFileHook );
-  SHK_BIND_HOOK( FUN_00748d78, FUN_00748d78Hook );
-  SHK_BIND_HOOK( FUN_00263634, FUN_00263634Hook );
 }
 
 void EXFLWShutdown( void )

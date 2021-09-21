@@ -152,10 +152,6 @@ LoadNaviSoundFile:
     addr: 0x10fca4
     replacedInstr: stdu  r1, -0x80(r1)
 
-FUN_00748d78:
-    addr: 0x748d78
-    replacedInstr: stdu  r1, -0xB0(r1)
-
 FUN_00b20618:
     addr: 0xb20618
     replacedInstr: stdu  r1, -0x90(r1)
@@ -348,17 +344,9 @@ FUN_00425de0:
     addr: 0x425de0
     replacedInstr: stdu r1, -0xA0(r1)
 
-FUN_00263634:
-    addr: 0x263634
-    replacedInstr: rlwinm  r3, r3, 0x0, 0x10, 0x1f
-
 FUN_001cf704:
     addr: 0x1cf704
     replacedInstr: stdu r1, -0x1E0(r1)
-
-FUN_000bee20:
-    addr: 0xbee20
-    replacedInstr: stdu r1, -0x70(r1)
 
 FUN_00829ce8:
     addr: 0x829ce8
@@ -375,10 +363,6 @@ FUN_00262258:
 FUN_0063acc8:
     addr: 0x63acc8
     replacedInstr: stdu r1, -0x80(r1)
-
-FUN_0094c048:
-    addr: 0x94c048
-    replacedInstr: stdu r1, -0x130(r1)
 
 ResistancePassiveCheck:
     addr: 0x259658

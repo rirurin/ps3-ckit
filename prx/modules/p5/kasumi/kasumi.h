@@ -78,7 +78,7 @@ typedef struct navi_dialogue_function_a2
     u32 field11c;
     u32 field120;
     u32 field124;
-    u32 field128;
+    u32 EncounterID;
     u32 field12c;
 } navi_dialogue_function_a2;
 

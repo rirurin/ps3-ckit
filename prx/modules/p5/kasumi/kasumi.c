@@ -29,7 +29,6 @@ SHK_HOOK( void, FUN_0025b7b8, btlUnit_Unit* unitID, int bullets );
 SHK_HOOK( int, FUN_0025b740, btlUnit_Unit* unitID );
 SHK_HOOK( void, FUN_0024bb54, void );
 SHK_HOOK( void, FUN_00661220, u64 a1, u64 a2, u64 a3 );
-SHK_HOOK( int, FUN_00425de0, partyMemberMenu* partyMenu );
 SHK_HOOK( btlUnit_Unit*, FUN_00af22e4, structB* a1 );
 SHK_HOOK( void, FUN_00b20618, struct_2_pointers* param_1, navi_dialogue_function_a2* param_2, struct_2_pointers* param_3, u16 param_4, int param_5, int param_6 );
 SHK_HOOK( void, FUN_00b1c1a0, struct_2_pointers* param_1, navi_dialogue_function_a2* param_2, struct_2_pointers* param_3, u16 param_4, int param_5, int param_6 );
@@ -43,6 +42,7 @@ SHK_HOOK( void, FUN_00b21e28, struct_2_pointers* param_1, navi_dialogue_function
 SHK_HOOK( void, FUN_00b22138, struct_2_pointers* param_1, navi_dialogue_function_a2* param_2, struct_2_pointers* param_3, u16 param_4, int param_5, int param_6 );
 SHK_HOOK( void, FUN_00b22f60, struct_2_pointers* param_1, navi_dialogue_function_a2* param_2, struct_2_pointers* param_3, u16 param_4, int param_5, int param_6 );
 SHK_HOOK( void, FUN_00b1bf38, struct_2_pointers* param_1, navi_dialogue_function_a2* param_2, struct_2_pointers* param_3, u16 param_4, int param_5, int param_6 );
+SHK_HOOK( int, FUN_00b1bd50, struct_2_pointers* param_1, navi_dialogue_function_a2* param_2 );
 
 static bool isPartyMemberUnlocked( u16 unitID )
 {
@@ -55,12 +55,70 @@ static bool isPartyMemberUnlocked( u16 unitID )
 
 static btlUnit_Unit* returnBtlUnitPointer( structB* a1 )
 {
-  lastAccessedBtlUnit = a1->btlUnitPointer;
   return a1->btlUnitPointer;
+}
+
+static int JokerDied_NaviDialogue( struct_2_pointers* param_1, navi_dialogue_function_a2* param_2 )
+{
+  int result = SHK_CALL_HOOK( FUN_00b1bd50, param_1, param_2 );
+  if ( param_2->EncounterID >= 792 )
+  {
+    int messageIndex = 0x3b;
+    int emotionID = 1;
+    switch ( param_2->EncounterID )
+    {
+      case 831:
+      case 832:
+      case 833:
+      case 834:
+      case 835:
+        if ( GetBitflagState( 8603 ) ) 
+        {
+          CALL_NAVI_DIALOGUE( 50, 1, 914, 1 );
+        }
+        else
+        {
+          if ( ActualGetCount( 511 ) < 50 )
+          {
+              CALL_NAVI_DIALOGUE( 51, 1, 912, 1 );
+          }
+          else 
+          {
+              CALL_NAVI_DIALOGUE( 52, 1, 913, 1 );
+          }
+        }
+        result = 1;
+        break;
+      default:
+        if ( GetBitflagState( 0x21c3 ) ) 
+        {
+          messageIndex = FUN_0091da04();
+          messageIndex = messageIndex % 3 + 0x31;
+        }
+        if ((0x30 < messageIndex) && (messageIndex < 0x33)) 
+        {
+          emotionID = 4;
+        }
+        if (messageIndex == 0xffffffff) 
+        {
+          return result;
+        }
+        CallNaviDialogue( param_1, messageIndex, emotionID, 0, -1, 0x00b1bd48, 1, 2, 0.0 );
+        result = 1;
+      break;
+    }
+    return result;
+  }
+  return result;
 }
 
 static void PartyMemberFinishedLastEnemy_NaviDialogue( struct_2_pointers* param_1, navi_dialogue_function_a2* param_2, struct_2_pointers* param_3, u16 param_4, int param_5, int param_6 )
 {
+
+  if ( GetBtlPlayerUnitFromID( 1 )->currentHP == 0 )
+  {
+    return;
+  }
   undefined8 uVar1;
   u8 bVar4;
   u64 uVar2;
@@ -515,7 +573,7 @@ static void PartyMemberFinishedLastEnemy_NaviDialogue( struct_2_pointers* param_
         }
       }
       if ((messageIndex != -1) && (uVar2 = FUN_748ff0((int)param_1), (int)uVar2 == -1)) {
-        CallNaviDialogue(param_1,messageIndex,1,0,-1,param_6,'\0',1,0.0);
+        CallNaviDialogue( param_1, messageIndex, 1, 0, -1, param_6, '\0', 1, 0.0);
       }
     }
   }
@@ -524,6 +582,11 @@ static void PartyMemberFinishedLastEnemy_NaviDialogue( struct_2_pointers* param_
 
 static void PartyMemberWarnHealthLow_NaviDialogue( struct_2_pointers* param_1, navi_dialogue_function_a2* param_2, struct_2_pointers* param_3, u16 param_4, int param_5, int param_6 )
 {
+
+  if ( GetBtlPlayerUnitFromID( 1 )->currentHP == 0 )
+  {
+    return;
+  }
   u64 uVar1;
   int iVar2;
   int messageIndex;
@@ -628,6 +691,11 @@ static void PartyMemberWarnHealthLow_NaviDialogue( struct_2_pointers* param_1, n
 
 static void PartyMemberGotDowned_NaviDialogue( struct_2_pointers* param_1, navi_dialogue_function_a2* param_2, struct_2_pointers* param_3, u16 param_4, int param_5, int param_6 )
 {
+
+  if ( GetBtlPlayerUnitFromID( 1 )->currentHP == 0 )
+  {
+    return;
+  }
   u64 uVar1;
   int iVar2;
   int messageIndex;
@@ -737,6 +805,11 @@ static void PartyMemberGotDowned_NaviDialogue( struct_2_pointers* param_1, navi_
 
 static void PartyMemberDodgedAttack_NaviDialogue( struct_2_pointers* param_1, navi_dialogue_function_a2* param_2, struct_2_pointers* param_3, u16 param_4, int param_5, int param_6 )
 {
+
+  if ( GetBtlPlayerUnitFromID( 1 )->currentHP == 0 )
+  {
+    return;
+  }
   u64 uVar1;
   int iVar2;
   int messageIndex;
@@ -897,7 +970,11 @@ static void PartyMemberKnockEnemyDown_NaviDialogue( struct_2_pointers* param_1, 
 
 static void PartyMemberWarnAilment_NaviDialogue( struct_2_pointers* param_1, navi_dialogue_function_a2* param_2, struct_2_pointers* param_3, u16 param_4, int param_5, int param_6 )
 {
-  //printf("Party Member Ailment being checked. Character ID -> %d\n", lastAccessedBtlUnit->unitID);
+
+  if ( GetBtlPlayerUnitFromID( 1 )->currentHP == 0 )
+  {
+    return;
+  }
   btlUnit_Unit* Kasumi = GetBtlPlayerUnitFromID( 10 );
   
   int messageIndex = -1;
@@ -985,7 +1062,7 @@ static void PartyMemberMissedEnemy_NaviDialogue( struct_2_pointers* param_1, nav
   if ((param_3 != 0) && (bVar4 = FUN_002588b4(param_3->pointer_2), bVar4 == 0)) {
     return;
   }
-  if ((0x304 < param_2->field128 && param_2->field128 < 0x307)) {
+  if ((0x304 < param_2->EncounterID && param_2->EncounterID < 0x307)) {
     return;
   }
   iVar5 = 3;
@@ -1179,6 +1256,10 @@ static void PartyMemberRunAway_NaviDialogue( struct_2_pointers* param_1, navi_di
 
 static void PartyMemberDied_NaviDialogue( struct_2_pointers* param_1, navi_dialogue_function_a2* param_2, struct_2_pointers* param_3, u16 param_4, int param_5, int param_6 )
 {
+  if ( GetBtlPlayerUnitFromID( 1 )->currentHP == 0 )
+  {
+    return;
+  }
   SHK_CALL_HOOK( FUN_00b1bf38, param_1, param_2, param_3, param_4, param_5, param_6 );
   bool bVar4;
   if ((param_2->field118 >> 0x16 & 1) == 0) 
@@ -1199,45 +1280,6 @@ static void PartyMemberDied_NaviDialogue( struct_2_pointers* param_1, navi_dialo
     }
   }
   return;
-}
-
-static int BuildPartyMemberStatsMenu ( partyMemberMenu* partyMenu )
-{
-  /*int count = 1;
-  
-  partyMenu->partyMemberID[0] = 1;
-
-  
-  if ( isPartyMemberUnlocked(8) )
-  {
-    partyMenu->partyMemberID[count] = 8;
-    //printf("Party Member %d added to the menu\n", 8);
-    count += 1;
-  }
-  for ( int i = 2; i <= 7; i++)
-  {
-    if ( isPartyMemberUnlocked(i) )
-    {
-      partyMenu->partyMemberID[count] = i;
-      //printf("Party Member %d added to the menu\n", i);
-      count += 1;
-    }
-  }
-  if ( isPartyMemberUnlocked(9) )
-  {
-    partyMenu->partyMemberID[count] = 9;
-    //printf("Party Member %d added to the menu\n", 9);
-    count += 1;
-  }
-  if ( isPartyMemberUnlocked(10) && CONFIG_ENABLED( enableKasumi ) )
-  {
-    partyMenu->partyMemberID[count] = 10;
-    //printf("Party Member %d added to the menu\n", 10);
-    count += 1;
-  }
-
-  return count;*/
-  return SHK_CALL_HOOK( FUN_00425de0, partyMenu );
 }
 
 static void NewGameSetup( void )
@@ -1353,6 +1395,17 @@ static void BattleEndSkillChecks( u64 a1, u64 a2, u64 a3 )
   }
   hasAkechiEndured = false;
   hasSumiEndured = false;
+  for ( int i = 0; i <= 11; i++) // navi stuff
+  {
+    hasUzukiAilmentAnnounce[i] = false;
+  }
+  UzukiLowHPWarn = false;
+  UzukiDebuffAttackWarn = false;
+  UzukiDebuffDeffenseWarn = false;
+  UzukiDebuffSpeedWarn = false;
+
+  SetBitflagState( 0x209C, 0 ); // flag checked for ending twins encounter early
+
   return;
 }
 
@@ -1366,7 +1419,6 @@ void KasumiInit( void )
   // Hooks must be 'bound' to a handler like this in the start function.
   // If you don't do this, the game will crash.
   SHK_BIND_HOOK( FUN_00425b0c, isPartyMemberUnlocked);
-  SHK_BIND_HOOK( FUN_00425de0, BuildPartyMemberStatsMenu);
   SHK_BIND_HOOK( FUN_00af22e4, returnBtlUnitPointer);
   SHK_BIND_HOOK( FUN_00b20618, PartyMemberFinishedLastEnemy_NaviDialogue );
   SHK_BIND_HOOK( FUN_00b1c1a0, PartyMemberWarnHealthLow_NaviDialogue );
@@ -1380,6 +1432,7 @@ void KasumiInit( void )
   SHK_BIND_HOOK( FUN_00b22138, PartyMemberGetUp_NaviDialogue );
   SHK_BIND_HOOK( FUN_00b22f60, PartyMemberRunAway_NaviDialogue );
   SHK_BIND_HOOK( FUN_00b1bf38, PartyMemberDied_NaviDialogue );
+  SHK_BIND_HOOK( FUN_00b1bd50, JokerDied_NaviDialogue );
   SHK_BIND_HOOK( FUN_0025b888, SetBulletsToMax );
   SHK_BIND_HOOK( FUN_0025b740, GetMaxBullets );
   SHK_BIND_HOOK( FUN_0025b7b8, SetBullets );

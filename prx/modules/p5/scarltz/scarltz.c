@@ -24,7 +24,6 @@
 // You need to declare hooks with SHK_HOOK before you can use them.
 
 SHK_HOOK( u64, ResistancePassiveCheck, btlUnit_Unit* btlUnit, ElementalType ElementID);
-SHK_HOOK( u64, SkillHealDamageModifier, u16 SkillID, btlUnit_Unit* btlUnit_1, btlUnit_Unit* btlUnit_2, u16 param_4, u16 ElementalAffinity, u16 param_6, u16 param_7, u8 SkillMode_1_2 );
 SHK_HOOK( void, ParseSKILLTBL, u64 param_1);
 SHK_HOOK( u64, ReturnAddressOfSKILLTBL_Segment0, u32 param_1);
 SHK_HOOK( u64, ReturnAddressOfSKILLTBL_Segment1, u32 param_1);
@@ -158,7 +157,7 @@ static u64 ResistancePassiveCheckHook ( btlUnit_Unit* btlUnit, ElementalType Ele
     return Resistance;
 }
 
-static u64 SkillHealDamageModifierHook ( u16 SkillID, btlUnit_Unit* btlUnit_1, btlUnit_Unit* btlUnit_2, u16 param_4, u16 ElementalAffinity, u16 param_6, u16 param_7, u8 SkillMode_1_2 )
+/*static u64 SkillHealDamageModifierHook ( u16 SkillID, btlUnit_Unit* btlUnit_1, btlUnit_Unit* btlUnit_2, u16 param_4, u16 ElementalAffinity, u16 param_6, u16 param_7, u8 SkillMode_1_2 )
 {
   bool Pass = false;
   u64 Result;
@@ -792,7 +791,7 @@ FinalDamageCalc:
     Result = SHK_CALL_HOOK( SkillHealDamageModifier, SkillID, btlUnit_1, btlUnit_2, param_4, ElementalAffinity, param_6, param_7, SkillMode_1_2 );
     return Result;
   }
-}
+}*/
 
 // The start function of the PRX. This gets executed when the loader loads the PRX at boot.
 // This means game data is not initialized yet! If you want to modify anything that is initialized after boot,
@@ -801,11 +800,9 @@ void scarltzInit( void ){
   // Hooks must be 'bound' to a handler like this in the start function.
   // If you don't do this, the game will crash.
   SHK_BIND_HOOK( ResistancePassiveCheck, ResistancePassiveCheckHook );
-  SHK_BIND_HOOK( SkillHealDamageModifier, SkillHealDamageModifierHook );
   SHK_BIND_HOOK( ParseSKILLTBL, ParseSKILLTBLHook );
   SHK_BIND_HOOK( ReturnAddressOfSKILLTBL_Segment0, ReturnAddressOfSKILLTBL_Segment0Hook );
   SHK_BIND_HOOK( ReturnAddressOfSKILLTBL_Segment1, ReturnAddressOfSKILLTBL_Segment1Hook );
-  SHK_BIND_HOOK( SkillHealDamageModifier, SkillHealDamageModifierHook );
 }
 
 void scarltzShutdown( void ){

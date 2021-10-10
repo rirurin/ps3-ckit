@@ -681,15 +681,15 @@ typedef struct
   u8 isUnlocked; // 1
   u16 personaID; // 2
   u8 personaLv; // 4
-  u8 unk5[3]; // 5
+  u8 _x5; // 5
+  u16 _x6; // 6, trait in R
   u32 personaExp; // 8
   u16 SkillID[8]; // C
-  u8 St; // 1C
-  u8 Ma; // 1D
-  u8 En; // 1E
-  u8 Ag; // 1F
-  u8 Lu; // 20
-  u8 unk[15];
+  u8 Stats[ 5 ]; // 1c
+  u8 StatsEx[ 5 ]; // 21
+  u8 StatsExTemp[ 5 ]; // 26
+  u8 _x2B; // 2b
+  u32 _x2C; // 2c
 } btlUnit_Persona; // total size should be 0x30
 
 typedef struct
@@ -817,8 +817,8 @@ typedef struct btlUnit_Unit
   u32 currentHP; // C
   u32 currentSP; // 10
   u32 StatusAilments; // 14
-  u16 Field16; // 16
-  u16 Lv; // 18
+  u16 Joker_Lv; // 18
+  u16 Field1A; // 1A
   u32 Joker_EXP; // 1C
   u32 PhaseID; // 20
   BuffStatus Buffs; // 24
@@ -869,6 +869,13 @@ typedef struct AI_UnitStruct
   u16 argArray[9]; /* Created by retype action */
   u16 argCount; /* Created by retype action */
 } AI_UnitStruct;
+
+typedef struct fieldModelList
+{
+  u16 FieldMajorID;
+  u8 FieldMinorID;
+  u8 Amount;
+}fieldModelList;
 
 typedef struct structB
 {
@@ -942,11 +949,7 @@ typedef struct
 
 typedef struct PersonaStats
 {
-  u8 str;
-  u8 mag;
-  u8 en;
-  u8 ag;
-  u8 lck;
+  u8 stat[5];
 }PersonaStats;
 
 typedef struct unitTBLStats
@@ -1003,7 +1006,14 @@ typedef struct
 
 typedef struct
 {
-  u8 unk[24];
+  u8 VoiceID;
+  u8 TALK_PERSON;
+  u8 VoicePackABC;
+  u8 padding;
+  u16 TALK_MONEYMIN;
+  u16 TALK_MONEYMAX;
+  u16 TALK_ITEM[4];
+  u16 TALK_ITEM_RARE[4];
 }Segment3;
 
 typedef struct
@@ -1050,11 +1060,6 @@ typedef struct
 
 typedef struct
 {
-  u32 thingy[270];
-}shdHelper;
-
-typedef struct
-{
   u64 fileStatus;
   char filename[128];
   u32 bufferSize;
@@ -1062,6 +1067,9 @@ typedef struct
   u32 unk3;
   u32 pointerToFile;
 }fileHandleStruct;
+
+fileHandleStruct* shdEnemyFile;
+fileHandleStruct* FieldListFile;
 
 typedef struct
 {
@@ -1605,6 +1613,85 @@ typedef struct
   PersonaStats stats[98];
 }PartyMemberPersonaBlock;
 
+typedef struct NodeNext1
+{
+  int Field00;
+  int Field04;
+  int Field08;
+  int Field0C;
+  int Field10;
+  int Field14;
+  struct_2_pointers* Field18;
+} NodeNext1;
+
+typedef struct Node 
+{
+  struct Node *prev;
+  struct Node *next;
+  int Field08;
+  int Field0C;
+  int Field10;
+  NodeNext1* Field14;
+} Node;
+
+typedef struct UnitListStruct
+{
+  Node *Last;
+  Node *First;
+  int ListSize;
+  int Field04;
+} UnitListStruct;
+
+typedef struct UnitList3
+{
+  u8 field00[136];
+  UnitListStruct UnitList[3];
+} UnitList3;
+
+typedef struct UnitList2
+{
+  u32 field00;
+  u32 field04;
+  u32 field08;
+  u32 field0c;
+  u32 field10;
+  u32 field14;
+  u32 field18;
+  u32 field1c;
+  u32 field20;
+  u32 field24;
+  u32 field28;
+  u32 field2c;
+  u32 field30;
+  UnitList3* field34;
+} UnitList2;
+
+typedef struct UnitList1
+{
+  u32 field00;
+  u32 field04;
+  u32 field08;
+  u32 field0c;
+  u32 field10;
+  u32 field14;
+  u32 field18;
+  u32 field1c;
+  u32 field20;
+  u32 field24;
+  u32 field28;
+  u32 field2c;
+  u32 field30;
+  u32 field34;
+  u32 field38;
+  u32 field3c;
+  u32 field40;
+  u32 field44;
+  u32 field48;
+  u32 field4c;
+  u32 field50;
+  UnitList2* field54;
+} UnitList1;
+
 fileHandleStruct* NaviTestFile;
 
 EnemyUnitStatsTBL NewEnemyStatsTBL;
@@ -1615,8 +1702,6 @@ unitTBLVisualIndex NewVisualIndexTBL;
 ELSAI_Segment2TBL NewSegment2TBL;
 
 btlUnit_Unit* enemyBtlUnit;
-btlUnit_Unit* ENID_enemyBtlUnit;
-btlUnit_Unit* lastAccessedBtlUnit;
 
 struct
 {
@@ -1853,14 +1938,77 @@ int FUN_2604C4( int arg );
 int FUN_748ff0( int arg );
 int FUN_0024b28c( int arg );
 void LoadEncounterEventSoundbank( int encounterID );
+
+/**
+ * @brief Returns target btlUnit struct if found
+ * 
+ * @param unitType 
+ * @param unitID 
+ * @return btlUnit_Unit* 
+ */
+btlUnit_Unit* GetBtlUnitInCombat( u32 unitType, u32 unitID );
+
+/**
+ * @brief Returns the state of the input flag
+ * 
+ * @param bitFlagID 
+ * @return true 
+ * @return false 
+ */
 bool GetBitflagState( int bitFlagID );
+
+/**
+ * @brief Set the state of the input flag
+ * 
+ * @param bitFlagID 
+ * @param state 
+ * @return true 
+ * @return false 
+ */
 bool SetBitflagState( int bitFlagID, u8 state );
 int FUN_007489a8( int a1, int a2 );
 int FUN_0074805c( int a1, int a2 );
 bool FUN_002588b4( btlUnit_Unit* a1 );
+
+/**
+ * @brief Returns whether a specific condifant bonus has been obtained or not
+ * 
+ * @param confidantBonusID 
+ * @return true 
+ * @return false 
+ */
 bool IsConfidantBonusObtained( int a1 );
+
+
+/**
+ * @brief Returns whether the given btlUnit currently has the given status ailment
+ * 
+ * @param btlUnit 
+ * @param ailmentID 
+ * @return bool 
+ */
+bool btlUnitHasAilment( btlUnit_Unit* Unit, u32 ailmentID );
+
+
+/**
+ * @brief Calls a given navigator dialogue with custom args
+ * 
+ * @param character ID
+ * @param expression ID 
+ * @param message ID 
+ * @param dialogueBox Type 
+ */
+void CALL_NAVI_DIALOGUE( int charID, int expressionID, int msgID, int dialogueBoxType );
+
+
 bool FUN_0031f9cc( void );
 int FUN_0091da04( void );
+
+/**
+ * @brief Returns the Current BGM Cue ID
+ * 
+ * @return int 
+ */
 int GetCurrentBGMCueID( void );
 static s32 sys_time_get_current_time( u64* secs, u64* nsecs );
 s32 sys_dbg_read_process_memory(s32 pid, u32 process_ea, u32 size, void* data);
@@ -1869,9 +2017,25 @@ u64 getTicks(void);
 void CallNaviDialogue (struct_2_pointers * param_1, int param_2, int param_3, int param_4, int param_5, int param_6, char param_7, short param_8, double param_9);
 bool FUN_007490a4( struct_2_pointers* a1, int a2 );
 fieldworkdataStruct* GetFieldWorkData( void );
+
+/**
+ * @brief returns how many total ingame days have passed, starting from 4/1
+ * 
+ * @return u16 
+ */
 u16 GetTotalDays( void );
+
 int isCharacterAssistExpressonValid( short a1, short a2 );
 int FUN_003b9110( int a1, int a2, int a3, int a4, int a5 );
+
+/**
+ * @brief Check if specified unit has the specified skill
+ * 
+ * @param btlUnit 
+ * @param SkillID 
+ * @return true 
+ * @return false 
+ */
 bool CheckHasSkill ( btlUnit_Unit* btlUnit, int SkillID );
 bool GetAccessoryEffect ( btlUnit_Unit* btlUnit, int EffectID );
 bool CheckAccessoryEffect ( btlUnit_Unit* btlUnit, int EffectID );

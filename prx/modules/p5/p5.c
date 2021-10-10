@@ -174,6 +174,11 @@ void SetUnitEXP( u32 ID, u16 Lv )
     SHK_FUNCTION_CALL_2( 0x26a6f4, void, u32, ID, u16, Lv );
 }
 
+bool btlUnitHasAilment( btlUnit_Unit* Unit, u32 ailmentID )
+{
+    SHK_FUNCTION_CALL_2( 0x2590d8, bool, btlUnit_Unit*, Unit, u32, ailmentID );
+}
+
 u32 unitGetEquipment( btlUnit_Unit* unitID, EquipSlot equipSlotID )
 {
     SHK_FUNCTION_CALL_2( 0x258bbc, u32, btlUnit_Unit*, unitID, EquipSlot, equipSlotID );
@@ -676,6 +681,15 @@ bool isMidWinterValid( void )
     return isMidwinter;
 }
 
+void CALL_NAVI_DIALOGUE( int charID, int expressionID, int msgID, int dialogueBoxType )
+{
+  if ( FUN_0031f9cc() && (charID = isCharacterAssistExpressonValid( (short)charID, (short)expressionID ), -1 < charID))
+  {
+    printf("Calling Navi Dialogue; assist ID %d, msgID %d\n", charID, msgID);
+    FUN_003b9110( charID, msgID, dialogueBoxType, 0, 0 );
+  }
+}
+
 static s32 sys_time_get_current_time( u64* secs, u64* nsecs )
 {
   system_call_2( 145, (u64)secs, (u64)nsecs );
@@ -750,6 +764,33 @@ void* sigscan( void* start, void* end, s32* pattern, s32 patternLength )
     if ( found )
       return cur;
   }
+}
+
+#define UnitList1 (*((UnitList1**)0x1183C90))
+
+btlUnit_Unit* GetBtlUnitInCombat( u32 a1, u32 a2 )
+{
+    for ( int i = 0; i <= 2; i++ )
+    {
+        //printf("===============================\n");
+        //printf("Unit List #%d Size %d\n", i, UnitList1->field54->field34->UnitList[i].ListSize);
+        //printf("-------------------------------\n");
+        Node* btlUnitListLocal = UnitList1->field54->field34->UnitList[i].First;
+        while ( btlUnitListLocal != 0 )
+        {
+            //printf("btlUnit at 0x%x\n", btlUnitListLocal->Field14->Field18->pointer_2);
+            //printf("Current Node at 0x%x\n", btlUnitListLocal);
+            //printf("Previous Node at 0x%x\n", btlUnitListLocal->Field04);
+            btlUnit_Unit* localBtlUnit = btlUnitListLocal->Field14->Field18->pointer_2;
+            if ( localBtlUnit->unitType == a1 && localBtlUnit->unitID == a2 )
+            {
+                return localBtlUnit;
+            }
+            btlUnitListLocal = btlUnitListLocal->next;
+        }
+        printf("===============================\n");
+    }
+    return 0;
 }
 
 #endif

@@ -288,6 +288,7 @@ static u32 GetCountFunctionHook( u32 COUNT )
 static int EX_FLW_AI_ACT_PERSONA_SKILL( void )
 {
   AI_UnitStruct* EnemyUnit = FLW_GetBattleUnitStructFromContext();
+  DEBUG_LOG("Current AI Flowscript struct at 0x%x\n", EnemyUnit);
   if ( CONFIG_ENABLED( enablePersonaEnemies ) )
   {
     EnemyPersona = FLW_GetIntArg(0);
@@ -659,14 +660,7 @@ static TtyCmdStatus ttyPartyOutCmd( TtyCmd* cmd, const char** args, u32 argc, ch
 
 static TtyCmdStatus ttyGetEnemyBtlUnitCmd( TtyCmd* cmd, const char** args, u32 argc, char** error )
 {
-  for ( int i = 0; i < 5; i++ )
-  {
-    if( enemyBtlUnit != 0x0 )
-    {
-      printf( "Enemy unit struct address 0x%08x\n", enemyBtlUnit );
-      //hexDump( "Enemy unit struct", enemyBtlUnit, sizeof(btlUnit_Unit) );
-    }
-  }
+  //GetEnemyBtlUnits();
   return TTY_CMD_STATUS_OK;
 }
 
@@ -770,6 +764,13 @@ static TtyCmdStatus ttyTestModelResHndCmd( TtyCmd* cmd, const char** args, u32 a
   return TTY_CMD_STATUS_OK;
 }
 
+static TtyCmdStatus ttySetEnemyPersona( TtyCmd* cmd, const char** args, u32 argc, char** error )
+{
+  int PersonaID = intParse( args[0] );
+  EnemyPersona = PersonaID;
+  return TTY_CMD_STATUS_OK;
+}
+
 static TtyCmdStatus ttyFadeIn( TtyCmd* cmd, const char** args, u32 argc, char** error )
 {
   u32 fadetype = intParse( args[0] );
@@ -851,6 +852,9 @@ static TtyCmd ttyCommands[] =
 
   TTY_CMD( ttyTestModelResHndCmd, "testmodel", "Test Resource handle function", TTY_CMD_FLAG_NONE,
     TTY_CMD_PARAM( "int", "resource handle id", TTY_CMD_PARAM_FLAG_REQUIRED, TTY_CMD_PARAM_TYPE_INT )),
+
+  TTY_CMD( ttySetEnemyPersona, "setpersona", "Sets Enemy Persona when AI_ACT_PERSONA_SKILL is not used", TTY_CMD_FLAG_NONE,
+    TTY_CMD_PARAM( "int", "persona id", TTY_CMD_PARAM_FLAG_REQUIRED, TTY_CMD_PARAM_TYPE_INT )),
 
   TTY_CMD( ttyloadBFFile, "loadbf", "Loads and executes a bf file", TTY_CMD_FLAG_NONE,
     TTY_CMD_PARAM( "bf name", "The Cue ID of the BGM to play", TTY_CMD_PARAM_FLAG_REQUIRED, TTY_CMD_PARAM_TYPE_STRING )),
@@ -934,8 +938,8 @@ static int EX_GET_PLAYER_LV( void )
   btlUnit_Unit* Player = GetBtlPlayerUnitFromID( partyMemberID );
   if ( partyMemberID == 1)
   {
-    printf("GET_PLAYER_LV: Joker is lv %d\n", Player->Lv);
-    FLW_SetIntReturn( Player->Lv );
+    printf("GET_PLAYER_LV: Joker is lv %d\n", Player->Joker_Lv);
+    FLW_SetIntReturn( Player->Joker_Lv );
   }
   else
   {
@@ -961,7 +965,7 @@ static int EX_SET_TACTICS_STATE( void )
   }
 
   Player->TacticsState = tacticsID;
-  printf("EX_SET_TACTICS_STATE: Unit ID %d tactics set to %d\n", partyMemberID, tacticsID);
+  DEBUG_LOG("EX_SET_TACTICS_STATE: Unit ID %d tactics set to %d\n", partyMemberID, tacticsID);
 
   return 1;
 }
@@ -1047,10 +1051,32 @@ static int EX_CLEAR_PERSONA_SKILLS( void )
 static int EX_IS_PLAYER_CHEATING( void )
 {
   int total = 0;
-
-  if ( GetBtlPlayerUnitFromID(1)->accessoryID == 232 + 0x2000 ) // Omnipotent Orb
+  btlUnit_Unit* Joker = GetBtlPlayerUnitFromID(1);
+  if ( Joker->accessoryID == 232 + 0x2000 ) // Omnipotent Orb
   {
     total += 2;
+  }
+  if ( CheckHasSkill( Joker, 600 ) || 
+       CheckHasSkill( Joker, 603 ) || 
+       CheckHasSkill( Joker, 604 ) || 
+       CheckHasSkill( Joker, 605 ) || 
+       CheckHasSkill( Joker, 606 ) || 
+       CheckHasSkill( Joker, 607 ) || 
+       CheckHasSkill( Joker, 612 ) || 
+       CheckHasSkill( Joker, 636 ) || 
+       CheckHasSkill( Joker, 658 ) || 
+       CheckHasSkill( Joker, 659 ) || 
+       CheckHasSkill( Joker, 660 ) || 
+       CheckHasSkill( Joker, 768 ) || 
+       CheckHasSkill( Joker, 434 ) || 
+       CheckHasSkill( Joker, 465 ) || 
+       CheckHasSkill( Joker, 469 ) || 
+       CheckHasSkill( Joker, 481 ) || 
+       CheckHasSkill( Joker, 477 ) || 
+       CheckHasSkill( Joker, 490 ) || 
+       CheckHasSkill( Joker, 496 )  )
+  {
+    total += 9;
   }
   
   for( int i = 1; i <= 3; i++ )
@@ -1076,6 +1102,28 @@ static int EX_IS_PLAYER_CHEATING( void )
     {
       total += 1;
     }
+    if ( CheckHasSkill( PartyMember, 600 ) || 
+       CheckHasSkill( PartyMember, 603 ) || 
+       CheckHasSkill( PartyMember, 604 ) || 
+       CheckHasSkill( PartyMember, 605 ) || 
+       CheckHasSkill( PartyMember, 606 ) || 
+       CheckHasSkill( PartyMember, 607 ) || 
+       CheckHasSkill( PartyMember, 612 ) || 
+       CheckHasSkill( PartyMember, 636 ) || 
+       CheckHasSkill( PartyMember, 658 ) || 
+       CheckHasSkill( PartyMember, 659 ) || 
+       CheckHasSkill( PartyMember, 660 ) || 
+       CheckHasSkill( PartyMember, 768 ) || 
+       CheckHasSkill( PartyMember, 434 ) || 
+       CheckHasSkill( PartyMember, 465 ) || 
+       CheckHasSkill( PartyMember, 469 ) || 
+       CheckHasSkill( PartyMember, 481 ) || 
+       CheckHasSkill( PartyMember, 477 ) || 
+       CheckHasSkill( PartyMember, 490 ) || 
+       CheckHasSkill( PartyMember, 496 )  )
+    {
+      total += 9;
+    }
   }
 
   if ( total >= 7 )
@@ -1099,7 +1147,7 @@ static int EX_AI_SUMMON_UNITS( void )
   EnemyUnit->Act_Type = 1;
   EnemyUnit->ActSkillID = 0x196;
 
-  printf("AI_ACT_SUMMON_UNITS called!\n");
+  DEBUG_LOG("AI_ACT_SUMMON_UNITS called!\n");
 
   EnemyUnit->argArray[EnemyUnit->argCount] = enemyID1;
   EnemyUnit->argCount += 1;
@@ -1146,13 +1194,19 @@ static int EX_AI_SET_ENID_TARGETABLE_STATE( void )
 {
   int enemyID = FLW_GetIntArg( 0 );
   int state = FLW_GetIntArg( 1 );
-  AI_CHK_ENIDHP(); // needed to store btlUnit struct of target enemy
+
+  btlUnit_Unit* ENID_enemyBtlUnit = GetBtlUnitInCombat( 2, enemyID );
+  if ( ENID_enemyBtlUnit == 0 )
+  {
+    return 1;
+  }
+
   if ( state > 0 )
   {
     state = 1;
   }
 
-  printf("Setting Target status of enemy ID %d to %d\n", enemyID, state);
+  DEBUG_LOG("Setting Target status of enemy ID %d to %d\n", enemyID, state);
 
   ENID_enemyBtlUnit->Flags = (ENID_enemyBtlUnit->Flags & ~(1UL << 15)) | (state << 15);
   
@@ -1163,7 +1217,13 @@ static int EX_AI_SET_ENID_ENDURE_STATE( void )
 {
   int enemyID = FLW_GetIntArg( 0 );
   int state = FLW_GetIntArg( 1 );
-  AI_CHK_ENIDHP(); // needed to store btlUnit struct of target enemy
+
+  btlUnit_Unit* ENID_enemyBtlUnit = GetBtlUnitInCombat( 2, enemyID );
+  if ( ENID_enemyBtlUnit == 0 )
+  {
+    return 1;
+  }
+
   if ( state > 0 )
   {
     state = 1;
@@ -1191,17 +1251,80 @@ static int EX_SET_JOKER_ENDURE_STATE( void )
 static int EX_SET_ENID_STATS( void )
 {
   int enemyID = FLW_GetIntArg( 0 );
-  int str = FLW_GetIntArg( 1 );
-  int mag = FLW_GetIntArg( 2 );
-  int en = FLW_GetIntArg( 3 );
-  int ag = FLW_GetIntArg( 4 );
-  int lck = FLW_GetIntArg( 5 );
+  if (enemyID > 999) //
+  {
+    return 1;
+  }
+  DEBUG_LOG("EX_SET_ENID_STATS Called\n");
+  DEBUG_LOG("Original stats for Enemy ID %d; %d %d %d %d %d\n", enemyID, 
+  NewEnemyStatsTBL.EnemyStats[enemyID].stats.stat[0], 
+  NewEnemyStatsTBL.EnemyStats[enemyID].stats.stat[1], 
+  NewEnemyStatsTBL.EnemyStats[enemyID].stats.stat[2], 
+  NewEnemyStatsTBL.EnemyStats[enemyID].stats.stat[3], 
+  NewEnemyStatsTBL.EnemyStats[enemyID].stats.stat[4] );
+  u32 targetStats[5];
+  for ( int i = 1; i <= 5; i++ )
+  {
+    NewEnemyStatsTBL.EnemyStats[enemyID].stats.stat[i - 1] = FLW_GetIntArg( i );
+  }
+  DEBUG_LOG("New stats for Enemy ID %d; %d %d %d %d %d\n", enemyID, 
+  NewEnemyStatsTBL.EnemyStats[enemyID].stats.stat[0], 
+  NewEnemyStatsTBL.EnemyStats[enemyID].stats.stat[1], 
+  NewEnemyStatsTBL.EnemyStats[enemyID].stats.stat[2], 
+  NewEnemyStatsTBL.EnemyStats[enemyID].stats.stat[3], 
+  NewEnemyStatsTBL.EnemyStats[enemyID].stats.stat[4] );
+  
+  return 1;
+}
 
-  NewEnemyStatsTBL.EnemyStats[enemyID].stats.str = (u8)str;
-  NewEnemyStatsTBL.EnemyStats[enemyID].stats.mag = (u8)mag;
-  NewEnemyStatsTBL.EnemyStats[enemyID].stats.en = (u8)en;
-  NewEnemyStatsTBL.EnemyStats[enemyID].stats.ag = (u8)ag;
-  NewEnemyStatsTBL.EnemyStats[enemyID].stats.lck = (u8)lck;
+static int EX_GET_PLAYER_MAX_HP( void )
+{
+  u32 unitID = FLW_GetIntArg(0);
+  if (unitID <= 10) // up to Kasumi
+  {
+    FLW_SetIntReturn( GetBtlUnitMaxHP( GetBtlPlayerUnitFromID( unitID ) ) );
+  }
+  else FLW_SetIntReturn( 0 );
+  return 1;
+}
+
+static int EX_SET_ENID_MAX_HP( void )
+{
+  u32 enemyID = FLW_GetIntArg(0);
+  if (enemyID > 999) //
+  {
+    return 1;
+  }
+  u32 NewMaxHP = FLW_GetIntArg(1);
+  NewEnemyStatsTBL.EnemyStats[enemyID].MaxHP = NewMaxHP;
+  return 1;
+}
+
+static int EX_SET_ENID_TACTICS( void )
+{
+  u32 enemyID = FLW_GetIntArg(0);
+  if (enemyID > 999) //
+  {
+    return 1;
+  }
+  int state = FLW_GetIntArg( 1 );
+  
+  btlUnit_Unit* ENID_enemyBtlUnit = GetBtlUnitInCombat( 2, enemyID );
+  if ( ENID_enemyBtlUnit == 0 )
+  {
+    return 1;
+  }
+
+  ENID_enemyBtlUnit->TacticsState = state;
+  
+  return 1;
+}
+
+static int EX_BTL_GET_CURRENT_CHARAID( void )
+{
+  AI_CHK_SLIP(); // needed to store btlUnit struct of current acting enemy
+  printf("Current Acting Unit is iD %d\n", enemyBtlUnit->unitID);
+  FLW_SetIntReturn( enemyBtlUnit->unitID );
   
   return 1;
 }
@@ -1226,6 +1349,10 @@ scrCommandTableEntry exCommandTable[] =
   { EX_AI_SET_ENID_ENDURE_STATE, 2, "AI_SET_ENID_ENDURE_STATE" },
   { EX_SET_JOKER_ENDURE_STATE, 1, "SET_JOKER_ENDURE_STATE" },
   { EX_SET_ENID_STATS, 6, "SET_ENID_STATS" },
+  { EX_GET_PLAYER_MAX_HP, 1, "GET_PLAYER_MAX_HP" },
+  { EX_SET_ENID_MAX_HP, 2, "SET_ENID_MAX_HP" },
+  { EX_SET_ENID_TACTICS, 2, "SET_ENID_TACTICS" },
+  { EX_BTL_GET_CURRENT_CHARAID, 0, "BTL_GET_CURRENT_CHARAID" },
 };
 
 static scrCommandTableEntry* scrGetCommandFuncHook( u32 id )
@@ -1292,9 +1419,12 @@ static int FUN_3b9644Hook(int charID, int expressionID)
   return SHK_CALL_HOOK(FUN_3b9644, charID, expressionID);
 }
 
+char UnitTypeNames[4][7] = { "Null", "Player", "Enemy", "Persona" };
+
 static void LoadSoundByCueIDCombatVoiceFunctionHook( CueIDThingy* a1, u32* a2, u32 cueID, u8 idk )
 {
-  printf("Unit voice cue ID called -> %d\n", cueID);
+  DEBUG_LOG( "%s ID %d using Voice Cue ID %d\n", UnitTypeNames + a1->Field10->btlUnitPointer->unitType, a1->Field10->btlUnitPointer->unitID, cueID );
+  
   return SHK_CALL_HOOK( LoadSoundByCueIDCombatVoiceFunction, a1, a2, cueID, idk );
 }
 
@@ -1336,29 +1466,25 @@ static int EX_SET_PERSONA_LV ( void )
   playerUnit->StockPersona[0].personaExp = ExpNeeded;
   PartyMemberPersonaBlock* playerPersona = GetPartyMemberPersonaBlock( GetEquippedPersonaFunction( partyMemberID ) );
 
-  int targetStr = playerUnit->StockPersona[0].St;
-  int targetMa = playerUnit->StockPersona[0].Ma;
-  int targetEn = playerUnit->StockPersona[0].En;
-  int targetAg = playerUnit->StockPersona[0].Ag; 
-  int targetLck = playerUnit->StockPersona[0].Lu;
-  int i;
+  u32 targetStats[5];
 
-  for ( i = ( unitLv - 1 ); i < targetLv - 1; i++ )
+  for ( int i = 0; i <= 4; i++ )
   {
-    targetStr += playerPersona->stats[i].str;
-    targetMa += playerPersona->stats[i].mag;
-    targetEn += playerPersona->stats[i].en;
-    targetAg += playerPersona->stats[i].ag;
-    targetLck += playerPersona->stats[i].lck;
+    targetStats[i] = playerUnit->StockPersona[0].Stats[i];
   }
-  
-  playerUnit->StockPersona[0].St = targetStr;
-  playerUnit->StockPersona[0].Ma = targetMa;
-  playerUnit->StockPersona[0].En = targetEn;
-  playerUnit->StockPersona[0].Ag = targetAg;
-  playerUnit->StockPersona[0].Lu = targetLck;
 
-  //printf("Calculated stats for lv %d\nstr -> %d\nma -> %d\nen -> %d\nag -> %d\nlck -> %d\n", i + 1, targetStr, targetMa, targetEn, targetAg, targetLck);
+  for ( int i = ( unitLv - 1 ); i < targetLv - 1; i++ )
+  {
+    for ( int j = 0; j <= 4; j++ )
+    {
+      targetStats[j] += playerPersona->stats[i].stat[j];
+    }
+  }
+
+  for ( int i = 0; i <= 4; i++ )
+  {
+    playerUnit->StockPersona[0].Stats[i] = targetStats[i];
+  }
   
   return 1;
 }

@@ -339,10 +339,6 @@ FUN_00b1bf38:
 FUN_00af3cb0:
     addr: 0xaf3cb0
     replacedInstr: lwz r3, 0x13c(r3)
-    
-FUN_00425de0:
-    addr: 0x425de0
-    replacedInstr: stdu r1, -0xA0(r1)
 
 FUN_001cf704:
     addr: 0x1cf704
@@ -424,13 +420,17 @@ FUN_007af1c0:
     addr: 0x7af1c0
     replacedInstr: stdu r1, -0x90(r1)
 
-FUN_007dc308:
-    addr: 0x7dc308
-    replacedInstr: stdu r1, -0xb0(r1)
-
 FUN_00784d18:
     addr: 0x784d18
     replacedInstr: stdu r1, -0x140(r1)
+
+FUN_00781d58:
+    addr: 0x781d58
+    replacedInstr: stdu r1, -0x130(r1)
+
+FUN_0077d878:
+    addr: 0x77d878
+    replacedInstr: stdu r1, -0x3B0(r1)
 
 FUN_0003a6e4:
     addr: 0x3a6e4
@@ -439,3 +439,31 @@ FUN_0003a6e4:
 FUN_0003a70c:
     addr: 0x3a70c
     replacedInstr: cmpwi  r3, 0x9
+
+FUN_0025906c:
+    addr: 0x25906c
+    replacedInstr: rlwinm  r6, r4, 0x0, 0xc, 0x1f
+
+FUN_000435c0:
+    addr: 0x435c0
+    emitTrampoline: no
+
+FUN_00b24f84:
+    addr: 0xb24f84
+    emitTrampoline: no
+
+FUN_00b1bd50:
+    addr: 0xb1bd50
+    replacedInstr: stdu  r1, -0x90(r1)
+
+FUN_00b2581c:
+    addr: 0x00b2581c
+    emitTrampoline: no
+
+FUN_00b2460c:
+    addr: 0x00b2460c
+    emitTrampoline: no
+
+LoadGenericEnemyVoicePack:
+    addr: 0x74b294
+    emitTrampoline: no

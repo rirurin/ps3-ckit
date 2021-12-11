@@ -108,10 +108,6 @@ BtlUnitGetUnitID:
     addr: 0x258948
     emitTrampoline: no
 
-LoadShdPersonaEnemy:
-    addr: 0x51b864
-    emitTrampoline: no
-
 ParseUNITTBL:
     addr: 0x264950
     emitTrampoline: no
@@ -356,10 +352,6 @@ FUN_00262258:
     addr: 0x262258
     replacedInstr: stdu r1, -0x70(r1)
 
-FUN_0063acc8:
-    addr: 0x63acc8
-    replacedInstr: stdu r1, -0x80(r1)
-
 ResistancePassiveCheck:
     addr: 0x259658
     replacedInstr: stdu r1,-0xc0(r1)
@@ -424,14 +416,6 @@ FUN_00784d18:
     addr: 0x784d18
     replacedInstr: stdu r1, -0x140(r1)
 
-FUN_00781d58:
-    addr: 0x781d58
-    replacedInstr: stdu r1, -0x130(r1)
-
-FUN_0077d878:
-    addr: 0x77d878
-    replacedInstr: stdu r1, -0x3B0(r1)
-
 FUN_0003a6e4:
     addr: 0x3a6e4
     replacedInstr: lis  r4, 0xD0
@@ -456,14 +440,18 @@ FUN_00b1bd50:
     addr: 0xb1bd50
     replacedInstr: stdu  r1, -0x90(r1)
 
-FUN_00b2581c:
-    addr: 0x00b2581c
-    emitTrampoline: no
-
-FUN_00b2460c:
-    addr: 0x00b2460c
-    emitTrampoline: no
+FUN_00b25348:
+    addr: 0xb25348
+    replacedInstr: stdu  r1, -0x70(r1)
 
 LoadGenericEnemyVoicePack:
     addr: 0x74b294
     emitTrampoline: no
+
+FUN_00b24938:
+    addr: 0xb24938
+    replacedInstr: stdu  r1, -0x90(r1)
+
+FUN_00060b90:
+    addr: 0x60b90
+    replacedInstr: stdu  r1, -0x80(r1)

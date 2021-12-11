@@ -23,7 +23,6 @@
 
 // You need to declare hooks with SHK_HOOK before you can use them.
 SHK_HOOK( void, setBgm, int id );
-SHK_HOOK( void, FUN_0063acc8, int a1, int a2 );
 SHK_HOOK( int, FUN_0072360c, int id );
 SHK_HOOK( int, FUN_001cf704, u64 unk, int a1, int a2, int a3 );
 SHK_HOOK( void*, LoadEPL, char* EPL, u8 a2 );
@@ -41,29 +40,6 @@ static void setBgmHook( int id )
 {
   if ( CONFIG_ENABLED( enableExpandedBGM ) )
   {
-    u32 btlEquipBgmTableEntryCount = sizeof( btlEquipBgmTable ) / sizeof( btlEquipBgmTableEntry );
-    u32 playerOutfitModel = PlayerUnitGetModelMinorID( 1, 50, 0 );
-    if ( id == 340 && CONFIG_ENABLED( randomDLCBGM )) // Victory theme
-    { 
-      isAmbush = false;
-      isAmbushed = false;
-      btlEquipBgmTableEntry* pEntry = &btlEquipBgmTable[rngBGM];
-      id = pEntry->bgmId + 1;
-    }
-    else if ( id == 340 && !CONFIG_ENABLED( randomDLCBGM ) ) // Victory theme
-    { 
-      isAmbush = false;
-      isAmbushed = false;
-      for ( u32 i = 0; i < btlEquipBgmTableEntryCount; ++i )
-      {
-        btlEquipBgmTableEntry* pEntry = &btlEquipBgmTable[i];
-        if ( pEntry->modelID == playerOutfitModel )
-        {
-          id = pEntry->bgmId + 1;
-          break;
-        }
-      }  
-    }
     if ( id == 101 && sequenceIDGlobal == 1 && CONFIG_ENABLED( enableExpandedBGM ) && CONFIG_ENABLED( P5RTitleBGM ) )
     {
       if ( titleScreenBGM == 0 ) // P5
@@ -77,7 +53,7 @@ static void setBgmHook( int id )
       }
       else if ( titleScreenBGM == 2 ) // P5S
       {
-        id = 996;
+        id = 970;
         RandomizeTitleScreenBGM();
       }
     }
@@ -351,15 +327,6 @@ static int FUN_001cf704Hook( u64 unk, int charID, int expressionID, int outfitID
   return SHK_CALL_HOOK( FUN_001cf704, unk, charID, expressionID, outfitID );
 }
 
-static void BtlPlayBGM( int a1, int a2 )
-{
-  /*char hexdumpString[64];
-  sprintf( hexdumpString, "BtlPlayBGM; struct at 0x%x", a1);
-  hexDump( hexdumpString, a1, 0x5E0 );*/
-  //printf("BtlPlayBGM called with BGM ID %d\n", a2);
-  return SHK_CALL_HOOK( FUN_0063acc8, a1, a2 );
-}
-
 // The start function of the PRX. This gets executed when the loader loads the PRX at boot.
 // This means game data is not initialized yet! If you want to modify anything that is initialized after boot,
 // hook a function that is called after initialisation.
@@ -381,7 +348,6 @@ void p5eInit( void )
   SHK_BIND_HOOK( FUN_0003a658, FUN_0003a658Hook );
   SHK_BIND_HOOK( FUN_0003a698, FUN_0003a698Hook );
   SHK_BIND_HOOK( FUN_001cf704, FUN_001cf704Hook );
-  SHK_BIND_HOOK( FUN_0063acc8, BtlPlayBGM );
   titleScreenBGM = 99;
   RandomizeTitleScreenBGM();
 }

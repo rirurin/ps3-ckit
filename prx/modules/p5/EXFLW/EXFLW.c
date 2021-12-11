@@ -1423,7 +1423,7 @@ char UnitTypeNames[4][7] = { "Null", "Player", "Enemy", "Persona" };
 
 static void LoadSoundByCueIDCombatVoiceFunctionHook( CueIDThingy* a1, u32* a2, u32 cueID, u8 idk )
 {
-  DEBUG_LOG( "%s ID %d using Voice Cue ID %d\n", UnitTypeNames + a1->Field10->btlUnitPointer->unitType, a1->Field10->btlUnitPointer->unitID, cueID );
+  DEBUG_LOG( "%s ID %d is using Voice Cue ID %d\n", UnitTypeNames + a1->Field10->btlUnitPointer->unitType, a1->Field10->btlUnitPointer->unitID, cueID );
   
   return SHK_CALL_HOOK( LoadSoundByCueIDCombatVoiceFunction, a1, a2, cueID, idk );
 }

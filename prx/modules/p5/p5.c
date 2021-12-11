@@ -169,6 +169,11 @@ void FUN_0025cb8c( u32 unitID, u16 personaID )
     SHK_FUNCTION_CALL_2( 0x25cb8c, void, u32, unitID, u16, personaID );
 }
 
+void ActualSetCount( u32 CountNumber, u32 Value )
+{
+    SHK_FUNCTION_CALL_2( 0x24ba4c, void, u32, CountNumber, u32, Value );
+}
+
 void SetUnitEXP( u32 ID, u16 Lv )
 {
     SHK_FUNCTION_CALL_2( 0x26a6f4, void, u32, ID, u16, Lv );

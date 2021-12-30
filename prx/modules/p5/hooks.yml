@@ -455,3 +455,16 @@ FUN_00b24938:
 FUN_00060b90:
     addr: 0x60b90
     replacedInstr: stdu  r1, -0x80(r1)
+
+FUN_004eae40:
+    addr: 0x4eae40
+    replacedInstr: stdu  r1, -0x1c0(r1)
+
+FUN_005528f8:
+    addr: 0x5528f8
+    replacedInstr: stdu  r1, -0x80(r1)
+    
+LAB_003062ec:
+    addr: 0x3062ec
+    replacedInstr: addic  r4, r3, 0x4
+    

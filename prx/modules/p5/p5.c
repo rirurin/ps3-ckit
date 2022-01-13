@@ -665,7 +665,7 @@ bool isMidWinterValid( void )
         return isMidwinter;
     }
     
-    if ( GetTotalDays() >= 214 )
+    if ( GetTotalDays() >= 275 && GetTotalDays() < 334 )
     {
         isMidwinter = true;
         if ( sequenceIDGlobal == 6 )

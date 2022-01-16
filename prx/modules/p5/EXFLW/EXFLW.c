@@ -1056,25 +1056,25 @@ static int EX_IS_PLAYER_CHEATING( void )
   {
     total += 2;
   }
-  if ( CheckHasSkill( Joker, 600 ) || 
-       CheckHasSkill( Joker, 603 ) || 
-       CheckHasSkill( Joker, 604 ) || 
-       CheckHasSkill( Joker, 605 ) || 
-       CheckHasSkill( Joker, 606 ) || 
-       CheckHasSkill( Joker, 607 ) || 
-       CheckHasSkill( Joker, 612 ) || 
-       CheckHasSkill( Joker, 636 ) || 
-       CheckHasSkill( Joker, 658 ) || 
-       CheckHasSkill( Joker, 659 ) || 
-       CheckHasSkill( Joker, 660 ) || 
-       CheckHasSkill( Joker, 768 ) || 
-       CheckHasSkill( Joker, 434 ) || 
-       CheckHasSkill( Joker, 465 ) || 
-       CheckHasSkill( Joker, 469 ) || 
-       CheckHasSkill( Joker, 481 ) || 
-       CheckHasSkill( Joker, 477 ) || 
-       CheckHasSkill( Joker, 490 ) || 
-       CheckHasSkill( Joker, 496 )  )
+  if ( BtlUnitCheckHasSkill( Joker, 600 ) || 
+       BtlUnitCheckHasSkill( Joker, 603 ) || 
+       BtlUnitCheckHasSkill( Joker, 604 ) || 
+       BtlUnitCheckHasSkill( Joker, 605 ) || 
+       BtlUnitCheckHasSkill( Joker, 606 ) || 
+       BtlUnitCheckHasSkill( Joker, 607 ) || 
+       BtlUnitCheckHasSkill( Joker, 612 ) || 
+       BtlUnitCheckHasSkill( Joker, 636 ) || 
+       BtlUnitCheckHasSkill( Joker, 658 ) || 
+       BtlUnitCheckHasSkill( Joker, 659 ) || 
+       BtlUnitCheckHasSkill( Joker, 660 ) || 
+       BtlUnitCheckHasSkill( Joker, 768 ) || 
+       BtlUnitCheckHasSkill( Joker, 434 ) || 
+       BtlUnitCheckHasSkill( Joker, 465 ) || 
+       BtlUnitCheckHasSkill( Joker, 469 ) || 
+       BtlUnitCheckHasSkill( Joker, 481 ) || 
+       BtlUnitCheckHasSkill( Joker, 477 ) || 
+       BtlUnitCheckHasSkill( Joker, 490 ) || 
+       BtlUnitCheckHasSkill( Joker, 496 )  )
   {
     total += 9;
   }
@@ -1102,25 +1102,25 @@ static int EX_IS_PLAYER_CHEATING( void )
     {
       total += 1;
     }
-    if ( CheckHasSkill( PartyMember, 600 ) || 
-       CheckHasSkill( PartyMember, 603 ) || 
-       CheckHasSkill( PartyMember, 604 ) || 
-       CheckHasSkill( PartyMember, 605 ) || 
-       CheckHasSkill( PartyMember, 606 ) || 
-       CheckHasSkill( PartyMember, 607 ) || 
-       CheckHasSkill( PartyMember, 612 ) || 
-       CheckHasSkill( PartyMember, 636 ) || 
-       CheckHasSkill( PartyMember, 658 ) || 
-       CheckHasSkill( PartyMember, 659 ) || 
-       CheckHasSkill( PartyMember, 660 ) || 
-       CheckHasSkill( PartyMember, 768 ) || 
-       CheckHasSkill( PartyMember, 434 ) || 
-       CheckHasSkill( PartyMember, 465 ) || 
-       CheckHasSkill( PartyMember, 469 ) || 
-       CheckHasSkill( PartyMember, 481 ) || 
-       CheckHasSkill( PartyMember, 477 ) || 
-       CheckHasSkill( PartyMember, 490 ) || 
-       CheckHasSkill( PartyMember, 496 )  )
+    if ( BtlUnitCheckHasSkill( PartyMember, 600 ) || 
+       BtlUnitCheckHasSkill( PartyMember, 603 ) || 
+       BtlUnitCheckHasSkill( PartyMember, 604 ) || 
+       BtlUnitCheckHasSkill( PartyMember, 605 ) || 
+       BtlUnitCheckHasSkill( PartyMember, 606 ) || 
+       BtlUnitCheckHasSkill( PartyMember, 607 ) || 
+       BtlUnitCheckHasSkill( PartyMember, 612 ) || 
+       BtlUnitCheckHasSkill( PartyMember, 636 ) || 
+       BtlUnitCheckHasSkill( PartyMember, 658 ) || 
+       BtlUnitCheckHasSkill( PartyMember, 659 ) || 
+       BtlUnitCheckHasSkill( PartyMember, 660 ) || 
+       BtlUnitCheckHasSkill( PartyMember, 768 ) || 
+       BtlUnitCheckHasSkill( PartyMember, 434 ) || 
+       BtlUnitCheckHasSkill( PartyMember, 465 ) || 
+       BtlUnitCheckHasSkill( PartyMember, 469 ) || 
+       BtlUnitCheckHasSkill( PartyMember, 481 ) || 
+       BtlUnitCheckHasSkill( PartyMember, 477 ) || 
+       BtlUnitCheckHasSkill( PartyMember, 490 ) || 
+       BtlUnitCheckHasSkill( PartyMember, 496 )  )
     {
       total += 9;
     }
@@ -1320,11 +1320,9 @@ static int EX_SET_ENID_TACTICS( void )
   return 1;
 }
 
-static int EX_BTL_GET_CURRENT_CHARAID( void )
+static int EX_PLAYER_HAS_SKILL( void )
 {
-  AI_CHK_SLIP(); // needed to store btlUnit struct of current acting enemy
-  printf("Current Acting Unit is iD %d\n", enemyBtlUnit->unitID);
-  FLW_SetIntReturn( enemyBtlUnit->unitID );
+  FLW_SetIntReturn( BtlUnitCheckHasSkill( GetBtlPlayerUnitFromID( FLW_GetIntArg( 0 ) ), FLW_GetIntArg( 1 ) ) );
   
   return 1;
 }
@@ -1352,7 +1350,7 @@ scrCommandTableEntry exCommandTable[] =
   { EX_GET_PLAYER_MAX_HP, 1, "GET_PLAYER_MAX_HP" },
   { EX_SET_ENID_MAX_HP, 2, "SET_ENID_MAX_HP" },
   { EX_SET_ENID_TACTICS, 2, "SET_ENID_TACTICS" },
-  { EX_BTL_GET_CURRENT_CHARAID, 0, "BTL_GET_CURRENT_CHARAID" },
+  { EX_PLAYER_HAS_SKILL, 2, "PLAYER_HAS_SKILL" },
 };
 
 static scrCommandTableEntry* scrGetCommandFuncHook( u32 id )

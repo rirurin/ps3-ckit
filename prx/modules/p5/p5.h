@@ -19,6 +19,7 @@ bool isAmbushed;
 bool isMidwinter;
 bool hasAkechiEndured;
 bool hasSumiEndured;
+bool isLoadScheduler;
 int rngBGM;
 int lastAccessedUnitType;
 int JokerModel;
@@ -32,6 +33,21 @@ typedef struct
   u32 modelID;
   u32 bgmId;
 } btlEquipBgmTableEntry;
+
+typedef struct
+{
+  u32 Field00;
+  u16 Flags;
+  u16 cmmID;
+  u16 cmmRank;
+  u16 cmmAffinity;
+  u32 Field0C;
+} ConfidantStats;
+
+typedef struct
+{
+  ConfidantStats Confidants[24];
+} ConfidantStatsStruct;
 
 typedef struct GFDModelMaterial_Processed
 {
@@ -2234,7 +2250,7 @@ int FUN_003b9110( int a1, int a2, int a3, int a4, int a5 );
  * @return true 
  * @return false 
  */
-bool CheckHasSkill ( btlUnit_Unit* btlUnit, int SkillID );
+bool BtlUnitCheckHasSkill ( btlUnit_Unit* btlUnit, int SkillID );
 bool GetAccessoryEffect ( btlUnit_Unit* btlUnit, int EffectID );
 bool CheckAccessoryEffect ( btlUnit_Unit* btlUnit, int EffectID );
 u32 FUN_000442cc ( int param_1,int param_2 );

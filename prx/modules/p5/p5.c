@@ -534,7 +534,7 @@ ItemTBL_RangedWeapon* GetRangedWeaponTBLEntry( u16 WeaponID )
     SHK_FUNCTION_CALL_1(0x26393c , ItemTBL_RangedWeapon*, u16, WeaponID);
 }
 
-bool CheckHasSkill ( btlUnit_Unit* btlUnit, int SkillID ){
+bool BtlUnitCheckHasSkill ( btlUnit_Unit* btlUnit, int SkillID ){
     SHK_FUNCTION_CALL_2( 0x259148, bool, btlUnit_Unit*, btlUnit, int, SkillID );
 }
 
@@ -665,7 +665,7 @@ bool isMidWinterValid( void )
         return isMidwinter;
     }
     
-    if ( GetTotalDays() >= 214 )
+    if ( GetBitflagState( 2162 ) && GetTotalDays() >= 275 && GetTotalDays() < 334 )
     {
         isMidwinter = true;
         if ( sequenceIDGlobal == 6 )

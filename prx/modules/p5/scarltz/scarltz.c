@@ -125,26 +125,26 @@ static u64 ResistancePassiveCheckHook ( btlUnit_Unit* btlUnit, ElementalType Ele
     bool pass = false;
     
     if (ElementID >= ET_Physical) {
-        if ( CheckHasSkill ( btlUnit, 1000 ) ) {
+        if ( BtlUnitCheckHasSkill ( btlUnit, 1000 ) ) {
             Resistance = Resistance | Repel;
             pass = true;
         }
     }
 
     if (ElementID == ET_Gun) {
-        if ( CheckHasSkill ( btlUnit, 1001 ) ) {
+        if ( BtlUnitCheckHasSkill ( btlUnit, 1001 ) ) {
             Resistance = Resistance | Resist;
             pass = true;
         }
-        if ( CheckHasSkill ( btlUnit, 1002 ) ) {
+        if ( BtlUnitCheckHasSkill ( btlUnit, 1002 ) ) {
             Resistance = Resistance | Block;
             pass = true;
         }
-        if ( CheckHasSkill ( btlUnit, 1003 ) ) {
+        if ( BtlUnitCheckHasSkill ( btlUnit, 1003 ) ) {
             Resistance = Resistance | Repel;
             pass = true;
         }
-        if ( CheckHasSkill ( btlUnit, 1004 ) ) {
+        if ( BtlUnitCheckHasSkill ( btlUnit, 1004 ) ) {
             Resistance = Resistance | Drain;
             pass = true;
         }
@@ -266,7 +266,7 @@ LABEL_85:
 LABEL_506:
           if ( TotalHPIncrease > 0 && (param_7 & 1) == 0 )
           {
-            if ( CheckHasSkill(btlUnit_1, 829) )
+            if ( BtlUnitCheckHasSkill(btlUnit_1, 829) )
               EffectToHP = (EffectToHP * 1.5);
             v122 = ActualGetCount(220);
             if ( v122 > 0 )
@@ -336,7 +336,7 @@ ElementalDamageCalc:
         if ( ElementID >= ET_Physical && ElementID <= ET_Almighty)
         {
           double AmpAll = 1.0;
-          if ( CheckHasSkill(btlUnit_1, 1005) ){
+          if ( BtlUnitCheckHasSkill(btlUnit_1, 1005) ){
             AmpAll = 1.0 * 2.0;
             Pass = true;
           }
@@ -344,7 +344,7 @@ ElementalDamageCalc:
         }
 
         v70 = 0.5;
-        if ( CheckHasSkill(btlUnit_2, 858) )
+        if ( BtlUnitCheckHasSkill(btlUnit_2, 858) )
           EffectToHP = (EffectToHP * 0.5);
         if ( !FUN_002588b4(btlUnit_2) && CheckAccessoryEffect(btlUnit_2, 186) )
           EffectToHP = (EffectToHP * 0.5);

@@ -24,7 +24,6 @@
 
 // You need to declare hooks with SHK_HOOK before you can use them.
 SHK_HOOK( void, FUN_004eae40, u16* param_1, int param_2, int param_3 );
-SHK_HOOK( void, LAB_003062ec, u32* param_1 );
 //SHK_HOOK( void, FUN_005528f8, undefined4* param_1 );
 
 // The start function of the PRX. This gets executed when the loader loads the PRX at boot.
@@ -48,32 +47,18 @@ static void FUN_004eae40Hook( u16* param_1, int param_2, int param_3 )
 	return;
 }
 
-static void LAB_003062ecHook(u32* param_1)
-
-{
-	SHK_CALL_HOOK( LAB_003062ec, param_1 );
-  u8 uVar1;
-  u32 uVar2;
-  
-  	uVar2 = *param_1;
-  	uVar1 = *(u8 *)(param_1 + 1);
-	sprintf( "uVar1 = %d", uVar1 );
-	sprintf( "uVar2 = %d", uVar2 );
-	sprintf( "param_1 = %d", *param_1 );
-  return;
-}
 /*static void FUN_005528f8Hook(undefined4* param_1)
 
 {
 	undefined4* puVar4;
-	SHK_CALL_HOOK( FUN_005528f, param_1 );
+	SHK_CALL_HOOK( FUN_005528f8, param_1 );
 	if ( GetTotalDays() >= 214 )
     {
-		puVar4 = sprintf("field/panel/wipe/wipeParallelTwistPack.pac");
+		puVar4 = sprintf("field/panel/wipe/wipeParallelTwistPack.pac", 0);
 	}
 	else
 	{
-		puVar4 = sprintf("field/panel/wipe/wipeParallelPack.pac");
+		puVar4 = sprintf("field/panel/wipe/wipeParallelPack.pac", 0);
 	}
   *param_1 = puVar4;
   *(undefined *)(param_1 + 0x45) = 1;
@@ -86,7 +71,6 @@ void SecreCInit( void )
   // If you don't do this, the game will crash.
   
   SHK_BIND_HOOK( FUN_004eae40, FUN_004eae40Hook );
-  SHK_BIND_HOOK( LAB_003062ec, LAB_003062ecHook );
   //SHK_BIND_HOOK( FUN_005528f8, FUN_005528f8Hook );
 }
 

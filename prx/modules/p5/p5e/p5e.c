@@ -35,6 +35,8 @@ SHK_HOOK( int, criFsBinder_BindCpk, char* arg );
 SHK_HOOK( u64, criFsBinder_SetPriority, u32 a1, u32 a2 );
 SHK_HOOK( int, crifsloader_load_registered_file, fileAccessStruct* a1, int a2, int a3, int a4, int a5 );
 SHK_HOOK( int, GenericCharacterModelLoader, char* result, u64 modelType, u64 characterID, u64 modelID, u64 modelSubID );
+SHK_HOOK( u64, FUN_0004b24c, u64 a1 );
+SHK_HOOK( int, FUN_0004951c, int a1, structB* a2, structB* a3 );
 
 static void setBgmHook( int id )
 {
@@ -327,6 +329,27 @@ static int FUN_001cf704Hook( u64 unk, int charID, int expressionID, int outfitID
   return SHK_CALL_HOOK( FUN_001cf704, unk, charID, expressionID, outfitID );
 }
 
+static u64 FUN_0004b24cHook( u64 a1 ) // function that loads scheduler bf
+{
+  isLoadScheduler = true;
+  return SHK_CALL_HOOK( FUN_0004b24c, a1 );
+}
+
+static int FUN_0004951cHook( int a1, structB* a2, structB* a3 ) // calculates days, called during scheduler bf load calc
+{
+  int result = SHK_CALL_HOOK( FUN_0004951c, a1, a2, a3 );
+  if ( isLoadScheduler )
+  {
+    //printf("FUN_0004951cHook called, a1 -> %d, a2 -> %d, a3 -> %d\n", a1, a2->field00, a3->field00);
+    if ( GetBitflagState( 2162 ) && ( a2->field00 == 1 || a2->field00 == 2 || a2->field00 == 3 || a2->field00 == 12 ) )
+    {
+      a2->field00 += 20;
+    }
+    isLoadScheduler = false;
+  }
+  return result;
+}
+
 // The start function of the PRX. This gets executed when the loader loads the PRX at boot.
 // This means game data is not initialized yet! If you want to modify anything that is initialized after boot,
 // hook a function that is called after initialisation.
@@ -348,6 +371,8 @@ void p5eInit( void )
   SHK_BIND_HOOK( FUN_0003a658, FUN_0003a658Hook );
   SHK_BIND_HOOK( FUN_0003a698, FUN_0003a698Hook );
   SHK_BIND_HOOK( FUN_001cf704, FUN_001cf704Hook );
+  SHK_BIND_HOOK( FUN_0004b24c, FUN_0004b24cHook );
+  SHK_BIND_HOOK( FUN_0004951c, FUN_0004951cHook );
   titleScreenBGM = 99;
   RandomizeTitleScreenBGM();
 }

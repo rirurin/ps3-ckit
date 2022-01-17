@@ -77,8 +77,11 @@ SHK_HOOK( u32, FUN_007af1c0, u32 a1, u32 a2 );
 SHK_HOOK( u32, FUN_00784d18, u32 a1, u32 a2 );
 SHK_HOOK( int, FUN_000435c0, int a1, int a2 );
 SHK_HOOK( int, FUN_00060b90, void );
+SHK_HOOK( int, FUN_000bee20, char* a1, u32 a2, u32 a3 );
+SHK_HOOK( int, FUN_0054fcb4, void );
 //SHK_HOOK( int, FUN_00b0efa8, AnimVtableFunctionA1* a1, double a2, double a3 );
 //SHK_HOOK( int, FUN_00b03248, AnimVtableFunctionA1* a1, double a2, double a3 );
+//SHK_HOOK( int, BattleAnimations, CueIDThingy* a1, u64 a2, u64 a3, u64 a4, u64 a5, u64 a6, u64 a7, u64 a8, u64 a9, u64 a10, u64 a11 );
 
 static s32 pattern[] = { 0x00, 0xBA, 0x69, 0x98, -1, -1, -1, -1, -1, -1, -1, -1, 0x00, 0xBA, 0x23, 0x88, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 static u64 BtlUnitGetUnitIDHook( btlUnit_Unit* btlUnit  )
@@ -1725,6 +1728,70 @@ static int FUN_00060b90Hook( void )
   return result;
 }
 
+static int FUN_000bee20Hook( char *a1 , u32 a2, u32 a3 )
+{
+  printf("Loading Field ID %03d %03d\n", a2 % 1000, a3 % 1000 );
+  return sprintf( a1 ,"field/f%03d_%03d.pac", a2 % 1000, a3 % 1000);
+}
+
+static int CMM_RANKUP( void )
+{
+  int targetConfidant = FLW_GetIntArg( 0 );
+  if ( targetConfidant == 33 ) // Faith/Kasumi
+  {
+    int targetRank = FLW_GetIntArg( 1 );
+
+    if ( 0 > targetRank ) // prevent invalid rank values
+    {
+      targetRank = 0;
+    }
+    else if ( targetRank >= 10 )
+    {
+      targetRank = 10;
+    }
+
+    ConfidantStats* CMM_Data_Current = 0x010c1708;
+    bool isCMMExist = false;
+
+    for ( int i = 0; i < 22; i++ ) // check for existing confidant
+    {
+      //printf("CMM Slot %d contains CMM ID %d; rank %d\n", i, CMM_Data_Current->cmmID, CMM_Data_Current->cmmRank);
+      if ( CMM_Data_Current->cmmID == 33 && CMM_Data_Current->cmmRank != targetRank )
+      {
+        CMM_Data_Current->cmmRank = targetRank;
+        isCMMExist = true;
+      }
+      CMM_Data_Current++;
+    }
+
+    if ( !isCMMExist )
+    {
+      CMM_Data_Current = 0x010c1708;
+      for ( int i = 0; i < 22; i++ ) // add confidant if not exist
+      {
+        if ( CMM_Data_Current->cmmID == 0 && CMM_Data_Current->cmmRank == 0 )
+        {
+          CMM_Data_Current->cmmID = 33;
+          CMM_Data_Current->cmmRank = targetRank;
+          i = 99;
+        }
+        CMM_Data_Current++;
+      }
+    }
+  }
+  return SHK_CALL_HOOK( FUN_0054fcb4 );
+}
+
+/*static int BattleAnimationsHook( CueIDThingy* a1, u64 a2, u64 a3, u64 a4, u64 a5, u64 a6, u64 a7, u64 a8, u64 a9, u64 a10, u64 a11 )
+{
+  int result = SHK_CALL_HOOK( BattleAnimations, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11 );
+  if ( a1->Field10->btlUnitPointer->unitType == 2 )
+  {
+    printf("Anim data Arguments:  \n A1: %X \n ID: %d \n Animation: %d \n A3: %X \n A4: %X \n A5: %X \n A6: %X \n A7: %X \n A8: %X \n A9: %X \n A10: %X \n A11: %X \n\n", a1, a1->Field10->btlUnitPointer->unitID, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11);
+  }
+  return result;
+}*/
+
 /*
 static int FUN_00b0efa8Hook( AnimVtableFunctionA1* a1, double a2, double a3 )
 {
@@ -1802,8 +1869,11 @@ void dcInit( void )
   SHK_BIND_HOOK( FUN_00b24938, PlayJokerSkillCueID );
   SHK_BIND_HOOK( FUN_00b25348, FUN_00b25348Hook );
   SHK_BIND_HOOK( FUN_00060b90, FUN_00060b90Hook );
+  SHK_BIND_HOOK( FUN_000bee20, FUN_000bee20Hook );
+  SHK_BIND_HOOK( FUN_0054fcb4, CMM_RANKUP );
   //SHK_BIND_HOOK( FUN_00b0efa8, FUN_00b0efa8Hook );
   //SHK_BIND_HOOK( FUN_00b03248, FUN_00b03248Hook );
+  //SHK_BIND_HOOK( BattleAnimations, BattleAnimationsHook );
 }
 
 void dcShutdown( void )

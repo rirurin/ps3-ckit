@@ -483,4 +483,8 @@ FUN_005528f8:
 LAB_003062ec:
     addr: 0x3062ec
     replacedInstr: addic  r4, r3, 0x4
+
+GetFieldIDsFromEncountTable:
+    addr: 0x0330de0
+    replacedInstr: stdu r1, local_e0(r1)
     

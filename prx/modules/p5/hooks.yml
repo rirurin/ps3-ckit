@@ -484,7 +484,14 @@ LAB_003062ec:
     addr: 0x3062ec
     replacedInstr: addic  r4, r3, 0x4
 
+GetDataFromEncountTBL:
+    addr: 0x0263b94
+    replacedInstr: rlwinm   param_1,param_1,0x0,0x10,0x1f
+
 GetFieldIDsFromEncountTable:
     addr: 0x0330de0
     replacedInstr: stdu r1, local_e0(r1)
-    
+
+FUN_00305468:
+    addr: 0x0305468
+    replacedInstr: rlwinm   param_1,0x0,0x10,0x1f

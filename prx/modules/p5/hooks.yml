@@ -482,7 +482,7 @@ GetDataFromEncountTBL:
 
 GetFieldIDsFromEncountTable:
     addr: 0x0330de0
-    replacedInstr: stdu r1, local_e0(r1)
+    replacedInstr: stdu r1, -0xe0(r1)
 
 FUN_00305468:
     addr: 0x0305468

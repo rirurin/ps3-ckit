@@ -471,18 +471,10 @@ FUN_000bee20:
 FUN_0054fcb4:
     addr: 0x54fcb4
     replacedInstr: stdu  r1, -0x90(r1)
-
-FUN_004eae40:
-    addr: 0x4eae40
-    replacedInstr: stdu  r1, -0x1c0(r1)
-
-FUN_005528f8:
-    addr: 0x5528f8
-    replacedInstr: stdu  r1, -0x80(r1)
     
-LAB_003062ec:
-    addr: 0x3062ec
-    replacedInstr: addic  r4, r3, 0x4
+FUN_004eaca4:
+    addr: 0x4eaca4
+    replacedInstr: stdu  r1, -0x80(r1)
 
 GetDataFromEncountTBL:
     addr: 0x0263b94
@@ -495,7 +487,3 @@ GetFieldIDsFromEncountTable:
 FUN_00305468:
     addr: 0x0305468
     replacedInstr: rlwinm  r5, r3, 0x0, 0x10, 0x1f
-
-FUN_004eaca4:
-    addr: 0x4eaca4
-    replacedInstr: stdu  r1, -0x80(r1)

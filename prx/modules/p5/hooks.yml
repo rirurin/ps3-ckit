@@ -475,15 +475,3 @@ FUN_0054fcb4:
 FUN_004eaca4:
     addr: 0x4eaca4
     replacedInstr: stdu  r1, -0x80(r1)
-
-GetDataFromEncountTBL:
-    addr: 0x0263b94
-    replacedInstr: rlwinm  r3, r3, 0x0, 0x10, 0x1f
-
-GetFieldIDsFromEncountTable:
-    addr: 0x0330de0
-    replacedInstr: stdu r1, -0xe0(r1)
-
-FUN_00305468:
-    addr: 0x0305468
-    replacedInstr: rlwinm  r5, r3, 0x0, 0x10, 0x1f

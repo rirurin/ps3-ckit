@@ -454,6 +454,10 @@ static void Load2DUIDDSHook(u32* a1, char* a2)
   {
     a2 = "camp/charaTex/c_chara_09b.dds";
   }
+  if ( strcmp( a2, "camp/charaTex/c_chara_22.dds") == 0 && (GetBitflagState( 3750 ) == 1 || GetBitflagState( 3748 ) == 1 || GetBitflagState( 3746 ) == 1 || GetBitflagState( 3752 ) == 1 ))
+  {
+	  a2 = "camp/charaTex/c_chara_22b.dds";
+  }
   SHK_CALL_HOOK( Load2DUIDDS, a1, a2 );
 }
 

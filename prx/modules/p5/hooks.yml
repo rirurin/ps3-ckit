@@ -455,7 +455,7 @@ FUN_00b24938:
 FUN_00060b90:
     addr: 0x60b90
     replacedInstr: stdu  r1, -0x80(r1)
-
+    
 FUN_0004b24c:
     addr: 0x4b24c
     replacedInstr: stdu  r1, -0x2f0(r1)
@@ -471,3 +471,7 @@ FUN_000bee20:
 FUN_0054fcb4:
     addr: 0x54fcb4
     replacedInstr: stdu  r1, -0x90(r1)
+    
+FUN_004eaca4:
+    addr: 0x4eaca4
+    replacedInstr: stdu  r1, -0x80(r1)

@@ -37,12 +37,16 @@ SHK_HOOK( int, crifsloader_load_registered_file, fileAccessStruct* a1, int a2, i
 SHK_HOOK( int, GenericCharacterModelLoader, char* result, u64 modelType, u64 characterID, u64 modelID, u64 modelSubID );
 SHK_HOOK( u64, FUN_0004b24c, u64 a1 );
 SHK_HOOK( int, FUN_0004951c, int a1, structB* a2, structB* a3 );
+SHK_HOOK( int, FUN_002625d4, int a1, int a2 );
+SHK_HOOK( int, FUN_00045d24, int unitID, u8 modelID_base, u8 a3 );
+SHK_HOOK( int, FUN_000bee20, char* a1, u32 a2, u32 a3 );
+SHK_HOOK( int, FUN_00332b4c, u32 a1, u32 a2, u32 a3 );
 
 static void setBgmHook( int id )
 {
-  if ( CONFIG_ENABLED( enableExpandedBGM ) )
+  if ( id == 101 && sequenceIDGlobal == 1 )
   {
-    if ( id == 101 && sequenceIDGlobal == 1 && CONFIG_ENABLED( enableExpandedBGM ) && CONFIG_ENABLED( P5RTitleBGM ) )
+    if ( CONFIG_ENABLED( enableExpandedBGM ) && CONFIG_ENABLED( P5RTitleBGM ) )
     {
       if ( titleScreenBGM == 0 ) // P5
       {
@@ -59,6 +63,10 @@ static void setBgmHook( int id )
         RandomizeTitleScreenBGM();
       }
     }
+  }
+  else if ( id == 340 ) //Victory Screen
+  {
+    randomizedCombatOutfit = true;
   }
 
   printf("SetBGM Called with BGM ID -> %d\n", id);
@@ -350,6 +358,106 @@ static int FUN_0004951cHook( int a1, structB* a2, structB* a3 ) // calculates da
   return result;
 }
 
+static int GetOutfitGearEffects( u32 outfitID, u32 gearEffectSlot )
+{
+  return 0;
+}
+
+static int GetCombatModelMinorIDFromOutfit( int unitID, u8 modelID_base, u8 a3 )
+{
+  if ( modelID_base == 50 ) // combat model
+  {
+    int targetOutfitID = GetBtlPlayerUnitFromID( unitID )->outfitID - 0x7000;
+    targetOutfitID = GetOutfitTBLEntry( targetOutfitID )->GearEffect[0];
+
+    if ( targetOutfitID != 0 )
+    {
+      return targetOutfitID; // read outfit tbl value and use it as model minor id
+    }
+    else return SHK_CALL_HOOK( FUN_00045d24, unitID, modelID_base, a3 );
+  }
+  else return SHK_CALL_HOOK( FUN_00045d24, unitID, modelID_base, a3 );
+}
+
+short JokerModelIDs[33] = { 51, 52, 66, 67, 71, 72, 151, 152, 153, 154, 155, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177 };
+short SkullModelIDs[27] = { 51, 151, 152, 153, 154, 155, 156, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177 };
+short MonaModelIDs[21] = { 51, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177 };
+short PantherModelIDs[31] = { 51, 72, 103, 74, 83, 151, 152, 153, 154, 155, 156, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177 };
+short FoxModelIDs[26] = { 51, 151, 152, 153, 154, 156, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177 };
+short QueenModelIDs[28] = { 51, 83, 151, 152, 153, 154, 155, 156, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177 };
+short NoirModelIDs[27] = { 51, 151, 152, 153, 154, 155, 156, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177 };
+short OracleModelIDs[26] = { 51, 153, 154, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 180 };
+short CrowModelIDs[26] = { 51, 151, 152, 153, 154, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 180 };
+short VioletModelIDs[39] = { 5, 6, 51, 151, 152, 153, 154, 155, 156, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 172, 173, 174, 175, 176, 21, 22, 23, 24, 25, 26, 71, 74, 79, 81, 83, 84 };
+
+static int FUN_000bee20Hook( char *a1 , u32 a2, u32 a3 )
+{
+  printf("Loading Field ID %03d %03d\n", a2 % 1000, a3 % 1000 );
+
+  LastLoadedFieldMajorID = a2 % 1000;
+  LastLoadedFieldMinorID = a3 % 1000;
+
+  if ( CONFIG_ENABLED( randomCombatOutfit ) && randomizedCombatOutfit ) // dont randomize during victory
+  {
+    int unitID = 0;
+    for (int i = 1; i <= 10; i++) // ID 1 Joker -> ID 10 Violet
+    {
+      unitID = GetBtlPlayerUnitFromID(i)->unitID;
+
+      int targetOutfitID = GetBtlPlayerUnitFromID( unitID )->outfitID - 0x7000;
+
+      switch( unitID )
+      {
+        case 1:
+          GetOutfitTBLEntry( targetOutfitID )->GearEffect[0] = JokerModelIDs[randomIntBetween( 0, 32 )];
+          break;
+        case 2:
+          GetOutfitTBLEntry( targetOutfitID )->GearEffect[0] = SkullModelIDs[randomIntBetween( 0, 26 )];
+          break;
+        case 3:
+          GetOutfitTBLEntry( targetOutfitID )->GearEffect[0] = MonaModelIDs[randomIntBetween( 0, 20 )];
+          break;
+        case 4:
+          GetOutfitTBLEntry( targetOutfitID )->GearEffect[0] = PantherModelIDs[randomIntBetween( 0, 30 )];
+          break;
+        case 5:
+          GetOutfitTBLEntry( targetOutfitID )->GearEffect[0] = FoxModelIDs[randomIntBetween( 0, 25 )];
+          break;
+        case 6:
+          GetOutfitTBLEntry( targetOutfitID )->GearEffect[0] = QueenModelIDs[randomIntBetween( 0, 27 )];
+          break;
+        case 7:
+          GetOutfitTBLEntry( targetOutfitID )->GearEffect[0] = NoirModelIDs[randomIntBetween( 0, 26 )];
+          break;
+        case 8:
+          GetOutfitTBLEntry( targetOutfitID )->GearEffect[0] = OracleModelIDs[randomIntBetween( 0, 25 )];
+          break;
+        case 9:
+          GetOutfitTBLEntry( targetOutfitID )->GearEffect[0] = CrowModelIDs[randomIntBetween( 0, 25) ];
+          break;
+        case 10:
+          GetOutfitTBLEntry( targetOutfitID )->GearEffect[0] = VioletModelIDs[randomIntBetween( 0, 39) ];
+          break;
+        default:
+          break;
+      }
+      //printf("Randomizing Player Outfit for unit %d into outfit ID %d\n", unitID, GetOutfitTBLEntry( targetOutfitID )->GearEffect[0]);
+    }
+  }
+
+  return sprintf( a1 ,"field/f%03d_%03d.pac", a2 % 1000, a3 % 1000);
+}
+
+static int FUN_00332b4cHook( u32 a1, u32 a2, u32 a3 )
+{
+  if ( a3 == 1 && ActualGetCount(18)/100000 > 0 && CONFIG_ENABLED( DebugModelTesting ))
+  {
+    a3 = ActualGetCount(18)/100000;
+  }
+  
+  return SHK_CALL_HOOK( FUN_00332b4c, a1, a2, a3 );
+}
+
 // The start function of the PRX. This gets executed when the loader loads the PRX at boot.
 // This means game data is not initialized yet! If you want to modify anything that is initialized after boot,
 // hook a function that is called after initialisation.
@@ -373,6 +481,10 @@ void p5eInit( void )
   SHK_BIND_HOOK( FUN_001cf704, FUN_001cf704Hook );
   SHK_BIND_HOOK( FUN_0004b24c, FUN_0004b24cHook );
   SHK_BIND_HOOK( FUN_0004951c, FUN_0004951cHook );
+  SHK_BIND_HOOK( FUN_002625d4, GetOutfitGearEffects );
+  SHK_BIND_HOOK( FUN_00045d24, GetCombatModelMinorIDFromOutfit );
+  SHK_BIND_HOOK( FUN_000bee20, FUN_000bee20Hook );
+  SHK_BIND_HOOK( FUN_00332b4c, FUN_00332b4cHook );
   titleScreenBGM = 99;
   RandomizeTitleScreenBGM();
 }

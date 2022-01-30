@@ -20,6 +20,7 @@ bool isMidwinter;
 bool hasAkechiEndured;
 bool hasSumiEndured;
 bool isLoadScheduler;
+bool randomizedCombatOutfit;
 int rngBGM;
 int lastAccessedUnitType;
 int JokerModel;
@@ -27,6 +28,9 @@ u32 titleScreenBGM;
 u16 ActiveGlobalSkillSlot;
 u16 SummonCustomBED;
 u16 KasumiModelSubID;
+
+u16 LastLoadedFieldMajorID;
+u16 LastLoadedFieldMinorID;
 
 typedef struct
 {
@@ -91,6 +95,17 @@ typedef struct GFDModelMaterial_Processed
 
 
 btlEquipBgmTableEntry btlEquipBgmTable[29];
+
+short JokerModelIDs[33];
+short SkullModelIDs[27];
+short MonaModelIDs[21];
+short PantherModelIDs[31];
+short FoxModelIDs[26];
+short QueenModelIDs[28];
+short NoirModelIDs[27];
+short OracleModelIDs[26];
+short CrowModelIDs[26];
+short VioletModelIDs[39];
 
 int sVanillaBits[6];
 int sRoyalBits[6];
@@ -625,6 +640,18 @@ typedef struct
   u16 field_32;
 } ItemTBL_RangedWeapon;
 
+typedef struct
+{
+  u32 icon;
+  u32 Field04;
+  u32 EquippableUsers;
+  u16 Field0C;
+  u16 GearEffect[3];
+  u32 PurchasePrice;
+  u32 SellPrice;
+  u8 DateAvailable[2];
+  u16 padding;
+}ItemTBL_Outfit;
 
 
 typedef enum
@@ -856,6 +883,39 @@ typedef struct btlUnit_Unit
   u16 HPGainNextLv; // 29C
   u16 SPGainNextLv; // 29E
 } btlUnit_Unit;
+
+typedef struct
+{
+  u32 Flags; // 0
+  u16 unitType; // 4
+  u16 Field06; // 6
+  u32 unitID; // 8
+  u32 currentHP; // C
+  u32 currentSP; // 10
+  u32 StatusAilments; // 14
+  u16 Joker_Lv; // 18
+  u16 Field1A; // 1A
+  u32 Joker_EXP; // 1C
+  u32 PhaseID; // 20
+  BuffStatus Buffs; // 24
+  u32 BuffStatus2; // 28
+  BuffMeta BuffsDirDur; // 2C
+  u16 EquippedPersonaIndex; // 40
+  u16 Field42;
+  btlUnit_Persona StockPersona;
+  u16 meleeID; // 74
+  u16 protectorID; // 76
+  u16 accessoryID; // 78
+  u16 outfitID; // 7A
+  u16 rangedWeaponID; // 7C
+  u32 Field28E;
+  u16 TacticsState; // 82
+  u16 numOfBullets; // 84
+  u32 Field296;
+  u16 Field29A;
+  u16 HPGainNextLv; // 8C
+  u16 SPGainNextLv; // 8E
+} btlUnit_Lite;
 
 typedef struct AI_UnitStruct 
 { 
@@ -2151,6 +2211,7 @@ int FUN_001a52f8( int a1 );
 int FUN_2604C4( int arg );
 int FUN_748ff0( int arg );
 int FUN_0024b28c( int arg );
+int FUN_0010fbbc( int arg );
 void LoadEncounterEventSoundbank( int encounterID );
 
 /**
@@ -2283,6 +2344,7 @@ void FadeOutFunction( u32 a1, u32 a2 );
 bool AICheckSlipfunction( structA_2* a1 );
 bool AI_CHK_SLIP( void );
 int AI_CHK_ENIDHP( void );
+void PrepareDLCBGM( void );
 
 /**
  * @brief Set priority of target CPK
@@ -2310,6 +2372,7 @@ itemTBLAccessoryEntry* GetAccessoryTBLEntry( u16 accessoryID );
 ItemTBL_MeleeWeapon* GetMeleeWeaponTBLEntry( u16 WeaponID );
 ItemTBL_RangedWeapon* GetRangedWeaponTBLEntry( u16 WeaponID );
 unitTBLStats* GetUnitStatsBlockTBLEntry( u16 enemyID );
+ItemTBL_Outfit* GetOutfitTBLEntry( u16 outfitID );
 
 #pragma pop
 #endif

@@ -7,4 +7,3 @@ userconfig*
 .vscode/*
 loader/build/*
 prx/build/*
-build.bat

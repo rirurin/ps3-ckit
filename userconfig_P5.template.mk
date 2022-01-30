@@ -14,8 +14,8 @@
 # 	GAME_DIR		path to the game USRDIR
 
 PYTHON = py -3
-RPCS3_DIR = E:\emulators\rpcs3
+RPCS3_DIR = X:\emu\rpcs3
 GAME = P5
-GAME_ID = BLUS31604
+GAME_ID = NPEB02436
 GAME_VER = 1.00
-GAME_CAT = DISC
+GAME_CAT = HDD

@@ -22,6 +22,13 @@ typedef struct
 
 void RandomizeTitleScreenBGM();
 
+typedef struct
+{
+  u32 Field00;
+  u32 Field04;
+  u8 Field08;
+  u32 selPortraitID;
+}selPortraitStruct;
 
 CharModelReplacementTable charModelReplacementTable[10];
 

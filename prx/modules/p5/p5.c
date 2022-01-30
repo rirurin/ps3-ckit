@@ -13,35 +13,24 @@
 
 btlEquipBgmTableEntry btlEquipBgmTable[] =
 {
-  { 159, 2000 }, // DLC_001
-  { 158, 2002 }, // DLC_002
-  { 161, 2004 }, // DLC_003
-  { 160, 2006 }, // DLC_004
-  { 163, 2008 }, // DLC_005
-  { 166, 2102 }, // DLC_006
-  { 167, 2201 }, // DLC_007
-  { 168, 2203 }, // DLC_008
-  { 169, 2205 }, // DLC_009
-  { 162, 2207 }, // DLC_010
-  { 170, 2209 }, // DLC_011
-  { 171, 2211 }, // DLC_012
-  { 172, 2213 }, // DLC_013
-  { 173, 2215 }, // DLC_014
-  { 174, 2217 }, // DLC_015
-  { 175, 2310 }, // DLC_016
-  { 176, 2330 }, // DLC_017
-  { 177, 2332 }, // DLC_018
-  { 178, 2334 }, // DLC_019
-  { 179, 2336 }, // DLC_020
-  {  -1, 2338 }, // DLC_RND
-  {  -1, 2340 }, // DLC_RND
-  {  -1, 2342 }, // DLC_RND
-  {  -1, 2344 }, // DLC_RND
-  {  -1, 2346 }, // DLC_RND
-  {  -1, 2348 }, // DLC_RND
-  {  -1, 2350 }, // DLC_RND
-  {  -1, 2352 }, // DLC_RND
-  {  -1, 2354 }, // DLC_RND
+  { 159, 1 }, // DLC_001
+  { 158, 2 }, // DLC_002
+  { 161, 3 }, // DLC_003
+  { 160, 4 }, // DLC_004
+  { 163, 5 }, // DLC_005
+  { 166, 6 }, // DLC_006
+  { 167, 7 }, // DLC_007
+  { 168, 8 }, // DLC_008
+  { 169, 9 }, // DLC_009
+  { 162, 10 }, // DLC_010
+  { 170, 11 }, // DLC_011
+  { 171, 12 }, // DLC_012
+  { 172, 13 }, // DLC_013
+  { 173, 14 }, // DLC_014
+  { 174, 15 }, // DLC_015
+  { 175, 16 }, // DLC_016
+  { 176, 17 }, // DLC_017
+  { 177, 18 }, // DLC_018
 };
 
 int RECOVERY_ALL( void )
@@ -409,6 +398,11 @@ int FUN_0024b28c( int arg )
     SHK_FUNCTION_CALL_1( 0x24b28c, int, int, arg );
 }
 
+int FUN_0010fbbc( int arg )
+{
+    SHK_FUNCTION_CALL_1( 0x10fbbc, int, int, arg );
+}
+
 int FUN_0091da04( void )
 {
     SHK_FUNCTION_CALL_0( 0x91da04, int );
@@ -519,9 +513,14 @@ itemTBLAccessoryEntry* GetAccessoryTBLEntry( u16 accessoryID )
     SHK_FUNCTION_CALL_1(0x263830, itemTBLAccessoryEntry*, u16, accessoryID);
 }
 
-unitTBLStats* GetUnitStatsBlockTBLEntry( u16 enemyID )
+unitTBLStats* GetUnitStatsBlockTBLEntry( u16 outfitID )
 {
-    SHK_FUNCTION_CALL_1(0x2636dc, unitTBLStats*, u16, enemyID);
+    SHK_FUNCTION_CALL_1(0x2636dc, unitTBLStats*, u16, outfitID);
+}
+
+ItemTBL_Outfit* GetOutfitTBLEntry( u16 enemyID )
+{
+    SHK_FUNCTION_CALL_1(0x2638e8, ItemTBL_Outfit*, u16, enemyID);
 }
 
 ItemTBL_MeleeWeapon* GetMeleeWeaponTBLEntry( u16 WeaponID )
@@ -644,6 +643,10 @@ u32 GetCurrentHP(btlUnit_Unit *param_1){
 
 u32 GetCurrentSP(btlUnit_Unit *param_1){
     SHK_FUNCTION_CALL_1( 0x2589cc, u32, btlUnit_Unit*, param_1 );
+}
+
+void PrepareDLCBGM( void ){
+    SHK_FUNCTION_CALL_0( 0x6ccc8, void );
 }
 
 int GetRandom( int MaxValue )

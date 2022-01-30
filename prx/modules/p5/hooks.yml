@@ -104,10 +104,6 @@ LoadEPL:
     addr: 0x62dfdc
     replacedInstr: stdu  r1, -0xA0(r1)
 
-BtlUnitGetUnitID:
-    addr: 0x258948
-    emitTrampoline: no
-
 ParseUNITTBL:
     addr: 0x264950
     emitTrampoline: no
@@ -455,7 +451,7 @@ FUN_00b24938:
 FUN_00060b90:
     addr: 0x60b90
     replacedInstr: stdu  r1, -0x80(r1)
-    
+
 FUN_0004b24c:
     addr: 0x4b24c
     replacedInstr: stdu  r1, -0x2f0(r1)
@@ -471,7 +467,27 @@ FUN_000bee20:
 FUN_0054fcb4:
     addr: 0x54fcb4
     replacedInstr: stdu  r1, -0x90(r1)
-    
-FUN_004eaca4:
-    addr: 0x4eaca4
+
+FUN_00927d50:
+    addr: 0x927d50
+    replacedInstr: stdu  r1, -0xb0(r1)
+
+FUN_0006ccc8:
+    addr: 0x6ccc8
+    emitTrampoline: no
+
+FUN_002625d4:
+    addr: 0x2625d4
+    emitTrampoline: no
+
+FUN_00045d24:
+    addr: 0x45d24
+    replacedInstr: stdu  r1, -0xd0(r1)
+
+FUN_00b2cee8:
+    addr: 0xb2cee8
     replacedInstr: stdu  r1, -0x80(r1)
+
+FUN_00332b4c:
+    addr: 0x332b4c
+    replacedInstr: stdu  r1, -0xb0(r1)

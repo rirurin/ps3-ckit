@@ -1403,6 +1403,7 @@ static void BattleEndSkillChecks( u64 a1, u64 a2, u64 a3 )
   UzukiDebuffAttackWarn = false;
   UzukiDebuffDeffenseWarn = false;
   UzukiDebuffSpeedWarn = false;
+  randomizedCombatOutfit = true;
 
   SetBitflagState( 0x209C, 0 ); // flag checked for ending twins encounter early
 

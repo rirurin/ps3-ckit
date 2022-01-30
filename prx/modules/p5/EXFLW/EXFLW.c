@@ -44,6 +44,7 @@ SHK_HOOK( scrCommandTableEntry*, scrGetCommandFunc, u32 id );
 SHK_HOOK( undefined4*, LoadFutabaNaviBMD, void );
 SHK_HOOK( undefined4*, LoadMonaNaviBMD, void );
 SHK_HOOK( u64, LoadNaviSoundFile, u64 a1, u64 a2, char* acb_path, char* awb_path, u64 a5 );
+SHK_HOOK( void, FUN_0006ccc8, void );
 
 static s32 setSeqHook( s32 seqId, void* params, s32 paramsSize, s32 r6 )
 {
@@ -785,6 +786,25 @@ static TtyCmdStatus ttyFadeOut( TtyCmd* cmd, const char** args, u32 argc, char**
   return TTY_CMD_STATUS_OK;
 }
 
+static TtyCmdStatus ttyCOMSEPLAY( TtyCmd* cmd, const char** args, u32 argc, char** error )
+{
+  COMSE_PLAY_struct* CurrentCOMSEPLAY = 0x00cff4e4;
+  u32 cueID = intParse( args[0] );
+
+  printf("COMSE_PLAY: Playing Sound ID %d\n", cueID);
+  
+  if (CurrentCOMSEPLAY != 0x0) 
+  {
+    CurrentCOMSEPLAY->Field18 = cueID;
+    CurrentCOMSEPLAY->Field1C = sndManPlaySfx( CurrentCOMSEPLAY->Field04, CurrentCOMSEPLAY->Field08, cueID, 0, -1, 1 );
+
+    * (int *) 0x00cff4d4 = CurrentCOMSEPLAY->Field1C; // how to write to a specific address
+  }
+  else printf("COMSE_PLAY: Invalid struct at 0x%x\n", CurrentCOMSEPLAY);
+  
+  return TTY_CMD_STATUS_OK;
+}
+
 static u64 LoadNaviSoundFileHook( u64 a1, u64 a2, char* acb_path, char* awb_path, u64 a5 )
 {
   char new_acb_path[128];
@@ -805,6 +825,38 @@ static u64 LoadNaviSoundFileHook( u64 a1, u64 a2, char* acb_path, char* awb_path
     return SHK_CALL_HOOK(LoadNaviSoundFile, a1, a2, new_acb_path, new_awb_path, a5);
   }
   return SHK_CALL_HOOK(LoadNaviSoundFile, a1, a2, acb_path, awb_path, a5);
+}
+
+static void LoadDLCBGM( void )
+{
+  char new_acb_path[128];
+  char new_awb_path[128];
+
+  if ( CONFIG_ENABLED( randomDLCBGM ) ) // randomized DLC music
+  {
+    int randomDLCID = randomIntBetween( 1, CONFIG_INT( maxDLCBGM ) );
+    sprintf( new_acb_path, "sound/bgm_%02d.acb", randomDLCID );
+    sprintf( new_awb_path, "sound/bgm_%02d.awb", randomDLCID );
+  }
+  else
+  {
+    u32 btlEquipBgmTableEntryCount = sizeof( btlEquipBgmTable ) / sizeof( btlEquipBgmTableEntry ); // Load DLC Outfit Table
+    u32 playerOutfitModel = PlayerUnitGetModelMinorID( 1, 50, 0 ); // Get Joker's model ID
+
+    for ( u32 i = 0; i < btlEquipBgmTableEntryCount; ++i )
+    {
+      btlEquipBgmTableEntry* pEntry = &btlEquipBgmTable[i]; // Loop through DLC Outfits table
+      if ( pEntry->modelID == playerOutfitModel ) // if Joker's model matches an entry in the table, load that DLC music
+      {
+        sprintf( new_acb_path, "sound/bgm_%02d.acb", i + 1 );
+        sprintf( new_awb_path, "sound/bgm_%02d.awb", i + 1 );
+        break;
+      }
+    }
+  }
+  
+  LoadNaviSoundFileHook( 6, 0x30B49738, new_acb_path, new_awb_path, 0 ); // this is the function that loads the actual DLC music
+  FUN_0010fbbc( 0x30B49738 ); // what address did we store the data on
 }
 
 // List of commands that can be handled by the command listener
@@ -844,11 +896,14 @@ static TtyCmd ttyCommands[] =
   TTY_CMD( ttyPartyOutCmd, "partyout", "Removes a party member from current active party", TTY_CMD_FLAG_NONE,
     TTY_CMD_PARAM( "playerID", "ID of party member to remove", TTY_CMD_PARAM_FLAG_REQUIRED, TTY_CMD_PARAM_TYPE_INT )),
 
-  TTY_CMD( ttyFadeIn, "fadein", "Removes a party member from current active party", TTY_CMD_FLAG_NONE,
+  TTY_CMD( ttyFadeIn, "fadein", "Plays a specific FadeIn", TTY_CMD_FLAG_NONE,
     TTY_CMD_PARAM( "fadetype", "fade value", TTY_CMD_PARAM_FLAG_REQUIRED, TTY_CMD_PARAM_TYPE_INT )),
 
-  TTY_CMD( ttyFadeOut, "fadeout", "Removes a party member from current active party", TTY_CMD_FLAG_NONE,
+  TTY_CMD( ttyFadeOut, "fadeout", "Plays a specific FadeOut", TTY_CMD_FLAG_NONE,
     TTY_CMD_PARAM( "fadetype", "fade value", TTY_CMD_PARAM_FLAG_REQUIRED, TTY_CMD_PARAM_TYPE_INT )),
+
+  TTY_CMD( ttyCOMSEPLAY, "comseplay", "Plays a given Sound Effect", TTY_CMD_FLAG_NONE,
+    TTY_CMD_PARAM( "cue ID", "cue ID of sound to play", TTY_CMD_PARAM_FLAG_REQUIRED, TTY_CMD_PARAM_TYPE_INT )),
 
   TTY_CMD( ttyTestModelResHndCmd, "testmodel", "Test Resource handle function", TTY_CMD_FLAG_NONE,
     TTY_CMD_PARAM( "int", "resource handle id", TTY_CMD_PARAM_FLAG_REQUIRED, TTY_CMD_PARAM_TYPE_INT )),
@@ -1519,6 +1574,7 @@ void EXFLWInit( void )
   SHK_BIND_HOOK( LoadFutabaNaviBMD, LoadFutabaNaviBMDHook );
   SHK_BIND_HOOK( LoadMonaNaviBMD, LoadMonaNaviBMDHook );
   SHK_BIND_HOOK( LoadNaviSoundFile, LoadNaviSoundFileHook );
+  SHK_BIND_HOOK( FUN_0006ccc8, LoadDLCBGM );
 }
 
 void EXFLWShutdown( void )

@@ -1117,6 +1117,7 @@ static bool EnemyHasCombatCutinHook( int a1, EnemyPersonaFunctionStruct1* a2 )
 static int SetUpEncounterFlagsHook( EncounterFuncStruct* a1, EncounterStructShort* a2)
 {
   PrepareDLCBGM(); // Load DLC BGM
+  PrepareDLCBGM(); // Load DLC BGM
   SetBitflagState( 8348, 0 ); // disable early end flag
   int encounterIDReal = a2->encounterIDLocal;
   EncounterIDGlobal = encounterIDReal;
@@ -1133,7 +1134,7 @@ static int SetUpEncounterFlagsHook( EncounterFuncStruct* a1, EncounterStructShor
     // DLC BGM Stuff
     if ( a1->BGMID == 300 || a1->BGMID == -1 ) // Only Execute DLC Music code on Last Surprise
     {
-      if ( !CONFIG_ENABLED( ambushOverDLC ) || CONFIG_ENABLED( randomDLCBGM ) && !CONFIG_ENABLED( ambushOverDLC ) )// dont run with randomized bgm music
+      if ( !CONFIG_ENABLED( ambushOverDLC ) )// dont run with randomized bgm music
       {
         u32 btlEquipBgmTableEntryCount = sizeof( btlEquipBgmTable ) / sizeof( btlEquipBgmTableEntry );
         u32 playerOutfitModel = PlayerUnitGetModelMinorID( 1, 50, 0 );
@@ -1148,6 +1149,11 @@ static int SetUpEncounterFlagsHook( EncounterFuncStruct* a1, EncounterStructShor
             break;
           }
         }
+      }
+      else if (CONFIG_ENABLED( randomDLCBGM )  )
+      { 
+        isAmbush = false;
+        isAmbushed = false;
       }
       
       if ( isAmbush )

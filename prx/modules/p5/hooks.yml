@@ -491,3 +491,7 @@ FUN_00b2cee8:
 FUN_00332b4c:
     addr: 0x332b4c
     replacedInstr: stdu  r1, -0xb0(r1)
+
+FUN_004eaca4:
+    addr: 0x4eaca4
+    replacedInstr: stdu  r1, -0x80(r1)

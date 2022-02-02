@@ -40,12 +40,12 @@ typedef struct
 
 typedef struct
 {
-  u32 Field00;
-  u16 Flags;
-  u16 cmmID;
-  u16 cmmRank;
-  u16 cmmAffinity;
-  u32 Field0C;
+  u32 Field00;     // 00
+  u16 Flags;       // 04
+  u16 cmmID;       // 06
+  u16 cmmRank;     // 08
+  u16 cmmAffinity; // 0A
+  u32 Field0C;     // 0C
 } ConfidantStats;
 
 typedef struct

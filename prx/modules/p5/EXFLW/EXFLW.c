@@ -926,7 +926,6 @@ static TtyCmd ttyCommands[] =
 #ifdef GAME_P5
 
 SHK_HOOK( u64, mainUpdate, f32 deltaTime );
-fileHandleStruct* testBF = 0;
 static u64 mainUpdateHook( f32 deltaTime )
 {
   if ( CONFIG_ENABLED (enableTTYCommands))
@@ -936,18 +935,6 @@ static u64 mainUpdateHook( f32 deltaTime )
   }
 
   u64 result = SHK_CALL_HOOK( mainUpdate, deltaTime );
-
-  if ( CONFIG_ENABLED (enableGlobalBF))
-  {
-    if (testBF == (void*)0x0)
-    {
-      testBF = open_file( "script/test.bf", 0 );
-      u64 fsSyncResult = fsSync((int)testBF);
-    }
-    scrRunScript(0, testBF->pointerToFile, testBF->bufferSize, 0);
-  }
-
-  randomIntBetween(0,1);
 
   return result;
 }

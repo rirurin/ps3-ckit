@@ -78,7 +78,7 @@ SHK_HOOK( u32, FUN_007af1c0, u32 a1, u32 a2 );
 SHK_HOOK( u32, FUN_00784d18, u32 a1, u32 a2 );
 SHK_HOOK( int, FUN_000435c0, int a1, int a2 );
 SHK_HOOK( int, FUN_00060b90, void );
-SHK_HOOK( int, FUN_0054fcb4, void );
+//SHK_HOOK( int, FUN_0054fcb4, void );
 SHK_HOOK( int, FUN_00927d50, char* a1 );
 //SHK_HOOK( int, FUN_00b0efa8, AnimVtableFunctionA1* a1, double a2, double a3 );
 //SHK_HOOK( int, FUN_00b03248, AnimVtableFunctionA1* a1, double a2, double a3 );
@@ -1799,7 +1799,7 @@ static int FUN_00060b90Hook( void )
   return result;
 }
 
-static int CMM_RANKUP( void )
+/*static int CMM_RANKUP( void )
 {
   int targetConfidant = FLW_GetIntArg( 0 );
   if ( targetConfidant == 33 ) // Faith/Kasumi
@@ -1845,7 +1845,7 @@ static int CMM_RANKUP( void )
     }
   }
   return SHK_CALL_HOOK( FUN_0054fcb4 );
-}
+}*/
 
 static int FUN_00927d50Hook( char* a1 ) // split combat GAP animation load
 {
@@ -1945,7 +1945,7 @@ void dcInit( void )
   SHK_BIND_HOOK( FUN_00b24938, PlayJokerSkillCueID );
   SHK_BIND_HOOK( FUN_00b25348, FUN_00b25348Hook );
   SHK_BIND_HOOK( FUN_00060b90, FUN_00060b90Hook );
-  SHK_BIND_HOOK( FUN_0054fcb4, CMM_RANKUP );
+  //SHK_BIND_HOOK( FUN_0054fcb4, CMM_RANKUP );
   SHK_BIND_HOOK( FUN_00927d50, FUN_00927d50Hook );
   //SHK_BIND_HOOK( FUN_00b0efa8, FUN_00b0efa8Hook );
   //SHK_BIND_HOOK( FUN_00b03248, FUN_00b03248Hook );

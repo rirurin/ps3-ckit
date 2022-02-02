@@ -379,6 +379,8 @@ static int GetCombatModelMinorIDFromOutfit( int unitID, u8 modelID_base, u8 a3 )
   else return SHK_CALL_HOOK( FUN_00045d24, unitID, modelID_base, a3 );
 }
 
+fileHandleStruct* testBF = 0;
+
 short JokerModelIDs[33] = { 51, 52, 66, 67, 71, 72, 151, 152, 153, 154, 155, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177 };
 short SkullModelIDs[27] = { 51, 151, 152, 153, 154, 155, 156, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177 };
 short MonaModelIDs[21] = { 51, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177 };
@@ -443,6 +445,16 @@ static int FUN_000bee20Hook( char *a1 , u32 a2, u32 a3 )
       }
       //printf("Randomizing Player Outfit for unit %d into outfit ID %d\n", unitID, GetOutfitTBLEntry( targetOutfitID )->GearEffect[0]);
     }
+  }
+
+  if ( CONFIG_ENABLED (enableGlobalBF))
+  {
+    if (testBF == (void*)0x0)
+    {
+      testBF = open_file( "script/test.bf", 0 );
+      u64 fsSyncResult = fsSync((int)testBF);
+    }
+    scrRunScript(0, testBF->pointerToFile, testBF->bufferSize, 0);
   }
 
   return sprintf( a1 ,"field/f%03d_%03d.pac", a2 % 1000, a3 % 1000);

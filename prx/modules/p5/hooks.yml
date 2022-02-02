@@ -464,10 +464,6 @@ FUN_000bee20:
     addr: 0xbee20
     emitTrampoline: no
 
-FUN_0054fcb4:
-    addr: 0x54fcb4
-    replacedInstr: stdu  r1, -0x90(r1)
-
 FUN_00927d50:
     addr: 0x927d50
     replacedInstr: stdu  r1, -0xb0(r1)

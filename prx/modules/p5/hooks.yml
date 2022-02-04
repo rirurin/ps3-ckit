@@ -491,3 +491,15 @@ FUN_00332b4c:
 FUN_004eaca4:
     addr: 0x4eaca4
     replacedInstr: stdu  r1, -0x80(r1)
+
+FUN_005528f8:
+    addr: 0x5528f8
+    replacedInstr: stdu  r1, -0x80(r1)
+
+FUN_00244250:
+    addr: 0x244250
+    replacedInstr: stdu  r1, -0x8d0(r1)
+
+FUN_0023c070:
+    addr: 0x23c070
+    replacedInstr: stdu  r1, -0xd0(r1)

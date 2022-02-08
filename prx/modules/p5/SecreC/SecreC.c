@@ -71,7 +71,7 @@ undefined8 ConfRankupHook( undefined8 a1, u32 a2, int a3 ) //makes kasumi rankup
 	{
 		a2 = 36;
 	}
-	SHK_CALL_HOOK( FUN_0023c070, a1, a2, a3 );
+	return SHK_CALL_HOOK( FUN_0023c070, a1, a2, a3 );
 }
 
 void SecreCInit( void )

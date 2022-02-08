@@ -29,7 +29,6 @@ SHK_HOOK( void, FUN_0025b7b8, btlUnit_Unit* unitID, int bullets );
 SHK_HOOK( int, FUN_0025b740, btlUnit_Unit* unitID );
 SHK_HOOK( void, FUN_0024bb54, void );
 SHK_HOOK( void, FUN_00661220, u64 a1, u64 a2, u64 a3 );
-SHK_HOOK( btlUnit_Unit*, FUN_00af22e4, structB* a1 );
 SHK_HOOK( void, FUN_00b20618, struct_2_pointers* param_1, navi_dialogue_function_a2* param_2, struct_2_pointers* param_3, u16 param_4, int param_5, int param_6 );
 SHK_HOOK( void, FUN_00b1c1a0, struct_2_pointers* param_1, navi_dialogue_function_a2* param_2, struct_2_pointers* param_3, u16 param_4, int param_5, int param_6 );
 SHK_HOOK( void, FUN_00b1c398, struct_2_pointers* param_1, navi_dialogue_function_a2* param_2, struct_2_pointers* param_3, u16 param_4, int param_5, int param_6 );
@@ -51,11 +50,6 @@ static bool isPartyMemberUnlocked( u16 unitID )
     return GetSavedataBitflagAlt( 0x2138 );
   }
   else return SHK_CALL_HOOK( FUN_00425b0c, unitID );
-}
-
-static btlUnit_Unit* returnBtlUnitPointer( structB* a1 )
-{
-  return a1->btlUnitPointer;
 }
 
 static int JokerDied_NaviDialogue( struct_2_pointers* param_1, navi_dialogue_function_a2* param_2 )
@@ -1420,7 +1414,6 @@ void KasumiInit( void )
   // Hooks must be 'bound' to a handler like this in the start function.
   // If you don't do this, the game will crash.
   SHK_BIND_HOOK( FUN_00425b0c, isPartyMemberUnlocked);
-  SHK_BIND_HOOK( FUN_00af22e4, returnBtlUnitPointer);
   SHK_BIND_HOOK( FUN_00b20618, PartyMemberFinishedLastEnemy_NaviDialogue );
   SHK_BIND_HOOK( FUN_00b1c1a0, PartyMemberWarnHealthLow_NaviDialogue );
   SHK_BIND_HOOK( FUN_00b1c398, PartyMemberGotDowned_NaviDialogue );

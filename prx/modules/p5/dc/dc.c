@@ -80,9 +80,14 @@ SHK_HOOK( int, FUN_000435c0, int a1, int a2 );
 SHK_HOOK( int, FUN_00060b90, void );
 //SHK_HOOK( int, FUN_0054fcb4, void );
 SHK_HOOK( int, FUN_00927d50, char* a1 );
-//SHK_HOOK( int, FUN_00b0efa8, AnimVtableFunctionA1* a1, double a2, double a3 );
-//SHK_HOOK( int, FUN_00b03248, AnimVtableFunctionA1* a1, double a2, double a3 );
-//SHK_HOOK( int, BattleAnimations, CueIDThingy* a1, u64 a2, u64 a3, u64 a4, u64 a5, u64 a6, u64 a7, u64 a8, u64 a9, u64 a10, u64 a11 );
+SHK_HOOK( int, FUN_00b0f558, CueIDThingy* a1, double a2, double a3 );
+SHK_HOOK( int, FUN_00b0f5e8, CueIDThingy* a1, double a2, double a3 );
+SHK_HOOK( int, FUN_00aff500, CueIDThingy* a1, double a2, double a3 );
+SHK_HOOK( int, FUN_00aff590, CueIDThingy* a1, double a2, double a3 );
+//SHK_HOOK( int, FUN_00b03510, CueIDThingy* a1, double a2, double a3 );
+//SHK_HOOK( int, FUN_00b0efa8, CueIDThingy* a1, double a2, double a3 );
+//SHK_HOOK( int, FUN_00b03248, CueIDThingy* a1, double a2, double a3 );
+//SHK_HOOK( u64, BattleAnimations, CueIDThingy* a1, u64 a2, u64 a3, u64 a4, u64 a5, u64 a6, u64 a7, u64 a8, u64 a9, u64 a10, u64 a11 );
 
 static s32 pattern[] = { 0x00, 0xBA, 0x69, 0x98, -1, -1, -1, -1, -1, -1, -1, -1, 0x00, 0xBA, 0x23, 0x88, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 /*static u64 BtlUnitGetUnitIDHook( btlUnit_Unit* btlUnit  )
@@ -1095,6 +1100,9 @@ static int SetEnemyAkechiPersonaHook( u64 a1, u64 a2, EnemyPersonaFunctionStruct
     }*/
 
     if ( result > 0 ) DEBUG_LOG("Enemy ID %d summoning Persona %d\n", PersonaEnemyID, result);
+
+    a3->field0c->field18->field04->StockPersona[0].personaID = result;
+
     return result;
   }
   return SHK_CALL_HOOK( SetEnemyAkechiPersona, a1, a2, a3 ); // Player unit is executing this function, use original function
@@ -1779,12 +1787,12 @@ static void FUN_00b25348Hook( CueIDThingy* a1, int a2 )
 {
   if ( a1->Field10->btlUnitPointer->unitType == 2 )
   {
-    printf("Enemy %d Executing FUN_00b25348\n", a1->Field10->btlUnitPointer->unitID);
+    //printf("Enemy %d Executing FUN_00b25348\n", a1->Field10->btlUnitPointer->unitID);
     setBlackMaskCueIDHook( a1, a2, 0 );
   }
   else 
   {
-    printf("Player %d Executing FUN_00b25348\n", a1->Field10->btlUnitPointer->unitID);
+    //printf("Player %d Executing FUN_00b25348\n", a1->Field10->btlUnitPointer->unitID);
     SHK_CALL_HOOK( FUN_00b25348, a1, a2 );
   }
 }
@@ -1856,29 +1864,69 @@ static int FUN_00927d50Hook( char* a1 ) // split combat GAP animation load
   return SHK_CALL_HOOK( FUN_00927d50, a1 );
 }
 
-/*static int BattleAnimationsHook( CueIDThingy* a1, u64 a2, u64 a3, u64 a4, u64 a5, u64 a6, u64 a7, u64 a8, u64 a9, u64 a10, u64 a11 )
+/*static u64 BattleAnimationsHook( CueIDThingy* a1, u64 a2, u64 a3, u64 a4, u64 a5, u64 a6, u64 a7, u64 a8, u64 a9, u64 a10, u64 a11 )
 {
-  int result = SHK_CALL_HOOK( BattleAnimations, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11 );
-  if ( a1->Field10->btlUnitPointer->unitType == 2 )
+  u64 result = SHK_CALL_HOOK( BattleAnimations, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11 );
+  if ( a1->Field10->btlUnitPointer->unitType == 1 )
   {
-    printf("Anim data Arguments:  \n A1: %X \n ID: %d \n Animation: %d \n A3: %X \n A4: %X \n A5: %X \n A6: %X \n A7: %X \n A8: %X \n A9: %X \n A10: %X \n A11: %X \n\n", a1, a1->Field10->btlUnitPointer->unitID, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11);
+    printf("Anim data Arguments:  \n A1: %X \n ID: %d \n Animation: %d \n A3: %X \n A4: %F \n A5: %X\n", a1, a1->Field10->btlUnitPointer->unitID, a2, a3, a4, a5);
   }
-  return result;
-}*/
-
-/*
-static int FUN_00b0efa8Hook( AnimVtableFunctionA1* a1, double a2, double a3 )
-{
-  int result = SHK_CALL_HOOK( FUN_00b0efa8, a1, a2, a3 );
-  printf( "Twins Hurt Animation Index Function called; Function Address 0x00b0efa8\na1 -> 0x%x; a2 -> %f; a3 -> %f\n", a1, a2, a3 );
   return result;
 }
 
-static int FUN_00b03248Hook( AnimVtableFunctionA1* a1, double a2, double a3 )
+static int FUN_00b0efa8Hook( CueIDThingy* a1, double a2, double a3 )
+{
+  int result = SHK_CALL_HOOK( FUN_00b0efa8, a1, a2, a3 );
+  printf( "Twins Hurt Animation Index Function called; Function Address 0x00b0efa8\na1 -> 0x%x; unit ID -> %d\n", a1, a1->Field10->btlUnitPointer->unitID );
+  return result;
+}*/
+
+static int FUN_00b0f558Hook( CueIDThingy* a1, double a2, double a3 )
+{
+  int result = SHK_CALL_HOOK( FUN_00b0f558, a1, a2, a3 );
+  //printf( "Baton Pass Out Function called; Function Address 0x00b0f558\na1 -> 0x%x; unit ID -> %d\n", a1, a1->Field10->btlUnitPointer->unitID );
+  return result;
+}
+
+static int FUN_00b0f5e8Hook( CueIDThingy* a1, double a2, double a3 )
+{
+  int result = SHK_CALL_HOOK( FUN_00b0f5e8, a1, a2, a3 );
+  //printf( "Baton Pass In Function called; Function Address 0x00b0f5e8\na1 -> 0x%x; unit ID -> %d\n", a1, a1->Field10->btlUnitPointer->unitID );
+  return result;
+}
+
+static int FUN_00aff500Hook( CueIDThingy* a1, double a2, double a3 )
+{
+  int result = SHK_CALL_HOOK( FUN_00aff500, a1, a2, a3 );
+  //printf( "Player Baton Pass In Function called; Function Address 0x00aff500\na1 -> 0x%x; unit ID -> %d\n", a1, a1->Field10->btlUnitPointer->unitID );
+  return result;
+}
+
+static int FUN_00aff590Hook( CueIDThingy* a1, double a2, double a3 )
+{
+  int result = SHK_CALL_HOOK( FUN_00aff590, a1, a2, a3 );
+  //printf( "Player Baton Pass Out Function called; Function Address 0x00aff590\na1 -> 0x%x; unit ID -> %d\n", a1, a1->Field10->btlUnitPointer->unitID );
+  return result;
+}
+
+/*static int FUN_00b03510Hook( CueIDThingy* a1, double a2, double a3 )
+{
+  printf( "Enemy Dodge Anim Function running for enemy ID %d; Persona ID -> %d\n", a1->Field10->btlUnitPointer->unitID, a1->Field10->btlUnitPointer->StockPersona[0].personaID );
+  if ( a1->Field10->btlUnitPointer->StockPersona[0].personaID > 0 )
+  {
+    printf( "Enemy ID dodging -> %d\n", a1->Field10->btlUnitPointer->unitID );
+    SetTwinsDodgeAnimation( a1, a2, a3 );
+    return 1;
+  }
+  else return 0;
+}*/
+
+/*
+static int FUN_00b03248Hook( CueIDThingy* a1, double a2, double a3 )
 {
   //u64 address = a3;
   int result = SHK_CALL_HOOK( FUN_00b03248, a1, a2, a3 );
-  printf( "Enemy Hurt Animation Index Function called; Function Address 0xb03248\na1 -> 0x%x; a2 -> %f; a3 -> %f\n", a1, a2, a3 );
+  printf( "Enemy Hurt Animation Index Function called; Function Address 0xb03248\na1 -> 0x%x; unit ID -> %d\n", a1, a1->Field10->btlUnitPointer->unitID );
   return result;
 }*/
 
@@ -1947,6 +1995,11 @@ void dcInit( void )
   SHK_BIND_HOOK( FUN_00060b90, FUN_00060b90Hook );
   //SHK_BIND_HOOK( FUN_0054fcb4, CMM_RANKUP );
   SHK_BIND_HOOK( FUN_00927d50, FUN_00927d50Hook );
+  SHK_BIND_HOOK( FUN_00b0f558, FUN_00b0f558Hook );
+  SHK_BIND_HOOK( FUN_00b0f5e8, FUN_00b0f5e8Hook );
+  SHK_BIND_HOOK( FUN_00aff500, FUN_00aff500Hook );
+  SHK_BIND_HOOK( FUN_00aff590, FUN_00aff590Hook );
+  //SHK_BIND_HOOK( FUN_00b03510, FUN_00b03510Hook );
   //SHK_BIND_HOOK( FUN_00b0efa8, FUN_00b0efa8Hook );
   //SHK_BIND_HOOK( FUN_00b03248, FUN_00b03248Hook );
   //SHK_BIND_HOOK( BattleAnimations, BattleAnimationsHook );

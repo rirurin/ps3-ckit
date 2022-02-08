@@ -204,10 +204,6 @@ FUN_0072360c:
     addr: 0x72360c
     emitTrampoline: no
 
-FUN_00af22e4:
-    addr: 0xaf22e4
-    emitTrampoline: no
-
 criFs_Initialize:
     addr: 0x114C7C
     replacedInstr: stdu  r1, -0x190(r1)
@@ -503,3 +499,19 @@ FUN_00244250:
 FUN_0023c070:
     addr: 0x23c070
     replacedInstr: stdu  r1, -0xd0(r1)
+
+FUN_00b0f558:
+    addr: 0x00b0f558
+    replacedInstr: stdu  r1, -0xb0(r1)
+
+FUN_00b0f5e8:
+    addr: 0x00b0f5e8
+    replacedInstr: stdu  r1, -0xb0(r1)
+
+FUN_00aff500:
+    addr: 0x00aff500
+    replacedInstr: stdu  r1, -0xb0(r1)
+
+FUN_00aff590:
+    addr: 0x00aff590
+    replacedInstr: stdu  r1, -0xb0(r1)

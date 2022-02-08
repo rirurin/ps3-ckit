@@ -38,7 +38,7 @@ SHK_HOOK( int, GenericCharacterModelLoader, char* result, u64 modelType, u64 cha
 SHK_HOOK( u64, FUN_0004b24c, u64 a1 );
 SHK_HOOK( int, FUN_0004951c, int a1, structB* a2, structB* a3 );
 SHK_HOOK( int, FUN_002625d4, int a1, int a2 );
-SHK_HOOK( int, FUN_00045d24, int unitID, u8 modelID_base, u8 a3 );
+SHK_HOOK( int, FUN_00045d24, int unitID, int modelID_base, int a3 );
 SHK_HOOK( int, FUN_000bee20, char* a1, u32 a2, u32 a3 );
 SHK_HOOK( int, FUN_00332b4c, u32 a1, u32 a2, u32 a3 );
 
@@ -150,6 +150,13 @@ static int GenericCharacterModelLoaderHook( char* result, u64 modelType, u64 cha
       KasumiModelSubID = modelID;
     }
     //printf("Character ID %d loading model ID %d\n", characterID, modelID);
+  }
+  else if ( modelType == 0x1D ) // Persona models in velvet room
+  {
+    if ( CONFIG_ENABLED( forcePSZModel ) ) // party member reserve personas
+    {
+      return sprintf( result, "model/character/persona/%04d/psz%04d.GMD", characterID, characterID );
+    }
   }
   else if ( modelType == 4 ) // Persona models
   {
@@ -363,8 +370,20 @@ static int GetOutfitGearEffects( u32 outfitID, u32 gearEffectSlot )
   return 0;
 }
 
-static int GetCombatModelMinorIDFromOutfit( int unitID, u8 modelID_base, u8 a3 )
+static int GetCombatModelMinorIDFromOutfit( int unitID, int modelID_base, int a3 )
 {
+  int result = SHK_CALL_HOOK( FUN_00045d24, unitID, modelID_base, a3 );
+
+  if ( unitID >= 11 )
+  {
+    return result;
+  }
+
+  if ( unitID == 10)
+  {
+    result = SHK_CALL_HOOK( FUN_00045d24, 1, modelID_base, a3 );
+  }
+
   if ( modelID_base == 50 ) // combat model
   {
     int targetOutfitID = GetBtlPlayerUnitFromID( unitID )->outfitID - 0x7000;
@@ -372,11 +391,11 @@ static int GetCombatModelMinorIDFromOutfit( int unitID, u8 modelID_base, u8 a3 )
 
     if ( targetOutfitID != 0 )
     {
-      return targetOutfitID; // read outfit tbl value and use it as model minor id
+      result = targetOutfitID; // read outfit tbl value and use it as model minor id
     }
-    else return SHK_CALL_HOOK( FUN_00045d24, unitID, modelID_base, a3 );
   }
-  else return SHK_CALL_HOOK( FUN_00045d24, unitID, modelID_base, a3 );
+
+  return result;
 }
 
 fileHandleStruct* testBF = 0;

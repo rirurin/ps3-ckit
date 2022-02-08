@@ -637,6 +637,16 @@ u64 FUN_25294C(u16 SkillId,btlUnit_Unit *btlUnit_1,btlUnit_Unit *btlUnit_2,u8 mo
     SHK_FUNCTION_CALL_4( 0x25294C, u64, u16, SkillId, btlUnit_Unit*, btlUnit_1, btlUnit_Unit*, btlUnit_2, u8, mode );
 }
 
+int SetCombatAnimation( CueIDThingy* a1, int a2, double a3, double a4, double a5)
+{
+    SHK_FUNCTION_CALL_5( 0x73d218, int, CueIDThingy*, a1, int, a2, double, a3, double, a4, double, a5 );
+}
+
+int SetTwinsDodgeAnimation( CueIDThingy* a1, double a2, double a3)
+{
+    SHK_FUNCTION_CALL_3( 0x73d218, int, CueIDThingy*, a1, double, a2, double, a3 );
+}
+
 u32 GetCurrentHP(btlUnit_Unit *param_1){
     SHK_FUNCTION_CALL_1( 0x2589c0, u32, btlUnit_Unit*, param_1 );
 }

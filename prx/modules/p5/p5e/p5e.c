@@ -21,11 +21,17 @@
 #define DEBUG_LOG( msg, ... ) \
   if ( CONFIG_ENABLED( debug ) ) printf( "DEBUG: " msg, ##__VA_ARGS__ )
 
+#define FUNC_LOG( msg, ... ) \
+  if ( CONFIG_ENABLED( functest ) ) printf( "DEBUG: " msg, ##__VA_ARGS__ )
+
+#define FILE_LOG( msg, ... ) \
+  if ( CONFIG_ENABLED( enableFileAccessLogging ) ) printf( msg, ##__VA_ARGS__ )
+
 // You need to declare hooks with SHK_HOOK before you can use them.
 SHK_HOOK( void, setBgm, int id );
 SHK_HOOK( int, FUN_0072360c, int id );
 SHK_HOOK( int, FUN_001cf704, u64 unk, int a1, int a2, int a3 );
-SHK_HOOK( void*, LoadEPL, char* EPL, u8 a2 );
+SHK_HOOK( int, LoadEPL, char* EPL, u8 a2 );
 SHK_HOOK( int, criFs_Initialize );
 SHK_HOOK( u16, LoadMeleeWeaponModelTable, int a1 );
 SHK_HOOK( u16, LoadGunWeaponModelTable, int a1 );
@@ -69,7 +75,7 @@ static void setBgmHook( int id )
     randomizedCombatOutfit = true;
   }
 
-  printf("SetBGM Called with BGM ID -> %d\n", id);
+  FILE_LOG("SetBGM Called with BGM ID -> %d\n", id);
   SHK_CALL_HOOK( setBgm, id );
 }
 
@@ -89,6 +95,7 @@ static CharModelReplacementTable charModelReplacementTableEntry[] =
 
 static int GenericCharacterModelLoaderHook( char* result, u64 modelType, u64 characterID, u64 modelID, u64 modelSubID )
 {
+  FUNC_LOG("Loading GenericCharacterModelLoaderHook\n");
   //printf( "Model Type %d loading for character ID %d\n", modelType, characterID );
   if ( modelType == 2 || modelType == 5 ) // human character models
   {
@@ -187,14 +194,15 @@ static int GenericCharacterModelLoaderHook( char* result, u64 modelType, u64 cha
   return SHK_CALL_HOOK( GenericCharacterModelLoader, result, modelType, characterID, modelID, modelSubID );
 }
 
-static void* LoadEPLHook( char* EPL, u8 a2 )
+static int LoadEPLHook( char* EPL, u8 a2 )
 {
+  FUNC_LOG("Loading LoadEPLHook\n");
   if ( strcmp( EPL, "battle/event/BCD/j_sien/bes_j_htb.EPL" ) == 0 && CONFIG_ENABLED( enableCutsceneOutfits ) )
   {
     u32 FutabaOutfit = PlayerUnitGetModelMinorID( 8, 50, 0 );
     if ( FutabaOutfit != 51 )
     {
-      char newOutfitEPL[128];
+      char newOutfitEPL[64];
       sprintf(newOutfitEPL, "battle/event/BCD/j_sien/bes_j_htb_%03d.EPL", FutabaOutfit);
       return SHK_CALL_HOOK( LoadEPL, newOutfitEPL, a2 );
     }
@@ -279,12 +287,14 @@ static u64 criFsBinder_SetPriorityHook( u32 a1, u32 a2 )
 
 static int crifsloader_load_registered_fileHook( fileAccessStruct* a1, int a2, int a3, int a4, int a5 )
 {
-  if ( CONFIG_ENABLED( enableFileAccessLogging ) ) printf("%s\n", a1->fileNamePtr);
+  FILE_LOG("%s\n", a1->fileNamePtr);
+
   return SHK_CALL_HOOK( crifsloader_load_registered_file, a1, a2, a3, a4, a5 );
 }
 
 static u16 LoadMeleeWeaponModelTableHook( int a1 )
 {
+  FUNC_LOG("Loading LoadMeleeWeaponModelTableHook\n");
   a1 = FUN_2604C4(a1); // weird thing they do to flip negative values
   u16 result = GetMeleeWeaponTBLEntry(a1)->field_0xe;
 
@@ -295,6 +305,7 @@ static u16 LoadMeleeWeaponModelTableHook( int a1 )
 
 static u16 LoadGunWeaponModelTableHook( int a1 )
 {
+  FUNC_LOG("Loading LoadGunWeaponModelTableHook\n");
   a1 = FUN_2604C4(a1); // weird thing they do to flip negative values
   u16 result = GetRangedWeaponTBLEntry(a1)->RESERVE;
   /*printf("Gun model load; a1 -> %d\n", a1);
@@ -304,6 +315,7 @@ static u16 LoadGunWeaponModelTableHook( int a1 )
 
 static u16 FUN_0003a658Hook( int a1 )
 {
+  FUNC_LOG("Loading FUN_0003a658Hook\n");
   a1 = FUN_2604C4(a1);
   if ( a1 >= 255 )
   {
@@ -314,6 +326,7 @@ static u16 FUN_0003a658Hook( int a1 )
 
 static u16 FUN_0003a698Hook( int a1 )
 {
+  FUNC_LOG("Loading FUN_0003a698Hook\n");
   a1 = FUN_2604C4(a1);
   if ( a1 >= 255 )
   {
@@ -324,6 +337,7 @@ static u16 FUN_0003a698Hook( int a1 )
 
 static int FUN_001cf704Hook( u64 unk, int charID, int expressionID, int outfitID ) // Bustups function
 {
+  FUNC_LOG("Loading FUN_001cf704Hook\n");
   //printf("Bustup file loaded\ncharacter ID -> %d\nExpression ID -> %d\nOutfit ID -> %d\n", charID, expressionID, outfitID);
   if ( charID == 9 && GetEquippedPersonaFunction(9) != Persona_RobinHood && expressionID >= 100 && expressionID < 120 )
   {
@@ -372,8 +386,14 @@ static int GetOutfitGearEffects( u32 outfitID, u32 gearEffectSlot )
 
 static int GetCombatModelMinorIDFromOutfit( int unitID, int modelID_base, int a3 )
 {
+  FUNC_LOG("Loading GetCombatModelMinorIDFromOutfit\n");
   int result = SHK_CALL_HOOK( FUN_00045d24, unitID, modelID_base, a3 );
-
+  
+  if ( unitID < 1 )
+  {
+    return result;
+  }
+  
   if ( unitID >= 11 )
   {
     return result;
@@ -413,7 +433,7 @@ short VioletModelIDs[39] = { 5, 6, 51, 151, 152, 153, 154, 155, 156, 158, 159, 1
 
 static int FUN_000bee20Hook( char *a1 , u32 a2, u32 a3 )
 {
-  printf("Loading Field ID %03d %03d\n", a2 % 1000, a3 % 1000 );
+  FILE_LOG("Loading Field ID %03d %03d\n", a2 % 1000, a3 % 1000 );
 
   LastLoadedFieldMajorID = a2 % 1000;
   LastLoadedFieldMinorID = a3 % 1000;
@@ -481,6 +501,7 @@ static int FUN_000bee20Hook( char *a1 , u32 a2, u32 a3 )
 
 static int FUN_00332b4cHook( u32 a1, u32 a2, u32 a3 )
 {
+  FUNC_LOG("Loading FUN_00332b4cHook\n");
   if ( a3 == 1 && ActualGetCount(18)/100000 > 0 && CONFIG_ENABLED( DebugModelTesting ))
   {
     a3 = ActualGetCount(18)/100000;

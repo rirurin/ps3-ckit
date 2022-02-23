@@ -21,6 +21,12 @@
 #define DEBUG_LOG( msg, ... ) \
   if ( CONFIG_ENABLED( debug ) ) printf( "DEBUG: " msg, ##__VA_ARGS__ )
 
+#define FUNC_LOG( msg, ... ) \
+  if ( CONFIG_ENABLED( functest ) ) printf( "DEBUG: " msg, ##__VA_ARGS__ )
+
+#define FILE_LOG( msg, ... ) \
+  if ( CONFIG_ENABLED( enableFileAccessLogging ) ) printf( "DEBUG: " msg, ##__VA_ARGS__ )
+
 // You need to declare hooks with SHK_HOOK before you can use them.
 SHK_HOOK( void, setBlackMaskCueID, CueIDThingy* param_1, u32 param_2, u16 skill_ID );
 SHK_HOOK( void, IsEncounterEventSoundBankExist, EncounterFuncStruct* a1 );
@@ -78,6 +84,7 @@ SHK_HOOK( u32, FUN_007af1c0, u32 a1, u32 a2 );
 SHK_HOOK( u32, FUN_00784d18, u32 a1, u32 a2 );
 SHK_HOOK( int, FUN_000435c0, int a1, int a2 );
 SHK_HOOK( int, FUN_00060b90, void );
+SHK_HOOK( bool, FUN_00786a88, int a1, int a2 );
 //SHK_HOOK( int, FUN_0054fcb4, void );
 SHK_HOOK( int, FUN_00927d50, char* a1 );
 SHK_HOOK( int, FUN_00b0f558, CueIDThingy* a1, double a2, double a3 );
@@ -112,6 +119,7 @@ static s32 pattern[] = { 0x00, 0xBA, 0x69, 0x98, -1, -1, -1, -1, -1, -1, -1, -1,
 
 static void* BlackMaskBossVoiceHook( structA* a1 )
 {
+  FUNC_LOG("Loading BlackMaskBossVoiceHook\n");
   idkman* someAddressPointer;
   u64 uVar1;
   undefined8 in_r7;
@@ -149,6 +157,7 @@ static void* BlackMaskBossVoiceHook( structA* a1 )
 
 static void* LoadPlayerCombatVoicePackHook( structA* a1 )
 {
+  FUNC_LOG("Loading LoadPlayerCombatVoicePackHook\n");
   idkman* someAddressPointer;
   u64 uVar1;
   u32 playerID;
@@ -200,6 +209,7 @@ static void* LoadPlayerCombatVoicePackHook( structA* a1 )
 
 static void* LoadGenericEnemyVoicePackHook( structA* a1 )
 {
+  FUNC_LOG("Loading LoadGenericEnemyVoicePackHook\n");
   u32 unitID = a1->field0C->btlUnitPointer->unitID;
   u32 voiceID = NewSegment3TBL.unit[unitID].VoiceID + 1;
   u8 a_b_c = NewSegment3TBL.unit[unitID].VoicePackABC;
@@ -244,18 +254,10 @@ static void* LoadGenericEnemyVoicePackHook( structA* a1 )
       }
       else if ( a_b_c == 0xFE ) 
       {
-        printf("Loading Player Voice %d for Enemy %d\n", voiceID, unitID);
+        DEBUG_LOG("Loading Player Voice %d for Enemy %d\n", voiceID, unitID);
 
-        if ( voiceID == 9 && GetEquippedPersonaFunction(9) != Persona_RobinHood && CONFIG_ENABLED( enableAkechiMod ) )
-        {
-          sprintf( ACBPath, "sound/battle/bp%02d_01.acb", voiceID );
-          sprintf( AWBPath, "sound/battle/bp%02d_01.awb", voiceID );
-        }
-        else
-        {
-          sprintf( ACBPath, "sound/battle/bp%02d.acb", voiceID );
-          sprintf( AWBPath, "sound/battle/bp%02d.awb", voiceID );
-        }
+        sprintf( ACBPath, "sound/battle/be_boss_%04d.acb", unitID );
+        sprintf( AWBPath, "sound/battle/be_boss_%04d.awb", unitID );
 
         if ( voiceID == 1 )
         {
@@ -290,7 +292,7 @@ static void* LoadGenericEnemyVoicePackHook( structA* a1 )
       }
       else if ( a_b_c == 0xFE ) 
       {
-        printf("Loading Player Voice %d for Enemy %d\n", voiceID, unitID);
+        DEBUG_LOG("Loading Player Voice %d for Enemy %d\n", voiceID, unitID);
 
         if ( voiceID == 9 && GetEquippedPersonaFunction(9) != Persona_RobinHood && CONFIG_ENABLED( enableAkechiMod ) )
         {
@@ -324,6 +326,7 @@ static void* LoadGenericEnemyVoicePackHook( structA* a1 )
 
 static void* LoadPartyPanelSPDHook(char* a1)
 {
+  FUNC_LOG("Loading LoadPartyPanelSPDHook\n");
   if ( CONFIG_ENABLED( enableAkechiMod ) && strcmp( a1, "battle/gui/p5_battle_partypanel.spd" ) == 0  && GetEquippedPersonaFunction(9) != Persona_RobinHood )
   {
     a1 = "battle/gui/p5r_battle_partypanel.spd";
@@ -333,6 +336,7 @@ static void* LoadPartyPanelSPDHook(char* a1)
 
 static void* LoadBEDFileHook(char* a1, char a2)
 {
+  FUNC_LOG("Loading LoadBEDFileHook\n");
   if ( CONFIG_ENABLED( enableAkechiMod ) && strcmp( a1, "battle/effect/bes_gun9.BED" ) == 0  && GetEquippedPersonaFunction(9) != Persona_RobinHood )
   {
     a1 = "battle/effect/bes_gun9_01.BED";
@@ -352,6 +356,7 @@ static void* LoadBEDFileHook(char* a1, char a2)
 
 static void* LoadCombatCutinHook(char* a1 , char a2)
 {
+  FUNC_LOG("Loading LoadCombatCutinHook\n");
   // Combat Cutin
   if ( CONFIG_ENABLED( enableAkechiMod ) && strcmp( a1, "battle/cutin/bct_p_bc0009.dds" ) == 0  && GetEquippedPersonaFunction(9) != Persona_RobinHood )
   {
@@ -367,6 +372,7 @@ static void* LoadCombatCutinHook(char* a1 , char a2)
 
 static void CombatPersonaCueIDHook( CueIDThingy* param_1, int param_2, short param_3, char param_4, char param_5 )
 {
+  FUNC_LOG("Loading CombatPersonaCueIDHook\n");
   if ( param_1->Field10->btlUnitPointer->unitType == 2 && ActualGetCount( 420 ) > 0 ) // enemy is executing function
   {
     LoadSoundByCueIDCombatVoice( param_1, param_2, ActualGetCount( 420 ), 0 );
@@ -443,6 +449,7 @@ static void CombatPersonaCueIDHook( CueIDThingy* param_1, int param_2, short par
 
 static void EnemyAkechiSkillCueID( CueIDThingy* a1, int a2, int a3 )
 {
+  FUNC_LOG("Loading EnemyAkechiSkillCueID\n");
   if ( a1->Field10->btlUnitPointer->unitType == 2 && ActualGetCount( 420 ) > 0 ) // enemy is executing function
   {
     LoadSoundByCueIDCombatVoice( a1, a2, ActualGetCount( 420 ), 0 );
@@ -455,6 +462,7 @@ static void EnemyAkechiSkillCueID( CueIDThingy* a1, int a2, int a3 )
 
 static void JokerPersonaNameCueIDHook( CueIDThingy* param_1, int param_2 )
 {
+  FUNC_LOG("Loading JokerPersonaNameCueIDHook\n");
   if ( GetEquippedPersonaFunction( 1 ) >= 309 && GetEquippedPersonaFunction( 1 ) != 463 )
   {
     LoadSoundByCueIDCombatVoice( param_1, param_2, 213, 0 );
@@ -464,6 +472,7 @@ static void JokerPersonaNameCueIDHook( CueIDThingy* param_1, int param_2 )
 
 static void Load2DUIDDSHook(u32* a1, char* a2)
 {
+  FUNC_LOG("Loading Load2DUIDDSHook\n");
   if ( strcmp( a2, "camp/wanted/wanted_09.dds") == 0 && CONFIG_ENABLED( enableAkechiMod ) && GetEquippedPersonaFunction(9) != Persona_RobinHood )
   {
     a2 = "camp/wanted/wanted_09_01.dds";
@@ -481,6 +490,7 @@ static void Load2DUIDDSHook(u32* a1, char* a2)
 
 static void* LoadBCDFunctionHook( char* a1 , u32 a2, u32 a3, int* a4 )
 {
+  FUNC_LOG("Loading LoadBCDFunctionHook\n");
   if ( strcmp( a1, "battle/event/BCD/goodbye/bksk_aketi.BCD" ) == 0 && CONFIG_ENABLED( enableAkechiMod ) && GetEquippedPersonaFunction(9) != Persona_RobinHood )
   {
     a1 = "battle/event/BCD/goodbye/bksk_aketi_b.BCD";
@@ -491,11 +501,16 @@ static void* LoadBCDFunctionHook( char* a1 , u32 a2, u32 a3, int* a4 )
     sprintf(introBCD, "battle/event/BCD/%04x/000/bes_%04x_000.BCD", EncounterIDGlobal, EncounterIDGlobal);
     return SHK_CALL_HOOK( LoadBCDFunction, introBCD, a2, a3, a4 );
   }
+  else if ( strcmp( a1, "battle/event/BCD/batontouch/bes_touch_v.BCD" ) == 0 && EncounterIDGlobal >= 830 && CONFIG_ENABLED( enablePersonaEnemies ) )
+  {
+    a1 = "battle/event/BCD/batontouch/bes_touch1.BCD";
+  }
   return SHK_CALL_HOOK( LoadBCDFunction, a1, a2, a3, a4 );
 }
 
 static void* LoadPartyPanelPLGHook(char* a1, u32 a2, u32 a3, char a4)
 {
+  FUNC_LOG("Loading LoadPartyPanelPLGHook\n");
   if ( strcmp( a1, "battle/gui/battle_active_pp.plg" ) == 0 && CONFIG_ENABLED( enableAkechiMod ) && GetEquippedPersonaFunction(9) != Persona_RobinHood )
   {
       a1 = "battle/gui/battle_active_p5.plg";
@@ -505,6 +520,7 @@ static void* LoadPartyPanelPLGHook(char* a1, u32 a2, u32 a3, char a4)
 
 static void setBlackMaskCueIDHook( CueIDThingy* param_1, u32 param_2, u16 skill_ID )
 {
+  FUNC_LOG("Loading setBlackMaskCueIDHook\n");
   u16 uVar1;
   u64 uVar2;
 
@@ -652,9 +668,9 @@ static void setBlackMaskCueIDHook( CueIDThingy* param_1, u32 param_2, u16 skill_
 
 static int LoadAnimationPackHook( u64 param_1, int animationID, char* result, int animationType )
 {
+  FUNC_LOG("Loading LoadAnimationPackHook\n");
   u64 animType = (u32)(param_1 >> 0x3a);
   u64 unitID = (u32)(param_1 >> 0x14) & 0xffff;
-  DEBUG_LOG("Anim type %d loaded\n", animType);
   if ( animType == 2 && animationID == 51 && CONFIG_ENABLED( enableAkechiMod ) )
   {
     if( unitID == 6 && GetEquippedPersonaFunction(6) != Persona_Anat )
@@ -671,6 +687,8 @@ static int LoadAnimationPackHook( u64 param_1, int animationID, char* result, in
 
 static int ParseUNITTBLHook( u64 param_1 )
 {
+  FUNC_LOG("Loading ParseUNITTBLHook\n");
+  memset( &NewSegment2TBL, 0x0, sizeof( NewSegment2TBL ) );
   memset( &NewEnemyStatsTBL, 0x69, sizeof( NewEnemyStatsTBL ) );
   memset( &NewEnemyAffinityTBL, 0x69, sizeof( NewEnemyAffinityTBL ) );
   memset( &NewPersonaAffinityTBL, 0x69, sizeof( NewPersonaAffinityTBL ) );
@@ -926,7 +944,7 @@ static u64* ReturnAddressOfELSAITBL_Segment1Hook( u32 a1 )
   else
   {
     u64* returnVal = SHK_CALL_HOOK( ReturnAddressOfELSAITBL_Segment1, a1);
-    DEBUG_LOG("ReturnAddressOfELSAITBL_Segment1Hook return val from %d (a1)\nExpected -> 0x%08x\n", a1, returnVal);
+    //DEBUG_LOG("ReturnAddressOfELSAITBL_Segment1Hook return val from %d (a1)\nExpected -> 0x%08x\n", a1, returnVal);
     return returnVal;
   }
 }
@@ -1070,6 +1088,7 @@ static int isPartyMemberExist4( u16 a1, u16 a2 )
 
 static int SetEnemyAkechiPersonaHook( u64 a1, u64 a2, EnemyPersonaFunctionStruct1* a3 )
 {
+  FUNC_LOG("Loading SetEnemyAkechiPersonaHook\n");
   //printf("Checking Persona ID for unit ID %d; unit type %d\n", a3->field0c->field18->field04->unitID, a3->field0c->field18->field04->unitType);
   // Field04 is pointer to battle struct of the battle unit currently acting
   if ( a3->field0c->field18->field04->unitType == 2) // only execute on enemy units
@@ -1081,6 +1100,7 @@ static int SetEnemyAkechiPersonaHook( u64 a1, u64 a2, EnemyPersonaFunctionStruct
     if ( EnemyPersona > 0 )
     {
       result = EnemyPersona;
+      EnemyPersona = 0;
     }
 
     // black mask conditional to avoid using same Loki ID as player Akechi
@@ -1110,10 +1130,11 @@ static int SetEnemyAkechiPersonaHook( u64 a1, u64 a2, EnemyPersonaFunctionStruct
 
 static bool EnemyHasCombatCutinHook( int a1, EnemyPersonaFunctionStruct1* a2 )
 {
+  FUNC_LOG("Loading EnemyHasCombatCutinHook\n");
   bool result = SHK_CALL_HOOK( EnemyHasCombatCutin, a1, a2 );
   if ( result == false )
   {
-    if ( EnemyPersona == 0 )
+    if ( a2->field0c->field18->field04->StockPersona[0].personaID == 0 )
     {
       return false;
     }
@@ -1124,6 +1145,7 @@ static bool EnemyHasCombatCutinHook( int a1, EnemyPersonaFunctionStruct1* a2 )
 
 static int SetUpEncounterFlagsHook( EncounterFuncStruct* a1, EncounterStructShort* a2)
 {
+  //FUNC_LOG("Loading SetUpEncounterFlagsHook\n");
   PrepareDLCBGM(); // Load DLC BGM
   PrepareDLCBGM(); // Load DLC BGM
   SetBitflagState( 8348, 0 ); // disable early end flag
@@ -1142,28 +1164,6 @@ static int SetUpEncounterFlagsHook( EncounterFuncStruct* a1, EncounterStructShor
     // DLC BGM Stuff
     if ( a1->BGMID == 300 || a1->BGMID == -1 ) // Only Execute DLC Music code on Last Surprise
     {
-      if ( !CONFIG_ENABLED( ambushOverDLC ) )// dont run with randomized bgm music
-      {
-        u32 btlEquipBgmTableEntryCount = sizeof( btlEquipBgmTable ) / sizeof( btlEquipBgmTableEntry );
-        u32 playerOutfitModel = PlayerUnitGetModelMinorID( 1, 50, 0 );
-
-        for ( u32 i = 0; i < btlEquipBgmTableEntryCount; ++i )
-        {
-          btlEquipBgmTableEntry* pEntry = &btlEquipBgmTable[i];
-          if ( pEntry->modelID == playerOutfitModel )
-          {
-            isAmbush = false;
-            isAmbushed = false;
-            break;
-          }
-        }
-      }
-      else if (CONFIG_ENABLED( randomDLCBGM )  )
-      { 
-        isAmbush = false;
-        isAmbushed = false;
-      }
-      
       if ( isAmbush )
       {
         isAmbush = false;
@@ -1189,7 +1189,7 @@ static int SetUpEncounterFlagsHook( EncounterFuncStruct* a1, EncounterStructShor
         isAmbushed = false;
       }
     }
-    printf("========================================\nStarting Encounter ID %d with BGM ID %d\n========================================\n", encounterIDReal, a1->BGMID);
+    FILE_LOG("========================================\nStarting Encounter ID %d with BGM ID %d\n========================================\n", encounterIDReal, a1->BGMID);
   }
 
   if ( shdEnemyFile == 0x0 )
@@ -1201,12 +1201,13 @@ static int SetUpEncounterFlagsHook( EncounterFuncStruct* a1, EncounterStructShor
 
 static encounterIDTBL* FUN_00263b94Hook( int a1 )
 {
+  FUNC_LOG("Loading FUN_00263b94Hook\n");
   encounterIDTBL* result;
   result = SHK_CALL_HOOK( FUN_00263b94, a1 );
 
   if ( LastUsedEncounterID != a1 && a1 < 1000) // prevent spam
   {
-    printf("Encounter Block %03d loaded\n", a1);
+    DEBUG_LOG("Encounter Block %03d loaded\n", a1);
     hexDump("TBL Data", result, 24);
     LastUsedEncounterID = a1;
   }
@@ -1215,24 +1216,34 @@ static encounterIDTBL* FUN_00263b94Hook( int a1 )
 
 static void IsEncounterEventSoundBankExistHook( EncounterFuncStruct* a1 )
 {
+  FUNC_LOG("Loading IsEncounterEventSoundBankExistHook\n");
+
   if ( EncounterIDGlobal >= 830 ) return LoadEncounterEventSoundbank( EncounterIDGlobal );
   else return SHK_CALL_HOOK( IsEncounterEventSoundBankExist, a1 );
 }
 
 static int CheckIsEncounterAmbush( int a1 )
 {
+  FUNC_LOG("Loading CheckIsEncounterAmbush\n");
   randomizedCombatOutfit = false;
 
   int result = SHK_CALL_HOOK( FUN_00af3cb0, a1 );
-  if ( result == 2 )
+  /*if ( result == 2 || result == 1 )
   {
     isAmbush = true;
+    isAmbushed = false;
   }
+  else if ( result == 6 )
+  {
+    isAmbush = false;
+    isAmbushed = true;
+  }*/
   return result;
 }
 
 static void FUN_003735d8Hook( fechance* a1, u64 a2, u64 a3, u64 a4, u64 a5 )
 {
+  FUNC_LOG("Loading FUN_003735d8Hook\n");
   //printf("FUN_003735d8 a1->field182 -> %d\n", a1->field182 );
   randomizedCombatOutfit = false;
   
@@ -1251,6 +1262,7 @@ static void FUN_003735d8Hook( fechance* a1, u64 a2, u64 a3, u64 a4, u64 a5 )
 
 static int FUN_00829ce8Hook( ActiveCombatUnitStruct* a1 )
 { 
+  FUNC_LOG("Loading FUN_00829ce8Hook\n");
   int currentUnitID = a1->field30->field18->field04->unitID;
   //printf( "FUN_00829ce8 called; a1 -> 0x%x; UnitID -> %d\n", a1, currentUnitID );
   int accessoryID = a1->field30->field18->field04->accessoryID;
@@ -1299,6 +1311,7 @@ static int FUN_00829ce8Hook( ActiveCombatUnitStruct* a1 )
 
 static resrcNPCTblEntry* GetNPCTBLEntry( int a1 )
 {
+  FUNC_LOG("Loading GetNPCTBLEntry\n");
   //printf("NPC TBL NPC ID %d loaded\n", a1 );
   //printf("NPC TBL Entry %d loaded\n",  ( (int)SHK_CALL_HOOK( FUN_00043fac, a1 ) - (int)SHK_CALL_HOOK( FUN_00043fac, 0 ) ) / 0x1C );
   return SHK_CALL_HOOK( FUN_00043fac, a1 );
@@ -1657,6 +1670,7 @@ bool CheckPartyMemberConfidantCombatAbilities(u32 playerID, int param_2)
 
 static int CheckUnitIsEndure( btlUnit_Unit* btlUnit, u32 skillID )
 {
+  FUNC_LOG("Loading CheckUnitIsEndure\n");
   //printf("Checking Endure on unit ID %d; unit type %d\n", btlUnit->unitID, btlUnit->unitType);
   int result = SHK_CALL_HOOK( FUN_00256830, btlUnit, skillID );
   if ( btlUnit->unitType == 1 ) // emulate same exact check as original code for consistency
@@ -1683,6 +1697,7 @@ static int CheckUnitIsEndure( btlUnit_Unit* btlUnit, u32 skillID )
 
 static bool CheckRyujiInstakill( void )
 {
+  FUNC_LOG("Loading CheckRyujiInstakill\n");
   bool result = IsConfidantBonusObtained( 80 );
   if ( CONFIG_ENABLED( DisableInstakill ) )
   {
@@ -1693,6 +1708,7 @@ static bool CheckRyujiInstakill( void )
 
 static bool FUN_007ed620Hook( structA_2* a1 )
 {
+  FUNC_LOG("Loading FUN_007ed620Hook\n");
   //printf("Unit Type %d with unit ID %d CHECK_SLIP\n", a1->Field0C->Field18->btlUnitPointer->unitType, a1->Field0C->Field18->btlUnitPointer->unitID);
   enemyBtlUnit = a1->Field0C->Field18->btlUnitPointer;
   //printf("Current Active Battle Unit being checked; printing pointer chain\na1 ->0x%x\nField0C -> 0x%x\nField18 -> 0x%x\nbtlUnit Pointer -> 0x%x\n", a1, a1->Field0C, a1->Field0C->Field18, a1->Field0C->Field18->btlUnitPointer);
@@ -1706,6 +1722,7 @@ static u32 TwinsStoryEncounterEndBattleEarly( u32 a1, u32 a2 )
 
 static u32 AkechiEncounterCheckEnd( u32 a1, u32 a2 )
 {
+  FUNC_LOG("Loading AkechiEncounterCheckEnd\n");
   u32 result;
   if ( EncounterIDGlobal >= 830 )
   {
@@ -1717,6 +1734,8 @@ static u32 AkechiEncounterCheckEnd( u32 a1, u32 a2 )
     result = SHK_CALL_HOOK( FUN_007af1c0, a1, a2 ); // call twins early end function
   }
   else result = SHK_CALL_HOOK( FUN_00784d18, a1, a2 ); // call original
+
+  //printf("FUN_00784d18 called; a1 -> 0x%x; a2 -> 0x%x; result -> 0x%x\n", a1, a2, result);
 
   return result;
 }
@@ -1737,6 +1756,7 @@ static int isRangedWeaponLeftHanded( int a1 )
 
 static int FUN_000435c0Hook( int a1, int a2 )
 {
+  FUNC_LOG("Loading FUN_000435c0Hook\n");
   int result = 1;
   if ( FieldListFile == 0x0 )
   {
@@ -1761,6 +1781,7 @@ static int FUN_000435c0Hook( int a1, int a2 )
 
 static void PlayJokerDieCueID( CueIDThingy* param_1, int param_2 )
 {
+  FUNC_LOG("Loading PlayJokerDieCueID\n");
   if ( !btlUnitHasAilment( param_1->Field10->btlUnitPointer, 0x400000 ) )
   {
     LoadSoundByCueIDCombatVoice( param_1, param_2, 10, 0 );
@@ -1769,6 +1790,7 @@ static void PlayJokerDieCueID( CueIDThingy* param_1, int param_2 )
 
 static void PlayJokerSkillCueID( CueIDThingy* a1, int a2, int a3 )
 {
+  FUNC_LOG("Loading PlayJokerSkillCueID\n");
   if ( a1->Field10->btlUnitPointer->unitType == 2 && ActualGetCount( 420 ) > 0 )
   {
     if ( ActualGetCount( 420 ) == 0 )
@@ -1785,6 +1807,7 @@ static void PlayJokerSkillCueID( CueIDThingy* a1, int a2, int a3 )
 
 static void FUN_00b25348Hook( CueIDThingy* a1, int a2 )
 {
+  FUNC_LOG("Loading FUN_00b25348Hook\n");
   if ( a1->Field10->btlUnitPointer->unitType == 2 )
   {
     //printf("Enemy %d Executing FUN_00b25348\n", a1->Field10->btlUnitPointer->unitID);
@@ -1799,6 +1822,7 @@ static void FUN_00b25348Hook( CueIDThingy* a1, int a2 )
 
 static int FUN_00060b90Hook( void )
 {
+  FUNC_LOG("Loading FUN_00060b90Hook\n");
   int result = SHK_CALL_HOOK( FUN_00060b90 );
   if ( GetBitflagState( 8285 ) )
   {
@@ -1857,6 +1881,7 @@ static int FUN_00060b90Hook( void )
 
 static int FUN_00927d50Hook( char* a1 ) // split combat GAP animation load
 {
+  FUNC_LOG("Loading FUN_00927d50Hook\n");
   if ( a1[19] == '9' && a1[33] == '9' && a1[37] == '1' && GetEquippedPersonaFunction(9) != Persona_RobinHood && CONFIG_ENABLED( enableAkechiMod ) )
   {
     a1[37] = '2'; // checking for model/character/0009/battle/bb0009_051_###a.GAP
@@ -1883,6 +1908,7 @@ static int FUN_00b0efa8Hook( CueIDThingy* a1, double a2, double a3 )
 
 static int FUN_00b0f558Hook( CueIDThingy* a1, double a2, double a3 )
 {
+  FUNC_LOG("Loading FUN_00b0f558Hook\n");
   int result = SHK_CALL_HOOK( FUN_00b0f558, a1, a2, a3 );
   //printf( "Baton Pass Out Function called; Function Address 0x00b0f558\na1 -> 0x%x; unit ID -> %d\n", a1, a1->Field10->btlUnitPointer->unitID );
   return result;
@@ -1906,6 +1932,13 @@ static int FUN_00aff590Hook( CueIDThingy* a1, double a2, double a3 )
 {
   int result = SHK_CALL_HOOK( FUN_00aff590, a1, a2, a3 );
   //printf( "Player Baton Pass Out Function called; Function Address 0x00aff590\na1 -> 0x%x; unit ID -> %d\n", a1, a1->Field10->btlUnitPointer->unitID );
+  return result;
+}
+
+static bool FUN_00786a88Hook( int a1, int a2 )
+{
+  bool result = SHK_CALL_HOOK( FUN_00786a88, a1, a2 );
+  //printf( "FUN_00786a88 called; result -> %d\n", result );
   return result;
 }
 
@@ -1999,6 +2032,7 @@ void dcInit( void )
   SHK_BIND_HOOK( FUN_00b0f5e8, FUN_00b0f5e8Hook );
   SHK_BIND_HOOK( FUN_00aff500, FUN_00aff500Hook );
   SHK_BIND_HOOK( FUN_00aff590, FUN_00aff590Hook );
+  SHK_BIND_HOOK( FUN_00786a88, FUN_00786a88Hook );
   //SHK_BIND_HOOK( FUN_00b03510, FUN_00b03510Hook );
   //SHK_BIND_HOOK( FUN_00b0efa8, FUN_00b0efa8Hook );
   //SHK_BIND_HOOK( FUN_00b03248, FUN_00b03248Hook );

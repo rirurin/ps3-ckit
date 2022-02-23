@@ -1334,7 +1334,7 @@ typedef struct
 
 typedef struct
 {
-  ELSAI_Segment2 entry[649];
+  ELSAI_Segment2 entry[651];
 }ELSAI_Segment2TBL;
 
 typedef struct

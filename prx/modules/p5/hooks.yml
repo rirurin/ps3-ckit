@@ -519,3 +519,15 @@ FUN_00aff590:
 FUN_00786a88:
     addr: 0x00786a88
     replacedInstr: stdu  r1, -0x70(r1)
+
+FUN_0049eb90:
+    addr: 0x49eb90
+    replacedInstr: stdu  r1, -0x1e0(r1)
+
+FUN_0049ee38:
+    addr: 0x49ee38
+    replacedInstr: stdu  r1, -0x1e0(r1)
+    
+FUN_003e8ff8:
+    addr: 0x3e8ff8
+    replacedInstr: stdu  r1, -0x90(r1)

@@ -83,6 +83,5 @@ typedef struct
     cmmFormatStruct * Field52;
 }CmmStruct;
 
-
 #endif
 #endif

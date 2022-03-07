@@ -503,3 +503,15 @@ FUN_00244250:
 FUN_0023c070:
     addr: 0x23c070
     replacedInstr: stdu  r1, -0xd0(r1)
+
+FUN_0049eb90:
+    addr: 0x49eb90
+    replacedInstr: stdu  r1, -0x1e0(r1)
+
+FUN_0049ee38:
+    addr: 0x49ee38
+    replacedInstr: stdu  r1, -0x1e0(r1)
+    
+FUN_003e8ff8:
+    addr: 0x3e8ff8
+    replacedInstr: stdu  r1, -0x90(r1)

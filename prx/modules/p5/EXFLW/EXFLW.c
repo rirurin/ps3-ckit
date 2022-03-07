@@ -873,6 +873,12 @@ static void LoadDLCBGM( void )
   sprintf( new_acb_path, "sound/bgm_%02d.acb", targetBGMACBID );
   sprintf( new_awb_path, "sound/bgm_%02d.awb", targetBGMACBID );
 
+  if ( strcmp( new_acb_path, DLCBGMDataLocation.dlc_acb_path ) == 0 )
+  {
+    DEBUG_LOG("Loading Previous DLC BGM Again, skipping\n");
+    return;
+  }
+
   LoadNaviSoundFileHook( 6, &DLCBGMDataLocation, new_acb_path, new_awb_path, 0 ); // this is the function that loads the actual DLC music
   FUN_0010fbbc( &DLCBGMDataLocation ); // what address did we store the data on
   return;

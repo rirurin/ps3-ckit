@@ -986,9 +986,10 @@ static void PartyMemberWarnAilment_NaviDialogue( struct_2_pointers* param_1, nav
   int uVar10;
   int uVar9;
   
-  if ( !CONFIG_ENABLED( enableKasumi ) )
+  if ( !CONFIG_ENABLED( enableKasumi ) || GetBtlUnitInCombat( 1, 10 ) == 0 )
   {
-    SHK_CALL_HOOK( FUN_00b1ca18, param_1, param_2, param_3, param_4, param_5, param_6 );
+    DEBUG_LOG("Kasumi not in Combat\n");
+    return SHK_CALL_HOOK( FUN_00b1ca18, param_1, param_2, param_3, param_4, param_5, param_6 );
   }
 
   if ( Kasumi->StatusAilments > 0 )

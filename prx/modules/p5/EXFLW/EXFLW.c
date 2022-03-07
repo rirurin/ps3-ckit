@@ -831,6 +831,7 @@ static u64 LoadNaviSoundFileHook( u64 a1, u64 a2, char* acb_path, char* awb_path
 
 static void LoadDLCBGM( void )
 {
+  FUNC_LOG("Loading LoadDLCBGM\n");
   if ( !CONFIG_ENABLED( ambushOverDLC ) )
   {
     isAmbush = false;
@@ -839,12 +840,11 @@ static void LoadDLCBGM( void )
   
   char new_acb_path[128];
   char new_awb_path[128];
+  u32 targetBGMACBID = 0;
 
   if ( CONFIG_ENABLED( randomDLCBGM ) ) // randomized DLC music
   {
-    int randomDLCID = randomIntBetween( 1, CONFIG_INT( maxDLCBGM ) );
-    sprintf( new_acb_path, "sound/bgm_%02d.acb", randomDLCID );
-    sprintf( new_awb_path, "sound/bgm_%02d.awb", randomDLCID );
+    targetBGMACBID = randomIntBetween( 1, CONFIG_INT( maxDLCBGM ) );
   }
   else
   {
@@ -856,15 +856,26 @@ static void LoadDLCBGM( void )
       btlEquipBgmTableEntry* pEntry = &btlEquipBgmTable[i]; // Loop through DLC Outfits table
       if ( pEntry->modelID == playerOutfitModel ) // if Joker's model matches an entry in the table, load that DLC music
       {
-        sprintf( new_acb_path, "sound/bgm_%02d.acb", i + 1 );
-        sprintf( new_awb_path, "sound/bgm_%02d.awb", i + 1 );
+        targetBGMACBID = i + 1;
         break;
       }
     }
+
+    int targetOutfitBGM = GetBtlPlayerUnitFromID( 1 )->outfitID - 0x7000;
+    targetOutfitBGM = GetOutfitTBLEntry( targetOutfitBGM )->GearEffect[1];
+
+    if ( targetOutfitBGM != 0 )
+    {
+      targetBGMACBID = targetOutfitBGM; // read outfit tbl value and use it as the ACB ID
+    }
   }
-  
-  LoadNaviSoundFileHook( 6, 0x30B49738, new_acb_path, new_awb_path, 0 ); // this is the function that loads the actual DLC music
-  FUN_0010fbbc( 0x30B49738 ); // what address did we store the data on
+
+  sprintf( new_acb_path, "sound/bgm_%02d.acb", targetBGMACBID );
+  sprintf( new_awb_path, "sound/bgm_%02d.awb", targetBGMACBID );
+
+  LoadNaviSoundFileHook( 6, &DLCBGMDataLocation, new_acb_path, new_awb_path, 0 ); // this is the function that loads the actual DLC music
+  FUN_0010fbbc( &DLCBGMDataLocation ); // what address did we store the data on
+  return;
 }
 
 // List of commands that can be handled by the command listener
@@ -1543,6 +1554,9 @@ void EXFLWInit( void )
   SHK_BIND_HOOK( LoadMonaNaviBMD, LoadMonaNaviBMDHook );
   SHK_BIND_HOOK( LoadNaviSoundFile, LoadNaviSoundFileHook );
   SHK_BIND_HOOK( FUN_0006ccc8, LoadDLCBGM );
+
+  memset( &DLCBGMDataLocation, 0x0, sizeof( DLCBGMStruct ) );
+  DEBUG_LOG("DLC BGM Data address is 0x%x\n", &DLCBGMDataLocation);
 }
 
 void EXFLWShutdown( void )

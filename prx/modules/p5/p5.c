@@ -659,6 +659,9 @@ void PrepareDLCBGM( void ){
     SHK_FUNCTION_CALL_0( 0x6ccc8, void );
 }
 
+u32 FUN_0031f35c( void ){
+    SHK_FUNCTION_CALL_0( 0x31f35c, u32 );
+}
 int GetRandom( int MaxValue )
 {
   int v0; // r31

@@ -1,5 +1,6 @@
 CONFIG_START()
     CONFIG_SETTING( BOOL, debug, "Debugging features", true )
+    CONFIG_SETTING( BOOL, functest, "Print Function Names", false )
 
 #ifdef GAME_P5
     CONFIG_SETTING( BOOL, enableEXFLWModule, "Enable Flowscripts module", true )

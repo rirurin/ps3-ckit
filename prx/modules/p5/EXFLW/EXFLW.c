@@ -23,6 +23,9 @@
 #define DEBUG_LOG( msg, ... ) \
   if ( CONFIG_ENABLED( debug ) ) printf( "DEBUG: " msg, ##__VA_ARGS__ )
 
+#define FUNC_LOG( msg, ... ) \
+  if ( CONFIG_ENABLED( functest ) ) printf( "DEBUG: " msg, ##__VA_ARGS__ )
+
 // You need to declare hooks with SHK_HOOK before you can use them.
 SHK_HOOK( int, EX_FLW_setHumanLv );
 SHK_HOOK( int, SET_PERSONA_LV );
@@ -48,8 +51,10 @@ SHK_HOOK( void, FUN_0006ccc8, void );
 
 static s32 setSeqHook( s32 seqId, void* params, s32 paramsSize, s32 r6 )
 {
+  FUNC_LOG("Loading setSeqHook\n");
   sequenceIDGlobal = seqId;
-  //printf( "Changing Sequence ID to %d\n", seqId );
+  DEBUG_LOG( "Changing Sequence ID to %d\n", seqId );
+  /*
   if ( seqId == 4 )
   {
     if ( paramsSize == 40 )
@@ -63,7 +68,7 @@ static s32 setSeqHook( s32 seqId, void* params, s32 paramsSize, s32 r6 )
       //printf("Encounter ID Obtained -> %03d\n", EncounterIDGlobal);
     }
     else DEBUG_LOG("Unknown Params size in seqID 4 -> %d\n", paramsSize);
-  }
+  }*/
   // Calling the original unhooked function is done like this.
   return SHK_CALL_HOOK( setSeq, seqId, params, paramsSize, r6 );
 }
@@ -693,13 +698,12 @@ static TtyCmdStatus ttyloadBFFile( TtyCmd* cmd, const char** args, u32 argc, cha
 fileHandleStruct* FutabaNavi = 0;
 static undefined4* LoadFutabaNaviBMDHook(void)
 {
-  DEBUG_LOG("LoadFutabaNaviBMDHook called\n");
+  FUNC_LOG("Loading LoadFutabaNaviBMDHook\n");
   idkman* pmVar1;
   int *pmVar2;
   
   pmVar1 = MallocAndReturn(0x34);
   pmVar2 = (int *)0x0;
-  DEBUG_LOG("Checking if Navi File is loaded\n");
   
   int customNaviID = GetCountFunctionHook( 9 );
   if ( customNaviID != 9 )
@@ -724,7 +728,6 @@ static undefined4* LoadFutabaNaviBMDHook(void)
       FUN_00747f48((undefined4 *)pmVar1, FutabaNavi->pointerToFile, customNaviID);
     }
     else FUN_00747f48((undefined4 *)pmVar1, 0x00df7fd4, 8); //original functionality
-    DEBUG_LOG("Navi file successfully loaded\n");
     pmVar1->ptr1 = 0x00ba76c0;
     pmVar2 = (int *)pmVar1;
   }
@@ -733,13 +736,12 @@ static undefined4* LoadFutabaNaviBMDHook(void)
 
 static undefined4* LoadMonaNaviBMDHook(void)
 {
-  DEBUG_LOG("LoadMonaNaviBMDHook called\n");
+  FUNC_LOG("Loading LoadMonaNaviBMDHook\n");
   idkman* pmVar1;
   int *pmVar2;
   
   pmVar1 = MallocAndReturn(0x34);
   pmVar2 = (int *)0x0;
-  DEBUG_LOG("Checking if Navi File is loaded\n");
   if (pmVar1 != (idkman*)0x0) {
     NaviTestFile = open_file( "battle/message/navi_03.bmd", 0 );
     u64 fsResult = fsSync((int)NaviTestFile);
@@ -749,7 +751,6 @@ static undefined4* LoadMonaNaviBMDHook(void)
       FUN_00747f48((undefined4 *)pmVar1, NaviTestFile->pointerToFile, 3);
     }
     else FUN_00747f48((undefined4 *)pmVar1, 0x00ba7568, 3); //original functionality
-    DEBUG_LOG("Navi file successfully loaded\n");
     pmVar1->ptr1 = 0x00ba7568;
     pmVar2 = (int *)pmVar1;
   }
@@ -807,6 +808,7 @@ static TtyCmdStatus ttyCOMSEPLAY( TtyCmd* cmd, const char** args, u32 argc, char
 
 static u64 LoadNaviSoundFileHook( u64 a1, u64 a2, char* acb_path, char* awb_path, u64 a5 )
 {
+  FUNC_LOG("Loading LoadNaviSoundFileHook\n");
   char new_acb_path[128];
   char new_awb_path[128];
 
@@ -829,6 +831,12 @@ static u64 LoadNaviSoundFileHook( u64 a1, u64 a2, char* acb_path, char* awb_path
 
 static void LoadDLCBGM( void )
 {
+  if ( !CONFIG_ENABLED( ambushOverDLC ) )
+  {
+    isAmbush = false;
+    isAmbushed = false;
+  }
+  
   char new_acb_path[128];
   char new_awb_path[128];
 
@@ -954,7 +962,7 @@ static int EX_GET_LEARNABLE_SKILL( void )
   int returnValue = 0;
   int targetSkillEntry = FLW_GetIntArg( 1 );
   int previousLv = FLW_GetIntArg( 2 );
-  printf("EX_GET_LEARNABLE_SKILL: Attempting to learn skills starting from Lv %d\n", previousLv);
+  DEBUG_LOG("EX_GET_LEARNABLE_SKILL: Attempting to learn skills starting from Lv %d\n", previousLv);
   btlUnit_Unit* Player = GetBtlPlayerUnitFromID( partyMemberID );
 
   if ( playerPersona->skills->canLearn && playerPersona->skills[targetSkillEntry].LvReq != 0 && targetSkillEntry <= 31 )
@@ -962,7 +970,7 @@ static int EX_GET_LEARNABLE_SKILL( void )
     if ( playerPersona->skills[targetSkillEntry].LvReq >= previousLv && Player->StockPersona[0].personaLv >= playerPersona->skills[targetSkillEntry].LvReq )
     {
       returnValue = playerPersona->skills[targetSkillEntry].skillID;
-      printf("EX_GET_LEARNABLE_SKILL: Returning Skill ID %d\n", returnValue);
+      DEBUG_LOG("EX_GET_LEARNABLE_SKILL: Returning Skill ID %d\n", returnValue);
     }
   }
   FLW_SetIntReturn( returnValue );
@@ -980,13 +988,13 @@ static int EX_GET_PLAYER_LV( void )
   btlUnit_Unit* Player = GetBtlPlayerUnitFromID( partyMemberID );
   if ( partyMemberID == 1)
   {
-    printf("GET_PLAYER_LV: Joker is lv %d\n", Player->Joker_Lv);
+    DEBUG_LOG("GET_PLAYER_LV: Joker is lv %d\n", Player->Joker_Lv);
     FLW_SetIntReturn( Player->Joker_Lv );
   }
   else
   {
     FLW_SetIntReturn( Player->StockPersona[0].personaLv );
-    printf("GET_PLAYER_LV: Unit ID %d is lv %d\n", partyMemberID, Player->StockPersona[0].personaLv);
+    DEBUG_LOG("GET_PLAYER_LV: Unit ID %d is lv %d\n", partyMemberID, Player->StockPersona[0].personaLv);
   }
 
   return 1;
@@ -1003,7 +1011,7 @@ static int EX_SET_TACTICS_STATE( void )
   btlUnit_Unit* Player = GetBtlPlayerUnitFromID( partyMemberID );
   if ( partyMemberID == 1)
   {
-    printf("EX_SET_TACTICS_STATE: Warning, Joker tactics have been changed!");
+    DEBUG_LOG("EX_SET_TACTICS_STATE: Warning, Joker tactics have been changed!");
   }
 
   Player->TacticsState = tacticsID;
@@ -1090,79 +1098,50 @@ static int EX_CLEAR_PERSONA_SKILLS( void )
   return 1;
 }
 
-static int EX_IS_PLAYER_CHEATING( void )
+static int EX_PLAYER_HAS_INVALID_SKILL( void )
 {
   int total = 0;
-  btlUnit_Unit* Joker = GetBtlPlayerUnitFromID(1);
-  if ( Joker->accessoryID == 232 + 0x2000 ) // Omnipotent Orb
-  {
-    total += 2;
-  }
-  if ( BtlUnitCheckHasSkill( Joker, 600 ) || 
-       BtlUnitCheckHasSkill( Joker, 603 ) || 
-       BtlUnitCheckHasSkill( Joker, 604 ) || 
-       BtlUnitCheckHasSkill( Joker, 605 ) || 
-       BtlUnitCheckHasSkill( Joker, 606 ) || 
-       BtlUnitCheckHasSkill( Joker, 607 ) || 
-       BtlUnitCheckHasSkill( Joker, 612 ) || 
-       BtlUnitCheckHasSkill( Joker, 636 ) || 
-       BtlUnitCheckHasSkill( Joker, 658 ) || 
-       BtlUnitCheckHasSkill( Joker, 659 ) || 
-       BtlUnitCheckHasSkill( Joker, 660 ) || 
-       BtlUnitCheckHasSkill( Joker, 768 ) || 
-       BtlUnitCheckHasSkill( Joker, 434 ) || 
-       BtlUnitCheckHasSkill( Joker, 465 ) || 
-       BtlUnitCheckHasSkill( Joker, 469 ) || 
-       BtlUnitCheckHasSkill( Joker, 481 ) || 
-       BtlUnitCheckHasSkill( Joker, 477 ) || 
-       BtlUnitCheckHasSkill( Joker, 490 ) || 
-       BtlUnitCheckHasSkill( Joker, 496 )  )
-  {
-    total += 9;
-  }
-  
-  for( int i = 1; i <= 3; i++ )
+  for( int i = 0; i <= 3; i++ )
   {
     btlUnit_Unit* PartyMember = GetBtlPlayerUnitFromID( GetUnitIDFromPartySlot(i) );
-    if ( PartyMember->accessoryID == 232 + 0x2000 ) // Omnipotent Orb
+    /*if ( PartyMember->accessoryID == 232 + 0x2000 ) // Omnipotent Orb
     {
       total += 2;
     }
     if ( GetBtlUnitMaxHP(PartyMember) < PartyMember->currentHP )
     {
-      total += 1;
+      total += 2;
     }
     if ( GetBtlUnitMaxSP(PartyMember) < PartyMember->currentSP )
     {
-      total += 1;
-    }
-    if ( GetBtlUnitMaxHP(PartyMember) == 999 )
-    {
-      total += 1;
-    }
-    if ( GetBtlUnitMaxSP(PartyMember) == 999 )
-    {
-      total += 1;
-    }
-    if ( BtlUnitCheckHasSkill( PartyMember, 600 ) || 
-       BtlUnitCheckHasSkill( PartyMember, 603 ) || 
-       BtlUnitCheckHasSkill( PartyMember, 604 ) || 
-       BtlUnitCheckHasSkill( PartyMember, 605 ) || 
-       BtlUnitCheckHasSkill( PartyMember, 606 ) || 
-       BtlUnitCheckHasSkill( PartyMember, 607 ) || 
-       BtlUnitCheckHasSkill( PartyMember, 612 ) || 
-       BtlUnitCheckHasSkill( PartyMember, 636 ) || 
-       BtlUnitCheckHasSkill( PartyMember, 658 ) || 
-       BtlUnitCheckHasSkill( PartyMember, 659 ) || 
-       BtlUnitCheckHasSkill( PartyMember, 660 ) || 
-       BtlUnitCheckHasSkill( PartyMember, 768 ) || 
-       BtlUnitCheckHasSkill( PartyMember, 434 ) || 
-       BtlUnitCheckHasSkill( PartyMember, 465 ) || 
-       BtlUnitCheckHasSkill( PartyMember, 469 ) || 
-       BtlUnitCheckHasSkill( PartyMember, 481 ) || 
-       BtlUnitCheckHasSkill( PartyMember, 477 ) || 
-       BtlUnitCheckHasSkill( PartyMember, 490 ) || 
-       BtlUnitCheckHasSkill( PartyMember, 496 )  )
+      total += 2;
+    }*/
+    if ( BtlUnitCheckHasSkill( PartyMember, 600 ) || // Twins Down Attack
+         BtlUnitCheckHasSkill( PartyMember, 603 ) || // 9999 Megidolaon
+         BtlUnitCheckHasSkill( PartyMember, 604 ) || // Rays of Control
+         BtlUnitCheckHasSkill( PartyMember, 605 ) || // Rays of Control
+         BtlUnitCheckHasSkill( PartyMember, 606 ) || // Rays of Control
+         BtlUnitCheckHasSkill( PartyMember, 607 ) || // Rays of Control
+         BtlUnitCheckHasSkill( PartyMember, 608 ) || // Arrow of Light
+         BtlUnitCheckHasSkill( PartyMember, 612 ) || // Eternal Light
+         BtlUnitCheckHasSkill( PartyMember, 636 ) || // Rays of Control
+         BtlUnitCheckHasSkill( PartyMember, 638 ) || // Will of the People
+         BtlUnitCheckHasSkill( PartyMember, 405 ) || // Down Shot
+         BtlUnitCheckHasSkill( PartyMember, 658 ) || // Down Shot
+         BtlUnitCheckHasSkill( PartyMember, 659 ) || // Down Shot
+         BtlUnitCheckHasSkill( PartyMember, 660 ) || // Down Shot
+         BtlUnitCheckHasSkill( PartyMember, 768 ) || // Hax Brave Blade
+         BtlUnitCheckHasSkill( PartyMember, 434 ) || // Sup All Kaja (Futaba Skill)
+         BtlUnitCheckHasSkill( PartyMember, 450 ) || // Libido Boost
+         BtlUnitCheckHasSkill( PartyMember, 465 ) || // March of the Piggy
+         BtlUnitCheckHasSkill( PartyMember, 469 ) || // Sphinx Dive
+         BtlUnitCheckHasSkill( PartyMember, 481 ) || // Berserker Dance
+         BtlUnitCheckHasSkill( PartyMember, 477 ) || // Penalty
+         BtlUnitCheckHasSkill( PartyMember, 490 ) || // Arm of Destruction
+         BtlUnitCheckHasSkill( PartyMember, 493 ) || // Cannon Fire
+         BtlUnitCheckHasSkill( PartyMember, 494 ) || // Cannon Barrage
+         BtlUnitCheckHasSkill( PartyMember, 496 ) || // Pyramid Blast
+         BtlUnitCheckHasSkill( PartyMember, 1501 ) ) // Myriad Truths
     {
       total += 9;
     }
@@ -1382,7 +1361,7 @@ scrCommandTableEntry exCommandTable[] =
   { EX_SET_TACTICS_STATE, 2, "SET_TACTICS_STATE" },
   { EX_CALL_NAVI_DIALOGUE, 4, "CALL_NAVI_DIALOGUE" },
   { EX_CLEAR_PERSONA_SKILLS, 1, "CLEAR_PERSONA_SKILLS" },
-  { EX_IS_PLAYER_CHEATING, 0, "IS_PLAYER_CHEATING" },
+  { EX_PLAYER_HAS_INVALID_SKILL, 0, "PLAYER_HAS_INVALID_SKILL" },
   { EX_AI_SUMMON_UNITS, 5, "AI_ACT_SUMMON_UNITS" },
   { EX_AI_SET_TARGETABLE_STATE, 1, "AI_SET_TARGETABLE_STATE" },
   { EX_AI_SET_ENID_TARGETABLE_STATE, 2, "AI_SET_ENID_TARGETABLE_STATE" },
@@ -1452,6 +1431,7 @@ static u32 scrGetCommandArgCountHook( u32 functionID )
 
 static int FUN_3b9644Hook(int charID, int expressionID)
 {
+  //FUNC_LOG("Loading FUN_3b9644Hook\n");
   if ( charID == 9 && GetEquippedPersonaFunction(9) != Persona_RobinHood && CONFIG_ENABLED( enableAkechiMod ) )
   {
     expressionID += 100;
@@ -1463,6 +1443,7 @@ char UnitTypeNames[4][7] = { "Null", "Player", "Enemy", "Persona" };
 
 static void LoadSoundByCueIDCombatVoiceFunctionHook( CueIDThingy* a1, u32* a2, u32 cueID, u8 idk )
 {
+  FUNC_LOG("Loading LoadSoundByCueIDCombatVoiceFunctionHook\n");
   DEBUG_LOG( "%s ID %d is using Voice Cue ID %d\n", UnitTypeNames + a1->Field10->btlUnitPointer->unitType, a1->Field10->btlUnitPointer->unitID, cueID );
   
   return SHK_CALL_HOOK( LoadSoundByCueIDCombatVoiceFunction, a1, a2, cueID, idk );
@@ -1499,7 +1480,7 @@ static int EX_SET_PERSONA_LV ( void )
 
   if ( unitLv >= targetLv )
   {
-    printf("EX_SET_PERSONA_LV: Unit is already at target level or higher!\n");
+    DEBUG_LOG("EX_SET_PERSONA_LV: Unit is already at target level or higher!\n");
     return 1;
   }
   playerUnit->StockPersona[0].personaLv = targetLv;

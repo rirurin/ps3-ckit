@@ -40,6 +40,17 @@ typedef struct
 
 typedef struct
 {
+  u32 isEnabled;
+  u32 acbType;
+  char dlc_acb_path[256];
+  char dlc_awb_path[256];
+}DLCBGMStruct;
+
+DLCBGMStruct DLCBGMDataLocation;
+
+
+typedef struct
+{
   u32 Field00;     // 00
   u16 Flags;       // 04
   u16 cmmID;       // 06

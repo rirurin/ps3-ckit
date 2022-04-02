@@ -30,6 +30,7 @@ SHK_HOOK( undefined8, FUN_0023c070, undefined8 a1, u32 a2, int a3 );
 SHK_HOOK( void, FUN_0049eb90, int a1, u16 a2, undefined4 a3, char a4 );
 SHK_HOOK( void, FUN_0049ee38, int a1, char a2, u32 a3, char a4 );
 SHK_HOOK( int, FUN_003e8ff8, int a1 );
+SHK_HOOK( void, FUN_005a4584, int a1, int a2 );
 
 // The start function of the PRX. This gets executed when the loader loads the PRX at boot.
 // This means game data is not initialized yet! If you want to modify anything that is initialized after boot,
@@ -59,36 +60,36 @@ void WipeParallelHook( ParallelWipe *a1 ) // needs - [ be32, 0x552960, 0x6000000
 	return; 
 }
 
-u64 RankupCardHook( CmmStruct *a1, double a2 ) //changes Kasumi card to Sumire's if the date is past 1/1 or later
+u64 RankupCardHook( CmmStruct *a1, double a2 ) //changes Kasumi card to Sumire's if the date is past 1/10 or later
  {
-	if (GetTotalDays() >= 275 && a1->Field52->cardId == 21)
+	if (GetTotalDays() >= 284 && a1->Field52->cardId == 21 && GetBitflagState( 2162 ) == 1)
 	{
 		a1->Field52->cardId = 23;
 	}
 	return SHK_CALL_HOOK( FUN_00244250, a1, a2 );
  }
 
-undefined8 ConfRankupHook( undefined8 a1, u32 a2, int a3 ) //makes kasumi rankup trigger sumire rankup animation if the date is 1/1 or later
+undefined8 ConfRankupHook( undefined8 a1, u32 a2, int a3 ) //makes kasumi rankup trigger sumire rankup animation if the date is 1/10 or later
 {
-	if ( a2 == 33 && GetTotalDays() >= 275 )
+	if ( a2 == 33 && GetTotalDays() >= 284 && GetBitflagState( 2162 ) == 1)
 	{
 		a2 = 36;
 	}
 	return SHK_CALL_HOOK( FUN_0023c070, a1, a2, a3 );
 }
 
-void CharaTexHook( int a1, u16 a2, undefined4 a3, char a4 ) // makes Kasumi CharaTex in confidant menu show Sumire past 1/1
+void CharaTexHook( int a1, u16 a2, undefined4 a3, char a4 ) // makes Kasumi CharaTex in confidant menu show Sumire past 1/10
 {
-	if ( a2 == 10 && GetTotalDays() >= 275 )
+	if ( a2 == 10 && GetTotalDays() >= 284 && GetBitflagState( 2162 ) == 1)
 	{
 		a2 = 32;
 	}
 	return SHK_CALL_HOOK( FUN_0049eb90, a1, a2, a3, a4 );
 }
 
-void CommuCardHook( int a1, char a2, u32 a3, char a4 ) // makes Kasumi CardTex in confidant menu show Sumire's past 1/1
+void CommuCardHook( int a1, char a2, u32 a3, char a4 ) // makes Kasumi CardTex in confidant menu show Sumire's past 1/10
 {
-	if ( a2 == 22 && GetTotalDays() >= 275 )
+	if ( a2 == 22 && GetTotalDays() >= 284 && GetBitflagState( 2162 ) == 1)
 	{
 		a2 = 24;
 	}
@@ -106,6 +107,58 @@ int FUN_003e8ff8Hook( int a1 ) // increase offset to pointer by 4 bytes when fld
 	}
 	return result;
 }
+
+void FUN_005a4584Hook( int a1, int a2 )
+{
+	SHK_CALL_HOOK( FUN_005a4584, a1, a2 );
+	int iVar4;
+	short ShopId = *(short *)(a2 + 0xc2);
+	u16 uVar2 = *(u16 *)(0xdf237c + (int)((s64)ShopId << 2)) & 0xff;
+	switch (ShopId){
+
+		case 77:
+		iVar4 = FUN_00967abc("facility/fcl_ps_title/h_name_POWERSTONE.dds", 1);
+		*(int *)(a1 + 0x924) = iVar4;
+		break;
+
+		case 81:
+		iVar4 = FUN_00967abc("facility/fcl_ps_title/h_name_STATIONERY.dds", 1);
+		*(int *)(a1 + 0x924) = iVar4;
+		break;
+
+		case 82:
+		iVar4 = FUN_00967abc("facility/fcl_ps_title/h_name_FRIEDFOOD.dds", 1);
+		*(int *)(a1 + 0x924) = iVar4;
+		break;
+
+		case 83:
+		iVar4 = FUN_00967abc("facility/fcl_ps_title/h_name_JIDOU.dds", 1);
+		*(int *)(a1 + 0x924) = iVar4;
+		break;
+
+		case 84:
+		iVar4 = FUN_00967abc("facility/fcl_ps_title/h_name_JIDOU.dds", 1);
+		*(int *)(a1 + 0x924) = iVar4;
+		break;
+
+		case 85:
+		iVar4 = FUN_00967abc("facility/fcl_ps_title/h_name_HURUGI.dds", 1);
+		*(int *)(a1 + 0x924) = iVar4;
+		break;
+
+		case 87:
+		iVar4 = FUN_00967abc("facility/fcl_ps_title/h_name_FOOD.dds", 1);
+		*(int *)(a1 + 0x924) = iVar4;
+		break;
+
+		case 88:
+		iVar4 = FUN_00967abc("facility/fcl_ps_title/h_name_CHINESE.dds", 1);
+		*(int *)(a1 + 0x924) = iVar4;
+		break;
+	}
+	
+	return;
+}
 void SecreCInit( void )
 {
   // Hooks must be 'bound' to a handler like this in the start function.
@@ -118,6 +171,7 @@ void SecreCInit( void )
   SHK_BIND_HOOK( FUN_0049eb90, CharaTexHook );
   SHK_BIND_HOOK( FUN_0049ee38, CommuCardHook );
   SHK_BIND_HOOK( FUN_003e8ff8, FUN_003e8ff8Hook );
+  SHK_BIND_HOOK( FUN_005a4584, FUN_005a4584Hook );
 }
 
 void SecreCShutdown( void )

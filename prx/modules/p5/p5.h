@@ -21,6 +21,7 @@ bool hasAkechiEndured;
 bool hasSumiEndured;
 bool isLoadScheduler;
 bool randomizedCombatOutfit;
+bool isPreventGameOver;
 int rngBGM;
 int lastAccessedUnitType;
 int JokerModel;
@@ -48,7 +49,6 @@ typedef struct
 
 DLCBGMStruct DLCBGMDataLocation;
 
-
 typedef struct
 {
   u32 Field00;     // 00
@@ -63,6 +63,17 @@ typedef struct
 {
   ConfidantStats Confidants[24];
 } ConfidantStatsStruct;
+
+typedef struct
+{
+  u16 bitflags;
+  u8  Arcana;
+  u8  BaseLevel;
+  u8  Stats[6];
+  u16 InheritType;
+  u16 Field0C;
+} PersonaTBL_Segment0;
+
 
 typedef struct GFDModelMaterial_Processed
 {
@@ -1217,6 +1228,9 @@ typedef struct
   u16 Field1C;
 } CueIDThingy;
 
+CueIDThingy* PartyMemberCombatVoiceInstance[11];
+int PartyMemberCombatVoiceInstanceB[11];
+
 typedef struct
 {
   u32 ptr1;
@@ -2058,6 +2072,8 @@ int GetUnitIDFromPartySlot( u32 slotID );
  */
 void SetPlayerBulletsToMax( btlUnit_Unit* player );
 
+bool IsBtlUnitDead( btlUnit_Unit* Unit, u32 a2 );
+
 
 u32 FUN_0025867c( u16 personaID );
 
@@ -2394,6 +2410,12 @@ ItemTBL_Outfit* GetOutfitTBLEntry( u16 outfitID );
 
 int SetCombatAnimation( CueIDThingy* a1, int a2, double a3, double a4, double a5);
 int SetTwinsDodgeAnimation( CueIDThingy* a1, double a2, double a4);
+
+PersonaTBL_Segment0* PersonaTBL_GetPersonaStatsSegment0( int PersonaID );
+
+int GetTotalUnitsOfType( u32 TargetUnitType );
+
+bool isPlayerUnitDead( u32 unitID );
 
 #pragma pop
 #endif

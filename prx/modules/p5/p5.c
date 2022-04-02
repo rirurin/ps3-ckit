@@ -625,6 +625,11 @@ int GetNumberOfBullets(btlUnit_Unit* param_1){
     SHK_FUNCTION_CALL_1( 0x25b880, int, btlUnit_Unit*, param_1 );
 }
 
+bool IsBtlUnitDead( btlUnit_Unit* Unit, u32 a2 )
+{
+    SHK_FUNCTION_CALL_2( 0x256754, bool, btlUnit_Unit*, Unit, u32, a2 );
+}
+
 bool IsConfidantBonusObtained(int param_1){
     SHK_FUNCTION_CALL_1( 0x54af94, bool, int, param_1 );
 }
@@ -653,6 +658,11 @@ u32 GetCurrentHP(btlUnit_Unit *param_1){
 
 u32 GetCurrentSP(btlUnit_Unit *param_1){
     SHK_FUNCTION_CALL_1( 0x2589cc, u32, btlUnit_Unit*, param_1 );
+}
+
+PersonaTBL_Segment0* PersonaTBL_GetPersonaStatsSegment0( int PersonaID )
+{
+    SHK_FUNCTION_CALL_1( 0x2635c8, PersonaTBL_Segment0*, int, PersonaID );
 }
 
 void PrepareDLCBGM( void ){
@@ -813,9 +823,53 @@ btlUnit_Unit* GetBtlUnitInCombat( u32 a1, u32 a2 )
             }
             btlUnitListLocal = btlUnitListLocal->next;
         }
-        printf("===============================\n");
+        //printf("===============================\n");
     }
     return 0;
+}
+
+int GetTotalUnitsOfType( u32 TargetUnitType )
+{
+    u32 result = 0;
+    for ( int i = 0; i <= 2; i++ )
+    {
+        //printf("===============================\n");
+        //printf("Unit List #%d Size %d\n", i, UnitList1->field54->field34->UnitList[i].ListSize);
+        //printf("-------------------------------\n");
+        Node* btlUnitListLocal = UnitList1->field54->field34->UnitList[i].First;
+        while ( btlUnitListLocal != 0 )
+        {
+            //printf("btlUnit at 0x%x\n", btlUnitListLocal->Field14->Field18->pointer_2);
+            //printf("Current Node at 0x%x\n", btlUnitListLocal);
+            //printf("Previous Node at 0x%x\n", btlUnitListLocal->Field04);
+            btlUnit_Unit* localBtlUnit = btlUnitListLocal->Field14->Field18->pointer_2;
+            if ( localBtlUnit->unitType == TargetUnitType && !IsBtlUnitDead( localBtlUnit, 0 ) )
+            {
+                result += 1;
+            }
+            btlUnitListLocal = btlUnitListLocal->next;
+        }
+        //printf("===============================\n");
+    }
+    return result;
+}
+
+bool isPlayerUnitDead( u32 unitID )
+{
+    bool result = false;
+    
+    btlUnit_Unit* PlayerUnit = GetBtlPlayerUnitFromID(unitID);
+
+    if ( btlUnitHasAilment( PlayerUnit, 0x80000 ) ) // check for Dead ailment
+    {
+        result = true;
+    }
+    else if ( PlayerUnit->currentHP == 0 )
+    {
+        result = true;
+    }
+
+    return result;
 }
 
 #endif

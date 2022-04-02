@@ -30,16 +30,13 @@ CONFIG_START()
     CONFIG_SETTING( BOOL, AutoUnlockBatonPass, "Automatically Unlock Baton Pass", true )
     CONFIG_SETTING( BOOL, DisableInstakill, "Disable Ryuji Instakill", false )
     CONFIG_SETTING( BOOL, DebugModelTesting, "Experimental Model Testing", false )
+    CONFIG_SETTING( BOOL, PreventJokerGameOver, "Prevent Game Over on Joker Death", false )
     CONFIG_SETTING( STRING,  modCPKName,"mod cpk name",  "mod" )
     CONFIG_SETTING( INT,  extraModCPK,  "Number of extra mod cpk", 0 )
     CONFIG_SETTING( INT,  maxDLCBGM,  "Maximum random DLC BGM ID", 29 )
     CONFIG_SETTING( BOOL, enableFileAccessLogging, "file access logging", true )
     CONFIG_SETTING_ARRAY( STRING, extraModCPKName, "names of extra mod cpk", 10,
     "mod", "mod", "mod", "mod", "mod", "mod", "mod", "mod", "mod", "mod")
-    CONFIG_SETTING_ARRAY( INT, fastSummonEnemy, "Fast Persona Summon Enemies", 10,
-    359, 359, 359, 359, 359,
-    359, 359, 359, 359, 359)
-        
 #endif
 #ifdef GAME_TEST
     // Example config setting values

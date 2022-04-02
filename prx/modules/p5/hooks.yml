@@ -531,7 +531,35 @@ FUN_0049ee38:
 FUN_003e8ff8:
     addr: 0x3e8ff8
     replacedInstr: stdu  r1, -0x90(r1)
+    
+FUN_006a75c4:
+    addr: 0x6a75c4
+    replacedInstr: stdu  r1, -0x90(r1)
+    
+FUN_00b25084:
+    addr: 0xb25084
+    emitTrampoline: no
+    
+FUN_00b25088:
+    addr: 0xb25088
+    emitTrampoline: no
+    
+FUN_00650700:
+    addr: 0x650700
+    replacedInstr: stdu  r1, -0xa50(r1)
+    
+FUN_00b18368:
+    addr: 0xb18368
+    replacedInstr: stdu  r1, -0xf0(r1)
+    
+FUN_00b190a8:
+    addr: 0xb190a8
+    replacedInstr: stdu  r1, -0x90(r1)
+    
+FUN_00b192e8:
+    addr: 0xb192e8
+    replacedInstr: stdu  r1, -0x90(r1)
 
 FUN_005a4584:
     addr: 0x5a4584
-    replacedInstr: stdu  r1, -0x80(r1)
+    replacedInstr: stdu  r1, -0x80(r1) 

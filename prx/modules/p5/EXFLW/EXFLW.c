@@ -666,7 +666,7 @@ static TtyCmdStatus ttyPartyOutCmd( TtyCmd* cmd, const char** args, u32 argc, ch
 
 static TtyCmdStatus ttyGetEnemyBtlUnitCmd( TtyCmd* cmd, const char** args, u32 argc, char** error )
 {
-  //GetEnemyBtlUnits();
+  hexDump( "Joker BtlUnit", GetBtlPlayerUnitFromID(1), sizeof(btlUnit_Unit) );
   return TTY_CMD_STATUS_OK;
 }
 
@@ -832,6 +832,7 @@ static u64 LoadNaviSoundFileHook( u64 a1, u64 a2, char* acb_path, char* awb_path
 static void LoadDLCBGM( void )
 {
   FUNC_LOG("Loading LoadDLCBGM\n");
+  
   if ( !CONFIG_ENABLED( ambushOverDLC ) )
   {
     isAmbush = false;
@@ -881,6 +882,10 @@ static void LoadDLCBGM( void )
 
   LoadNaviSoundFileHook( 6, &DLCBGMDataLocation, new_acb_path, new_awb_path, 0 ); // this is the function that loads the actual DLC music
   FUN_0010fbbc( &DLCBGMDataLocation ); // what address did we store the data on
+
+  u32 previousBGMID = GetCurrentBGMCueID();
+  sndManPlaySfx( 0, 0, previousBGMID, 0, -1, -1 ); // attempt to fix dlc bgm dying if changing between acb with the current bgm missing
+
   return;
 }
 
@@ -1365,6 +1370,31 @@ static int EX_PLAYER_HAS_SKILL( void )
   return 1;
 }
 
+static int EX_GET_PERSONA_INHERITANCE_TYPE( void )
+{
+  FLW_SetIntReturn( PersonaTBL_GetPersonaStatsSegment0( FLW_GetIntArg( 0 ) )->InheritType );
+  
+  return 1;
+}
+
+static int EX_SET_ENEMY_SKILL( void )
+{
+  int enemyID = FLW_GetIntArg( 0 );
+  int skillSlot = FLW_GetIntArg( 1 );
+  int skillID = FLW_GetIntArg( 2 );
+
+  NewEnemyStatsTBL.EnemyStats[enemyID].Skills[skillSlot] = skillID;
+  
+  return 1;
+}
+
+static int EX_PREVENT_PLAYER_LOSS( void )
+{
+  isPreventGameOver = true;
+
+  return 1;
+}
+
 scrCommandTableEntry exCommandTable[] =
 {
   { EX_FLW_PRINTF, 1, "EX_PRINTF" },
@@ -1389,6 +1419,9 @@ scrCommandTableEntry exCommandTable[] =
   { EX_SET_ENID_MAX_HP, 2, "SET_ENID_MAX_HP" },
   { EX_SET_ENID_TACTICS, 2, "SET_ENID_TACTICS" },
   { EX_PLAYER_HAS_SKILL, 2, "PLAYER_HAS_SKILL" },
+  { EX_GET_PERSONA_INHERITANCE_TYPE, 1, "GET_PERSONA_INHERITANCE_TYPE" },
+  { EX_SET_ENEMY_SKILL, 3, "SET_ENEMY_SKILL" },
+  { EX_PREVENT_PLAYER_LOSS, 0, "PREVENT_PLAYER_LOSS" },
 };
 
 static scrCommandTableEntry* scrGetCommandFuncHook( u32 id )
@@ -1462,6 +1495,12 @@ static void LoadSoundByCueIDCombatVoiceFunctionHook( CueIDThingy* a1, u32* a2, u
 {
   FUNC_LOG("Loading LoadSoundByCueIDCombatVoiceFunctionHook\n");
   DEBUG_LOG( "%s ID %d is using Voice Cue ID %d\n", UnitTypeNames + a1->Field10->btlUnitPointer->unitType, a1->Field10->btlUnitPointer->unitID, cueID );
+
+  if ( a1->Field10->btlUnitPointer->unitType == 1 ) // player unit
+  {
+    PartyMemberCombatVoiceInstance[a1->Field10->btlUnitPointer->unitID] = a1; // store in global array for later use
+    PartyMemberCombatVoiceInstanceB[a1->Field10->btlUnitPointer->unitID] = a2; // store in global array for later use
+  }
   
   return SHK_CALL_HOOK( LoadSoundByCueIDCombatVoiceFunction, a1, a2, cueID, idk );
 }

@@ -45,6 +45,7 @@ SHK_HOOK( void, FUN_00b2cee8, CueIDThingy* a1, int a2, int a3);
 SHK_HOOK( void, JokerPersonaNameCueID, CueIDThingy* param_1, int param_2 );
 SHK_HOOK( void, FUN_00b25348, CueIDThingy* param_1, int param_2 );
 SHK_HOOK( void, FUN_00b24f84, CueIDThingy* param_1, int param_2 );
+SHK_HOOK( void, FUN_00b25084, CueIDThingy* param_1, int param_2 );
 SHK_HOOK( void, FUN_00b24938, CueIDThingy* a1, int a2, int a3 );
 //SHK_HOOK( u64, BtlUnitGetUnitID, btlUnit_Unit* btlUnit );
 SHK_HOOK( encounterIDTBL*, FUN_00263b94, int a1 );
@@ -95,6 +96,9 @@ SHK_HOOK( int, FUN_00aff590, CueIDThingy* a1, double a2, double a3 );
 //SHK_HOOK( int, FUN_00b0efa8, CueIDThingy* a1, double a2, double a3 );
 //SHK_HOOK( int, FUN_00b03248, CueIDThingy* a1, double a2, double a3 );
 //SHK_HOOK( u64, BattleAnimations, CueIDThingy* a1, u64 a2, u64 a3, u64 a4, u64 a5, u64 a6, u64 a7, u64 a8, u64 a9, u64 a10, u64 a11 );
+SHK_HOOK( int, FUN_006a75c4, u64 a1 );
+SHK_HOOK( bool, FUN_00b25088, void );
+SHK_HOOK( int, FUN_00650700, int a1, int a2 );
 
 static s32 pattern[] = { 0x00, 0xBA, 0x69, 0x98, -1, -1, -1, -1, -1, -1, -1, -1, 0x00, 0xBA, 0x23, 0x88, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 /*static u64 BtlUnitGetUnitIDHook( btlUnit_Unit* btlUnit  )
@@ -256,8 +260,16 @@ static void* LoadGenericEnemyVoicePackHook( structA* a1 )
       {
         DEBUG_LOG("Loading Player Voice %d for Enemy %d\n", voiceID, unitID);
 
-        sprintf( ACBPath, "sound/battle/be_boss_%04d.acb", unitID );
-        sprintf( AWBPath, "sound/battle/be_boss_%04d.awb", unitID );
+        if ( voiceID == 9 && GetEquippedPersonaFunction(9) != Persona_RobinHood && CONFIG_ENABLED( enableAkechiMod ) )
+        {
+          sprintf( ACBPath, "sound/battle/bp%02d_01.acb", voiceID );
+          sprintf( AWBPath, "sound/battle/bp%02d_01.awb", voiceID );
+        }
+        else
+        {
+          sprintf( ACBPath, "sound/battle/bp%02d.acb", voiceID );
+          sprintf( AWBPath, "sound/battle/bp%02d.awb", voiceID );
+        }
 
         if ( voiceID == 1 )
         {
@@ -428,9 +440,9 @@ static void CombatPersonaCueIDHook( CueIDThingy* param_1, int param_2, short par
     uVar3 = FUN_002584cc(uVar1,1);
     if (((int)uVar3 == 0) && (uVar3 = FUN_0025867c(uVar1), (int)uVar3 == 0)) 
     {
-      if ( CONFIG_ENABLED( enableAkechiMod ) && ( param_3 == 360 || param_3 == 361 || param_3 == 1511 || param_3 == 1505 ) ) // Charge and Concentrate type skills
+      if ( CONFIG_ENABLED( enableAkechiMod ) && ( param_3 == 360 || param_3 == 361 || param_3 == 1511 || param_3 == 1505 ) && !GetSavedataBitflagAlt( 0x218f ) ) // Charge and Concentrate type skills
       {
-        LoadSoundByCueIDCombatVoice(param_1, param_2, 78, 0);
+        LoadSoundByCueIDCombatVoice(param_1, param_2, 83, 0);
       }
       else LoadSoundByCueIDCombatVoice(param_1, param_2, 0x65, 0);
     }
@@ -1963,6 +1975,106 @@ static int FUN_00b03248Hook( CueIDThingy* a1, double a2, double a3 )
   return result;
 }*/
 
+/*
+static int FUN_0065c7f8Hook( int a1, int a2 )
+{
+  int result = 0;
+  if ( IsBtlUnitDead( GetBtlPlayerUnitFromID(1), 0 ) )
+  {
+    for ( int i = 1; i <= 3; i++ )
+    {
+      if ( !IsBtlUnitDead( GetBtlPlayerUnitFromID(GetUnitIDFromPartySlot(i)), 0 ) )
+      {
+        printf("Found alive party member, no game over\n");
+        result = 0;
+      }
+      else result = SHK_CALL_HOOK( FUN_0065c7f8, a1, a2 );
+    }
+  }
+  else result = SHK_CALL_HOOK( FUN_0065c7f8, a1, a2 );
+
+  return result;
+}*/
+
+static int FUN_006a75c4Hook( u64 a1 )
+{
+  if (!CONFIG_ENABLED( PreventJokerGameOver ))
+  {
+    return SHK_CALL_HOOK( FUN_006a75c4, a1 );
+  }
+  
+  int result = 0;
+
+  if ( isPlayerUnitDead( 1 ) )
+  {
+    if (   !isPlayerUnitDead(GetUnitIDFromPartySlot(1))
+        || !isPlayerUnitDead(GetUnitIDFromPartySlot(2))
+        || !isPlayerUnitDead(GetUnitIDFromPartySlot(3)))
+      {
+        //DEBUG_LOG("Found alive party member, no game over\n");
+        result = 0;
+      }
+      else result = SHK_CALL_HOOK( FUN_006a75c4, a1 );
+  }
+  else result = SHK_CALL_HOOK( FUN_006a75c4, a1 );
+  
+  if ( GetTotalUnitsOfType( 2 ) == 0 ) // failsafe for no enemies, force battle to end
+  {
+    if( isPlayerUnitDead( 1 ) )
+    {
+      btlUnit_Unit* Joker = GetBtlPlayerUnitFromID(1);
+      Joker->currentHP = 1;
+      Joker->StatusAilments = (Joker->StatusAilments & ~(1UL << 19)) | (0 << 19); // clear dead ailment
+    }
+    return SHK_CALL_HOOK( FUN_006a75c4, a1 );
+  }
+
+  return result;
+}
+
+static void PlayJokerRevivedCueID( CueIDThingy* param_1, int param_2 )
+{
+  FUNC_LOG("Loading PlayerJokerRevivedCueID\n");
+  if ( !btlUnitHasAilment( param_1->Field10->btlUnitPointer, 0x400000 ) )
+  {
+    LoadSoundByCueIDCombatVoice( param_1, param_2, 2803, 0 );
+  }
+}
+
+static bool CheckAllPartyMembersDead( void )
+{
+  bool isGameOver = false;
+
+  if ( isPlayerUnitDead(GetUnitIDFromPartySlot(0))
+    && isPlayerUnitDead(GetUnitIDFromPartySlot(1))
+    && isPlayerUnitDead(GetUnitIDFromPartySlot(2))
+    && isPlayerUnitDead(GetUnitIDFromPartySlot(3)))
+  {
+    isGameOver = true; // all party units who were in combat are dead, game over
+  }
+
+  if ( isGameOver && isPreventGameOver ) // allow no game over on loss under specific circumstances
+  { 
+    DEBUG_LOG("Preventing Game Over on player loss\n");
+    isGameOver = false;
+  }
+
+  isPreventGameOver = false; // clear this even if the player wins
+
+  return isGameOver;
+}
+
+int FUN_00650700Hook( int a1, int a2 ) // triggers when player is about to escape
+{
+  if( isPlayerUnitDead( 1 ) && CONFIG_ENABLED( PreventJokerGameOver ) )
+  {
+    btlUnit_Unit* Joker = GetBtlPlayerUnitFromID(1); 
+    Joker->currentHP = 1;
+    Joker->StatusAilments = (Joker->StatusAilments & ~(1UL << 19)) | (0 << 19); // clear dead ailment
+  }
+  return SHK_CALL_HOOK( FUN_00650700, a1, a2 );
+}
+
 // The start function of the PRX. This gets executed when the loader loads the PRX at boot.
 // This means game data is not initialized yet! If you want to modify anything that is initialized after boot,
 // hook a function that is called after initialisation.
@@ -2037,6 +2149,10 @@ void dcInit( void )
   //SHK_BIND_HOOK( FUN_00b0efa8, FUN_00b0efa8Hook );
   //SHK_BIND_HOOK( FUN_00b03248, FUN_00b03248Hook );
   //SHK_BIND_HOOK( BattleAnimations, BattleAnimationsHook );
+  SHK_BIND_HOOK( FUN_006a75c4, FUN_006a75c4Hook );
+  SHK_BIND_HOOK( FUN_00b25084, PlayJokerRevivedCueID );
+  SHK_BIND_HOOK( FUN_00b25088, CheckAllPartyMembersDead );
+  SHK_BIND_HOOK( FUN_00650700, FUN_00650700Hook );
 }
 
 void dcShutdown( void )

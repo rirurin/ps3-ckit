@@ -45,6 +45,9 @@ SHK_HOOK( void, FUN_00b22138, struct_2_pointers* param_1, navi_dialogue_function
 SHK_HOOK( void, FUN_00b22f60, struct_2_pointers* param_1, navi_dialogue_function_a2* param_2, struct_2_pointers* param_3, u16 param_4, int param_5, int param_6 );
 SHK_HOOK( void, FUN_00b1bf38, struct_2_pointers* param_1, navi_dialogue_function_a2* param_2, struct_2_pointers* param_3, u16 param_4, int param_5, int param_6 );
 SHK_HOOK( int, FUN_00b1bd50, struct_2_pointers* param_1, navi_dialogue_function_a2* param_2 );
+SHK_HOOK( void, FUN_00b18368, struct_2_pointers* param_1, navi_dialogue_function_a2* param_2, struct_2_pointers* param_3, u16 param_4, int param_5, int param_6 );
+SHK_HOOK( void, FUN_00b190a8, struct_2_pointers* param_1, navi_dialogue_function_a2* param_2, struct_2_pointers* param_3, u16 param_4, int param_5, int param_6 );
+SHK_HOOK( void, FUN_00b192e8, struct_2_pointers* param_1, navi_dialogue_function_a2* param_2, struct_2_pointers* param_3, u16 param_4, int param_5, int param_6 );
 
 static bool isPartyMemberUnlocked( u16 unitID )
 {
@@ -71,6 +74,7 @@ static int JokerDied_NaviDialogue( struct_2_pointers* param_1, navi_dialogue_fun
       case 833:
       case 834:
       case 835:
+      case 898:
         if ( GetBitflagState( 8603 ) ) 
         {
           CALL_NAVI_DIALOGUE( 50, 1, 914, 1 );
@@ -933,9 +937,28 @@ static void PartyMemberKnockEnemyDown_NaviDialogue( struct_2_pointers* param_1, 
 {
   FUNC_LOG("Loading PartyMemberKnockEnemyDown_NaviDialogue\n");
   //printf("Party Member Knocked and Enemy down! Character ID -> %d\nFUN_007489a8 result -> %d, a4 is -> %d\n", param_3->pointer_2->unitID, FUN_007489a8(param_1,(int)param_2), param_4);
-  SHK_CALL_HOOK( FUN_00b20ec8, param_1, param_2, param_3, param_4, param_5, param_6 );
   int knockdown = param_4;
   int numberOfExistingEnemies = FUN_007489a8(param_1,(int)param_2);
+
+  if ( param_3->pointer_2->unitID != 10 ) // not Kasumi, return
+  {
+    if ( randomIntBetween( 1, 100 ) >= 50 ) // half chance of likelyhood
+    {
+      int PartyMemberID = GetUnitIDFromPartySlot( randomIntBetween( 1, 3 ) ); //grab random party member
+
+      if( PartyMemberID != 0 && 
+          !isPlayerUnitDead(PartyMemberID) && 
+          !btlUnitHasAilment( GetBtlPlayerUnitFromID(PartyMemberID), 0x400000 ) && 
+          PartyMemberCombatVoiceInstance[PartyMemberID] != 0 )
+      {
+        LoadSoundByCueIDCombatVoice( PartyMemberCombatVoiceInstance[PartyMemberID], PartyMemberCombatVoiceInstanceB[PartyMemberID], 69 + param_3->pointer_2->unitID, 1 );
+        return;
+      }
+    }
+    
+    SHK_CALL_HOOK( FUN_00b20ec8, param_1, param_2, param_3, param_4, param_5, param_6 );
+    return;
+  }
 
   int messageIndex = -1;
   if ( param_3->pointer_2->unitID == 10 && knockdown != 0 && CONFIG_ENABLED( enableKasumi ) )
@@ -980,15 +1003,21 @@ static void PartyMemberWarnAilment_NaviDialogue( struct_2_pointers* param_1, nav
   {
     return;
   }
-  btlUnit_Unit* Kasumi = GetBtlPlayerUnitFromID( 10 );
+  btlUnit_Unit* Kasumi = GetBtlUnitInCombat( 1, 10 );
+
+  if ( Kasumi == 0x0 )
+  {
+    DEBUG_LOG("Kasumi not in Combat\n");
+    return SHK_CALL_HOOK( FUN_00b1ca18, param_1, param_2, param_3, param_4, param_5, param_6 );
+  }
   
   int messageIndex = -1;
   int uVar10;
   int uVar9;
   
-  if ( !CONFIG_ENABLED( enableKasumi ) || GetBtlUnitInCombat( 1, 10 ) == 0 )
+  if ( !CONFIG_ENABLED( enableKasumi ) )
   {
-    DEBUG_LOG("Kasumi not in Combat\n");
+    DEBUG_LOG("Kasumi Config disabled\n");
     return SHK_CALL_HOOK( FUN_00b1ca18, param_1, param_2, param_3, param_4, param_5, param_6 );
   }
 
@@ -1172,6 +1201,25 @@ static void PartyMemberMissedEnemy_NaviDialogue( struct_2_pointers* param_1, nav
 static void PartyMemberLandedCrit_NaviDialogue( struct_2_pointers* param_1, navi_dialogue_function_a2* param_2, struct_2_pointers* param_3, u16 param_4, int param_5, int param_6 )
 {
   FUNC_LOG("Loading PartyMemberLandedCrit_NaviDialogue\n");
+
+  if ( param_3->pointer_2->unitID != 10 ) // not Kasumi, return
+  {
+    if ( randomIntBetween( 1, 100 ) >= 50 ) // half chance of likelyhood
+    {
+      int PartyMemberID = GetUnitIDFromPartySlot( randomIntBetween( 1, 3 ) ); //grab random party member
+
+      if( PartyMemberID != 0 && !isPlayerUnitDead(PartyMemberID) && !btlUnitHasAilment( GetBtlPlayerUnitFromID(PartyMemberID), 0x400000 ) && PartyMemberCombatVoiceInstance[PartyMemberID] != 0 )
+      {
+        LoadSoundByCueIDCombatVoice( PartyMemberCombatVoiceInstance[PartyMemberID], PartyMemberCombatVoiceInstanceB[PartyMemberID], 69 + param_3->pointer_2->unitID, 1 );
+        return;
+      }
+    }
+    
+    SHK_CALL_HOOK( FUN_00b21e28, param_1, param_2, param_3, param_4, param_5, param_6 );
+    return;
+  }
+
+  
   SHK_CALL_HOOK( FUN_00b21e28, param_1, param_2, param_3, param_4, param_5, param_6 );
   int Kasumi = param_3->pointer_2->unitID;
   
@@ -1216,6 +1264,24 @@ static void PartyMemberGetUp_NaviDialogue( struct_2_pointers* param_1, navi_dial
 static void PartyMemberExploitedWeakness_NaviDialogue( struct_2_pointers* param_1, navi_dialogue_function_a2* param_2, struct_2_pointers* param_3, u16 param_4, int param_5, int param_6 )
 {
   FUNC_LOG("Loading PartyMemberExploitedWeakness_NaviDialogue\n");
+
+  if ( param_3->pointer_2->unitID != 10 ) // not Kasumi, return
+  {
+    if ( randomIntBetween( 1, 100 ) >= 50 ) // half chance of likelyhood
+    {
+      int PartyMemberID = GetUnitIDFromPartySlot( randomIntBetween( 1, 3 ) ); //grab random party member
+
+      if( PartyMemberID != 0 && !isPlayerUnitDead(PartyMemberID) && !btlUnitHasAilment( GetBtlPlayerUnitFromID(PartyMemberID), 0x400000 ) && PartyMemberCombatVoiceInstance[PartyMemberID] != 0 )
+      {
+        LoadSoundByCueIDCombatVoice( PartyMemberCombatVoiceInstance[PartyMemberID], PartyMemberCombatVoiceInstanceB[PartyMemberID], 69 + param_3->pointer_2->unitID, 1 );
+        return;
+      }
+    }
+    
+    SHK_CALL_HOOK( FUN_00b21bf8, param_1, param_2, param_3, param_4, param_5, param_6 );
+    return;
+  }
+  
   SHK_CALL_HOOK( FUN_00b21bf8, param_1, param_2, param_3, param_4, param_5, param_6 );
   int Kasumi = param_3->pointer_2->unitID;
   
@@ -1408,7 +1474,11 @@ static void BattleEndSkillChecks( u64 a1, u64 a2, u64 a3 )
   SHK_CALL_HOOK( FUN_00661220, a1, a2, a3 );
   for ( int i = 1; i <= 10; i++ )
   {
-    SetBulletsToMax( GetBtlPlayerUnitFromID(i) );
+    btlUnit_Unit* PlayerUnit = GetBtlPlayerUnitFromID(i);
+    SetBulletsToMax( PlayerUnit );
+    PlayerUnit->Flags = (PlayerUnit->Flags & ~(1UL << 5)) | (0 << 5); // remove infinite endure flag
+    PartyMemberCombatVoiceInstance[i] = 0;
+    PartyMemberCombatVoiceInstanceB[i] = 0;
   }
   hasAkechiEndured = false;
   hasSumiEndured = false;
@@ -1424,6 +1494,75 @@ static void BattleEndSkillChecks( u64 a1, u64 a2, u64 a3 )
 
   SetBitflagState( 0x209C, 0 ); // flag checked for ending twins encounter early
 
+  return;
+}
+
+static void MonaNavi_KnockEnemyDown_NaviDialogue( struct_2_pointers* param_1, navi_dialogue_function_a2* param_2, struct_2_pointers* param_3, u16 param_4, int param_5, int param_6 )
+{
+  if ( param_3->pointer_2->unitID != 10 ) // not Kasumi, return
+  {
+    if ( randomIntBetween( 1, 100 ) >= 50 ) // half chance of likelyhood
+    {
+      int PartyMemberID = GetUnitIDFromPartySlot( randomIntBetween( 1, 3 ) ); //grab random party member
+
+      if( PartyMemberID != 0 && 
+          !isPlayerUnitDead(PartyMemberID) && 
+          !btlUnitHasAilment( GetBtlPlayerUnitFromID(PartyMemberID), 0x400000 ) && 
+          PartyMemberCombatVoiceInstance[PartyMemberID] != 0 )
+      {
+        LoadSoundByCueIDCombatVoice( PartyMemberCombatVoiceInstance[PartyMemberID], PartyMemberCombatVoiceInstanceB[PartyMemberID], 69 + param_3->pointer_2->unitID, 1 );
+        return;
+      }
+    }
+  }
+    
+  SHK_CALL_HOOK( FUN_00b18368, param_1, param_2, param_3, param_4, param_5, param_6 );
+  return;
+}
+
+static void MonaNavi_ExploitedWeakness_NaviDialogue( struct_2_pointers* param_1, navi_dialogue_function_a2* param_2, struct_2_pointers* param_3, u16 param_4, int param_5, int param_6 )
+{
+  if ( param_3->pointer_2->unitID != 10 ) // not Kasumi, return
+  {
+    if ( randomIntBetween( 1, 100 ) >= 50 ) // half chance of likelyhood
+    {
+      int PartyMemberID = GetUnitIDFromPartySlot( randomIntBetween( 1, 3 ) ); //grab random party member
+
+      if( PartyMemberID != 0 && 
+          !isPlayerUnitDead(PartyMemberID) && 
+          !btlUnitHasAilment( GetBtlPlayerUnitFromID(PartyMemberID), 0x400000 ) && 
+          PartyMemberCombatVoiceInstance[PartyMemberID] != 0 )
+      {
+        LoadSoundByCueIDCombatVoice( PartyMemberCombatVoiceInstance[PartyMemberID], PartyMemberCombatVoiceInstanceB[PartyMemberID], 69 + param_3->pointer_2->unitID, 1 );
+        return;
+      }
+    }
+  }
+    
+  SHK_CALL_HOOK( FUN_00b190a8, param_1, param_2, param_3, param_4, param_5, param_6 );
+  return;
+}
+
+static void MonaNavi_LandedCrit_NaviDialogue( struct_2_pointers* param_1, navi_dialogue_function_a2* param_2, struct_2_pointers* param_3, u16 param_4, int param_5, int param_6 )
+{
+  if ( param_3->pointer_2->unitID != 10 ) // not Kasumi, return
+  {
+    if ( randomIntBetween( 1, 100 ) >= 50 ) // half chance of likelyhood
+    {
+      int PartyMemberID = GetUnitIDFromPartySlot( randomIntBetween( 1, 3 ) ); //grab random party member
+
+      if( PartyMemberID != 0 && 
+          !isPlayerUnitDead(PartyMemberID) && 
+          !btlUnitHasAilment( GetBtlPlayerUnitFromID(PartyMemberID), 0x400000 ) && 
+          PartyMemberCombatVoiceInstance[PartyMemberID] != 0 )
+      {
+        LoadSoundByCueIDCombatVoice( PartyMemberCombatVoiceInstance[PartyMemberID], PartyMemberCombatVoiceInstanceB[PartyMemberID], 69 + param_3->pointer_2->unitID, 1 );
+        return;
+      }
+    }
+  }
+    
+  SHK_CALL_HOOK( FUN_00b192e8, param_1, param_2, param_3, param_4, param_5, param_6 );
   return;
 }
 
@@ -1455,6 +1594,9 @@ void KasumiInit( void )
   SHK_BIND_HOOK( FUN_0025b7b8, SetBullets );
   SHK_BIND_HOOK( FUN_0024bb54, NewGameSetup );
   SHK_BIND_HOOK( FUN_00661220, BattleEndSkillChecks );
+  SHK_BIND_HOOK( FUN_00b18368, MonaNavi_KnockEnemyDown_NaviDialogue );
+  SHK_BIND_HOOK( FUN_00b190a8, MonaNavi_ExploitedWeakness_NaviDialogue );
+  SHK_BIND_HOOK( FUN_00b192e8, MonaNavi_LandedCrit_NaviDialogue );
 }
 
 void KasumiShutdown( void )

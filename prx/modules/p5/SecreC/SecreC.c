@@ -31,6 +31,7 @@ SHK_HOOK( void, FUN_0049eb90, int a1, u16 a2, undefined4 a3, char a4 );
 SHK_HOOK( void, FUN_0049ee38, int a1, char a2, u32 a3, char a4 );
 SHK_HOOK( int, FUN_003e8ff8, int a1 );
 SHK_HOOK( void, FUN_005a4584, int a1, int a2 );
+SHK_HOOK( undefined8, FUN_004e392c, short a1 );
 
 // The start function of the PRX. This gets executed when the loader loads the PRX at boot.
 // This means game data is not initialized yet! If you want to modify anything that is initialized after boot,
@@ -113,7 +114,6 @@ void FUN_005a4584Hook( int a1, int a2 )
 	SHK_CALL_HOOK( FUN_005a4584, a1, a2 );
 	int iVar4;
 	short ShopId = *(short *)(a2 + 0xc2);
-	u16 uVar2 = *(u16 *)(0xdf237c + (int)((s64)ShopId << 2)) & 0xff;
 	switch (ShopId){
 
 		case 77:
@@ -159,6 +159,17 @@ void FUN_005a4584Hook( int a1, int a2 )
 	
 	return;
 }
+
+undefined8 GroupChatIconHook( short a1 )
+{	
+	undefined8 result = SHK_CALL_HOOK( FUN_004e392c, a1 );
+	if (a1 == 10 && GetBitflagState(1175) == 1 )
+	{
+		result = 1;
+	}
+	return result;
+}
+
 void SecreCInit( void )
 {
   // Hooks must be 'bound' to a handler like this in the start function.
@@ -172,6 +183,7 @@ void SecreCInit( void )
   SHK_BIND_HOOK( FUN_0049ee38, CommuCardHook );
   SHK_BIND_HOOK( FUN_003e8ff8, FUN_003e8ff8Hook );
   SHK_BIND_HOOK( FUN_005a4584, FUN_005a4584Hook );
+  SHK_BIND_HOOK( FUN_004e392c, GroupChatIconHook );
 }
 
 void SecreCShutdown( void )

@@ -53,7 +53,12 @@ static s32 setSeqHook( s32 seqId, void* params, s32 paramsSize, s32 r6 )
 {
   FUNC_LOG("Loading setSeqHook\n");
   sequenceIDGlobal = seqId;
-  DEBUG_LOG( "Changing Sequence ID to %d\n", seqId );
+
+  if ( CONFIG_ENABLED( debug ) )
+  {
+    hexDump("Sequence Data", params, paramsSize);
+    printf("SetSequence called; seqId %d; paramsSize %d; a4 %d\n", seqId, paramsSize, r6 );
+  }
   /*
   if ( seqId == 4 )
   {
@@ -664,9 +669,27 @@ static TtyCmdStatus ttyPartyOutCmd( TtyCmd* cmd, const char** args, u32 argc, ch
   return TTY_CMD_STATUS_OK;
 }
 
+#define UnitList1 (*((UnitList1**)0x1183C90))
 static TtyCmdStatus ttyGetEnemyBtlUnitCmd( TtyCmd* cmd, const char** args, u32 argc, char** error )
 {
-  hexDump( "Joker BtlUnit", GetBtlPlayerUnitFromID(1), sizeof(btlUnit_Unit) );
+   for ( int i = 0; i <= 2; i++ )
+  {
+    printf("===============================\n");
+    printf("Unit List #%d Size %d\n", i, UnitList1->field54->field34->UnitList[i].ListSize);
+    printf("-------------------------------\n");
+    Node* btlUnitListLocal = UnitList1->field54->field34->UnitList[i].First;
+    while ( btlUnitListLocal != 0 )
+    {
+      //printf("btlUnit at 0x%x\n", btlUnitListLocal->Field14->Field18->pointer_2);
+      //printf("Current Node at 0x%x\n", btlUnitListLocal);
+      //printf("Previous Node at 0x%x\n", btlUnitListLocal->Field04);
+      btlUnit_Unit* localBtlUnit = btlUnitListLocal->Field14->Field18->pointer_2;
+      printf("Current Unit; Type %d; id %d\n", localBtlUnit->unitType, localBtlUnit->unitID );
+      //hexDump("btlUnitNodeList", btlUnitListLocal->Field14, sizeof(NodeNext1));
+      btlUnitListLocal = btlUnitListLocal->next;
+    }
+    printf("===============================\n");
+  }
   return TTY_CMD_STATUS_OK;
 }
 
@@ -787,9 +810,9 @@ static TtyCmdStatus ttyFadeOut( TtyCmd* cmd, const char** args, u32 argc, char**
   return TTY_CMD_STATUS_OK;
 }
 
+#define CurrentCOMSEPLAY (*((COMSE_PLAY_struct**)0x00cff4e4))
 static TtyCmdStatus ttyCOMSEPLAY( TtyCmd* cmd, const char** args, u32 argc, char** error )
 {
-  COMSE_PLAY_struct* CurrentCOMSEPLAY = 0x00cff4e4;
   u32 cueID = intParse( args[0] );
 
   printf("COMSE_PLAY: Playing Sound ID %d\n", cueID);
@@ -802,6 +825,71 @@ static TtyCmdStatus ttyCOMSEPLAY( TtyCmd* cmd, const char** args, u32 argc, char
     * (int *) 0x00cff4d4 = CurrentCOMSEPLAY->Field1C; // how to write to a specific address
   }
   else printf("COMSE_PLAY: Invalid struct at 0x%x\n", CurrentCOMSEPLAY);
+  
+  return TTY_CMD_STATUS_OK;
+}
+
+static TtyCmdStatus ttyCallEvent( TtyCmd* cmd, const char** args, u32 argc, char** error )
+{
+  u32 evtArgs[3] = { intParse( args[0] ), intParse( args[1] ), 0 };
+
+  printf( "CALLING EVENT %03d_%03d\n", evtArgs[0], evtArgs[1] );
+
+  setSeq( 6, evtArgs, 0xC, 0xF );
+  
+  return TTY_CMD_STATUS_OK;
+}
+
+static TtyCmdStatus ttyCallField( TtyCmd* cmd, const char** args, u32 argc, char** error )
+{
+  s16 FieldMajorID = intParse( args[0] );
+  s16 FieldMinorID = intParse( args[1] );
+
+  printf( "CALLING field %03d_%03d\n", FieldMajorID, FieldMinorID );
+
+  s16 evtArgs [ 16 ] = { FieldMajorID, FieldMinorID, FieldMajorID, FieldMinorID, 0, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+
+  setSeq( 3, evtArgs, 0x20, 10 );
+  
+  return TTY_CMD_STATUS_OK;
+}
+
+char UnitCondition[2][5] = { "Alive", "Dead" };
+static TtyCmdStatus ttyGetPlayerInfo( TtyCmd* cmd, const char** args, u32 argc, char** error )
+{
+  int unitID = intParse( args[0] );
+  btlUnit_Unit* PlayerUnit = GetBtlPlayerUnitFromID( unitID );
+  printf( "Player ID %d status\n", unitID );
+  printf( "Ailments -> 0x%x\n", PlayerUnit->StatusAilments );
+  return TTY_CMD_STATUS_OK;
+}
+
+static TtyCmdStatus ttyCallBattle( TtyCmd* cmd, const char** args, u32 argc, char** error )
+{
+  s16 EncounterID = intParse( args[0] );
+
+  encounterIDTBL* EncounterData = GetEncounterEntryFromTBL( EncounterID );
+
+  s16 FieldMajorID = EncounterData->FieldID;
+  s16 FieldMinorID = EncounterData->RoomID;
+
+  printf( "CALLING ENCOUNTER %03d\n", EncounterID );
+
+  if ( FieldMajorID == 0 && FieldMinorID == 0 )
+  {
+    FieldMajorID = 250 + randomIntBetween( 1, 10 );
+    FieldMinorID = randomIntBetween( 1, 2 );
+
+    if ( FieldMajorID == 258 )
+    {
+      FieldMajorID = 0;
+      FieldMinorID = 100;
+    }
+  }
+
+  s16 evtArgs [ 20 ] = { 10, 0, 0, EncounterID, FieldMajorID, FieldMinorID, FieldMajorID, FieldMinorID, 0, 0, 0, 0, 0, 0, 0, 0, -1, -1, -1, -1 };
+
+  setSeq( 4, evtArgs, 40, 4 );
   
   return TTY_CMD_STATUS_OK;
 }
@@ -892,12 +980,6 @@ static void LoadDLCBGM( void )
 // List of commands that can be handled by the command listener
 static TtyCmd ttyCommands[] =
 {
-  TTY_CMD( ttyAddCmd, "add", "Adds 2 numbers and prints the result", TTY_CMD_FLAG_NONE,
-    TTY_CMD_PARAM( "a", "The first number to add", TTY_CMD_PARAM_FLAG_REQUIRED, TTY_CMD_PARAM_TYPE_FLOAT ), 
-    TTY_CMD_PARAM( "b", "The second number to add", TTY_CMD_PARAM_FLAG_REQUIRED, TTY_CMD_PARAM_TYPE_FLOAT )),
-
-  TTY_CMD( ttyEchoCmd, "echo", "Prints the given input back to you", TTY_CMD_FLAG_VARARGS ),
-
   TTY_CMD( ttySetBgmCmd, "setbgm", "Sets the current BGM using the Cue ID", TTY_CMD_FLAG_NONE,
     TTY_CMD_PARAM( "cueId", "The Cue ID of the BGM to play", TTY_CMD_PARAM_FLAG_REQUIRED, TTY_CMD_PARAM_TYPE_INT )),
 
@@ -932,7 +1014,7 @@ static TtyCmd ttyCommands[] =
   TTY_CMD( ttyFadeOut, "fadeout", "Plays a specific FadeOut", TTY_CMD_FLAG_NONE,
     TTY_CMD_PARAM( "fadetype", "fade value", TTY_CMD_PARAM_FLAG_REQUIRED, TTY_CMD_PARAM_TYPE_INT )),
 
-  TTY_CMD( ttyCOMSEPLAY, "comseplay", "Plays a given Sound Effect", TTY_CMD_FLAG_NONE,
+  TTY_CMD( ttyCOMSEPLAY, "comseplay", "Plays a given Sound Effect from system.acb", TTY_CMD_FLAG_NONE,
     TTY_CMD_PARAM( "cue ID", "cue ID of sound to play", TTY_CMD_PARAM_FLAG_REQUIRED, TTY_CMD_PARAM_TYPE_INT )),
 
   TTY_CMD( ttyTestModelResHndCmd, "testmodel", "Test Resource handle function", TTY_CMD_FLAG_NONE,
@@ -949,6 +1031,21 @@ static TtyCmd ttyCommands[] =
   TTY_CMD( ttyGetFieldWorkData, "getfieldworkdata", "Returns and prints current fieldworkdata struct", TTY_CMD_FLAG_NONE),
 
   TTY_CMD( ttyGetEnemyBtlUnitCmd, "getenemy", "Prints address and contents of currently saved enemy battle struct", TTY_CMD_FLAG_NONE ),
+
+  TTY_CMD( ttyCallEvent, "event", "Calls the Specified Event ID", TTY_CMD_FLAG_NONE,
+    TTY_CMD_PARAM( "major_id", "Event major id", TTY_CMD_PARAM_FLAG_REQUIRED, TTY_CMD_PARAM_TYPE_INT ), 
+    TTY_CMD_PARAM( "minor_id", "Event minor id", TTY_CMD_PARAM_FLAG_REQUIRED, TTY_CMD_PARAM_TYPE_INT )),
+
+
+  TTY_CMD( ttyCallField, "field", "Calls the Specified Field ID", TTY_CMD_FLAG_NONE,
+    TTY_CMD_PARAM( "major_id", "Field major id", TTY_CMD_PARAM_FLAG_REQUIRED, TTY_CMD_PARAM_TYPE_INT ), 
+    TTY_CMD_PARAM( "minor_id", "Field minor id", TTY_CMD_PARAM_FLAG_REQUIRED, TTY_CMD_PARAM_TYPE_INT )),
+
+  TTY_CMD( ttyCallBattle, "battle", "Calls the Specified Field ID", TTY_CMD_FLAG_NONE,
+    TTY_CMD_PARAM( "id", "encounter id", TTY_CMD_PARAM_FLAG_REQUIRED, TTY_CMD_PARAM_TYPE_INT )),
+
+  TTY_CMD( ttyGetPlayerInfo, "player", "Prints info of given player unit", TTY_CMD_FLAG_NONE,
+    TTY_CMD_PARAM( "id", "unit id", TTY_CMD_PARAM_FLAG_REQUIRED, TTY_CMD_PARAM_TYPE_INT )),
 
   TTY_CMD_END(), 
 };

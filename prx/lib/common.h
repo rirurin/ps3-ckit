@@ -28,4 +28,7 @@
 // TTY command functionality
 #include "ttycmd.h"
 
+// math
+#include <math.h>
+
 #endif

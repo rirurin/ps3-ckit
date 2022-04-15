@@ -23,7 +23,8 @@ bool isLoadScheduler;
 bool randomizedCombatOutfit;
 bool isPreventGameOver;
 int rngBGM;
-int lastAccessedUnitType;
+int FrameTiming;
+float ColorNew;
 int JokerModel;
 u32 titleScreenBGM;
 u16 ActiveGlobalSkillSlot;
@@ -939,6 +940,27 @@ typedef struct
   u16 SPGainNextLv; // 8E
 } btlUnit_Lite;
 
+typedef struct
+{
+  s16 FieldMajorID;
+  s16 FieldMinorID;
+  s16 FieldEnvMajorID;
+  s16 FieldEnvMinorID;
+  s16 Field08;
+  s16 Field0A;
+  s16 Field0C;
+  s16 Field0E;
+  s16 Field10;
+  s16 Field12;
+  s16 Field14;
+  s16 Field16;
+  s16 Field18;
+  s16 Field1A;
+  s16 Field1C;
+  s16 Field1E;
+}SequenceType3;
+
+
 typedef struct AI_UnitStruct 
 { 
   u32 field_0x0;
@@ -1596,6 +1618,40 @@ typedef struct
   u32 field2fc;
 } fieldworkdataStruct;
 
+typedef struct btlResult
+{
+  u32 field00;
+  u32 field04;
+  u32 field08;
+  u32 field0c;
+  u32 field10;
+  u32 field14;
+  u32 field18;
+  u32 field1c;
+  u32 field20;
+  u32 field24;
+  u32 field28;
+  u32 field2c;
+  u32 field30;
+  u32 field34;
+  u32 field38;
+  u32 field3c;
+  u32 field40;
+  u32 field44;
+  u32 field48;
+  u32 field4c;
+  u32 field50;
+  u32 field54;
+  u32 field58;
+  u32 field5c;
+  u32 field60;
+  u32 field64;
+  u32 field68;
+  u32 field6c;
+  u32 field70;
+  u32 field74;
+} btlResult;
+
 typedef struct ResourceHandleStruct
 {
   u32 field00;
@@ -2006,6 +2062,7 @@ unitTBLVisualIndex NewVisualIndexTBL;
 ELSAI_Segment2TBL NewSegment2TBL;
 
 btlUnit_Unit* enemyBtlUnit;
+btlUnit_Unit* currentActingUnit;
 
 struct
 {
@@ -2379,6 +2436,8 @@ bool AICheckSlipfunction( structA_2* a1 );
 bool AI_CHK_SLIP( void );
 int AI_CHK_ENIDHP( void );
 void PrepareDLCBGM( void );
+void memzero( void* args, int size );
+int GetBtlUnitAilments( btlUnit_Unit* id );
 
 /**
  * @brief Set priority of target CPK
@@ -2416,6 +2475,24 @@ PersonaTBL_Segment0* PersonaTBL_GetPersonaStatsSegment0( int PersonaID );
 int GetTotalUnitsOfType( u32 TargetUnitType );
 
 bool isPlayerUnitDead( u32 unitID );
+
+typedef struct {
+  float r;       // a fraction between 0 and 1
+  float g;       // a fraction between 0 and 1
+  float b;       // a fraction between 0 and 1
+} rgb;
+
+typedef struct {
+  float h;       // angle in degrees
+  float s;       // a fraction between 0 and 1
+  float v;       // a fraction between 0 and 1
+} hsv;
+
+hsv rgb2hsv(rgb in);
+rgb hsv2rgb(hsv in);
+
+float P5_SIN( float in );
+float ckit_sin( float in );
 
 #pragma pop
 #endif

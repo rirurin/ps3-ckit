@@ -37,6 +37,19 @@ CONFIG_START()
     CONFIG_SETTING( BOOL, enableFileAccessLogging, "file access logging", true )
     CONFIG_SETTING_ARRAY( STRING, extraModCPKName, "names of extra mod cpk", 10,
     "mod", "mod", "mod", "mod", "mod", "mod", "mod", "mod", "mod", "mod")
+    CONFIG_SETTING( BOOL, EnableCustomColors, "Enable Custom Colors for Red Combat Model Copy", true )
+    CONFIG_SETTING( BOOL, EnableRandomColors, "Randomize Custom Colors", true )
+    CONFIG_SETTING( INT,  JokerColor,  "Joker Color", 0xFF0000FF )
+    CONFIG_SETTING( INT,  SkullColor,  "Skull Color", 0xF0EC00FF )
+    CONFIG_SETTING( INT,  MonaColor,  "Mona Color", 0x14D8B1FF )
+    CONFIG_SETTING( INT,  PantherColor,  "Panther Color", 0xF04CB8FF )
+    CONFIG_SETTING( INT,  FoxColor,  "Fox Color", 0x01CBDBFF )
+    CONFIG_SETTING( INT,  QueenColor,  "Queen Color", 0x3028C8FF )
+    CONFIG_SETTING( INT,  NoirColor,  "Noir Color", 0xB000A8FF )
+    CONFIG_SETTING( INT,  OracleColor,  "Oracle Color", 0x48E420FF )
+    CONFIG_SETTING( INT,  CrowColor1,  "Crow Color 1", 0xFFF8EDFF )
+    CONFIG_SETTING( INT,  CrowColor2,  "Crow Color 2", 0xa48252FF )
+    CONFIG_SETTING( INT,  VioletColor,  "Violet Color", 0xFF005dFF )
 #endif
 #ifdef GAME_TEST
     // Example config setting values

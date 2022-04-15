@@ -99,27 +99,12 @@ SHK_HOOK( int, FUN_00aff590, CueIDThingy* a1, double a2, double a3 );
 SHK_HOOK( int, FUN_006a75c4, u64 a1 );
 SHK_HOOK( bool, FUN_00b25088, void );
 SHK_HOOK( int, FUN_00650700, int a1, int a2 );
-
-static s32 pattern[] = { 0x00, 0xBA, 0x69, 0x98, -1, -1, -1, -1, -1, -1, -1, -1, 0x00, 0xBA, 0x23, 0x88, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
-/*static u64 BtlUnitGetUnitIDHook( btlUnit_Unit* btlUnit  )
-{
-  u64 unitType = btlUnit->unitType;
-  u64 unitID = btlUnit->unitID;
-  if ( unitType != 1 )
-  {
-    //printf( "BtlUnitGetUnitID called; - unit type %d - unit ID %d\n", unitType, unitID );
-    lastAccessedUnitType = unitType;
-    if ( unitType == 2 )
-    {
-      GlobalEnemyID = unitID;
-    }
-    else
-    {
-      GlobalEnemyID = 0;
-    }
-  }
-  return unitID;
-}*/
+SHK_HOOK( int, FUN_00afc7f0, CueIDThingy* a1, double a2, double a3 );
+SHK_HOOK( int, FUN_006c9c60, structA* a1, int a2, int a3, int a4 );
+SHK_HOOK( int, FUN_00b00cc8, structA* a1, int a2, int a3, int a4 );
+SHK_HOOK( int, FUN_00afdd78, structA* a1, int a2, int a3, int a4 );
+SHK_HOOK( int, FUN_00afddb8, structA* a1, int a2, int a3, int a4 );
+SHK_HOOK( int, FUN_00917934, int a1 );
 
 static void* BlackMaskBossVoiceHook( structA* a1 )
 {
@@ -1160,6 +1145,8 @@ static int SetUpEncounterFlagsHook( EncounterFuncStruct* a1, EncounterStructShor
   //FUNC_LOG("Loading SetUpEncounterFlagsHook\n");
   PrepareDLCBGM(); // Load DLC BGM
   PrepareDLCBGM(); // Load DLC BGM
+  currentActingUnit = 0;
+  ColorNew = 0;
   SetBitflagState( 8348, 0 ); // disable early end flag
   int encounterIDReal = a2->encounterIDLocal;
   EncounterIDGlobal = encounterIDReal;
@@ -1230,7 +1217,11 @@ static void IsEncounterEventSoundBankExistHook( EncounterFuncStruct* a1 )
 {
   FUNC_LOG("Loading IsEncounterEventSoundBankExistHook\n");
 
-  if ( EncounterIDGlobal >= 830 ) return LoadEncounterEventSoundbank( EncounterIDGlobal );
+  if ( EncounterIDGlobal >= 830 ) 
+  {
+    DEBUG_LOG("Loading valid encounter even soundbank for Encounter ID %d\n", EncounterIDGlobal);
+    return LoadEncounterEventSoundbank( EncounterIDGlobal );
+  }
   else return SHK_CALL_HOOK( IsEncounterEventSoundBankExist, a1 );
 }
 
@@ -2058,6 +2049,13 @@ static bool CheckAllPartyMembersDead( void )
     DEBUG_LOG("Preventing Game Over on player loss\n");
     isGameOver = false;
   }
+  
+  if( isPlayerUnitDead( 1 ) && !isGameOver )
+  {
+    btlUnit_Unit* Joker = GetBtlPlayerUnitFromID(1); 
+    Joker->currentHP = 1;
+    Joker->StatusAilments = (Joker->StatusAilments & ~(1UL << 19)) | (0 << 19); // clear dead ailment
+  }
 
   isPreventGameOver = false; // clear this even if the player wins
 
@@ -2066,6 +2064,7 @@ static bool CheckAllPartyMembersDead( void )
 
 int FUN_00650700Hook( int a1, int a2 ) // triggers when player is about to escape
 {
+  currentActingUnit = GetBtlPlayerUnitFromID( 1 ); // set current acting unit to Joker when the player is escaping
   if( isPlayerUnitDead( 1 ) && CONFIG_ENABLED( PreventJokerGameOver ) )
   {
     btlUnit_Unit* Joker = GetBtlPlayerUnitFromID(1); 
@@ -2075,12 +2074,125 @@ int FUN_00650700Hook( int a1, int a2 ) // triggers when player is about to escap
   return SHK_CALL_HOOK( FUN_00650700, a1, a2 );
 }
 
+static int FUN_00afc7f0Hook( CueIDThingy* a1, double a2, double a3 )
+{
+  int result = SHK_CALL_HOOK( FUN_00afc7f0, a1, a2, a3 );
+  //printf( "Player_Idle_To_Active_Idle_Anim39 Function called; Function Address 0x00afc7f0\na1 -> 0x%x; unit ID -> %d\n", a1, a1->Field10->btlUnitPointer->unitID );
+  return result;
+}
+
+static int FUN_006c9c60Hook( structA* a1, int a2, int a3, int a4 )
+{
+  int result = SHK_CALL_HOOK( FUN_006c9c60, a1, a2, a3, a4 );
+
+  currentActingUnit = a1->Field18->btlUnitPointer;
+
+  FrameTiming = randomIntBetween( 0, 360 * 4 );
+  return result;
+}
+
+static int FUN_00b00cc8Hook( structA* a1, int a2, int a3, int a4 ) // Player AoA Animation Start function
+{
+  currentActingUnit = 0;
+  return SHK_CALL_HOOK( FUN_00b00cc8, a1, a2, a3, a4 );;
+}
+
+static int FUN_00afdd78Hook( structA* a1, int a2, int a3, int a4 ) // Player Jump Back Animation function
+{
+  currentActingUnit = 0;
+  return SHK_CALL_HOOK( FUN_00afdd78, a1, a2, a3, a4 );;
+}
+
+
+static int FUN_00afddb8Hook( structA* a1, int a2, int a3, int a4 ) // Player Jump Back Animation function
+{
+  currentActingUnit = 0;
+  return SHK_CALL_HOOK( FUN_00afddb8, a1, a2, a3, a4 );;
+}
+
+static int FUN_00917934Hook( int a1 )
+{
+  int result = SHK_CALL_HOOK( FUN_00917934, a1 );
+
+  //printf( "FUN_00917934; Returning color 0x%x\n", result );
+
+  if (  ( result == 0xFF0000FF || result == 0x000000FF ) && currentActingUnit != 0 && currentActingUnit->unitType == 1 && CONFIG_ENABLED( EnableCustomColors ) ) // Player Unit turn
+  {
+    switch ( currentActingUnit->unitID )
+    {
+      case 1:
+        result = CONFIG_INT( JokerColor );
+        break;
+      case 2:
+        result = CONFIG_INT( SkullColor );
+        break;
+      case 3:
+        result = CONFIG_INT( MonaColor );
+        break;
+      case 4:
+        result = CONFIG_INT( PantherColor );
+        break;
+      case 5:
+        result = CONFIG_INT( FoxColor );
+        break;
+      case 6:
+        result = CONFIG_INT( QueenColor );
+        break;
+      case 7:
+        result = CONFIG_INT( NoirColor );
+        break;
+      case 8:
+        result = CONFIG_INT( OracleColor );
+        break;
+      case 9:
+        if ( GetEquippedPersonaFunction( 9 ) == 209 ) // Akechi has Robin Hood?
+        {
+          result = CONFIG_INT( CrowColor1 );
+        }
+        else result = CONFIG_INT( CrowColor2 );
+        break;
+      case 10:
+        result = CONFIG_INT( VioletColor );
+        break;
+      default:
+        result = 0xFF0000FF;
+        break;
+    }
+
+    if ( CONFIG_ENABLED( EnableRandomColors ) )
+    {
+      // randomize color for randomized color
+      //FrameTiming += ( 0.0165 / 3 );
+      FrameTiming += 1;
+      hsv c;
+      //c.h = ((P5_SIN((FrameTiming/3.0)) + 1.0f) / 2.0f) * 360;
+      c.h = ( FrameTiming % ( 360 * 4 ) ) / 4;
+      c.s = 1.0;
+      c.v = 1.0;
+
+      rgb cc = hsv2rgb(c);
+      cc.r *= 255; 
+      cc.g *= 255; 
+      cc.b *= 255;
+      result = ((int)cc.r << 24) | ((int)cc.g << 16) | ((int)cc.b << 8) | 0xFF;;
+    }
+  }
+  /*else if ( result == 0xFFFFFF00 && currentActingUnit != 0 )
+  {
+    result = 0xFFFFFFFF;
+    printf("Expecting Persona Color Result\n");
+  }*/
+
+  return result;
+}
+
 // The start function of the PRX. This gets executed when the loader loads the PRX at boot.
 // This means game data is not initialized yet! If you want to modify anything that is initialized after boot,
 // hook a function that is called after initialisation.
 void dcInit( void )
 {
   randomizedCombatOutfit = true;
+  ColorNew = 0;
   randomSetSeed( getTicks() );
   // Hooks must be 'bound' to a handler like this in the start function.
   // If you don't do this, the game will crash.
@@ -2153,6 +2265,12 @@ void dcInit( void )
   SHK_BIND_HOOK( FUN_00b25084, PlayJokerRevivedCueID );
   SHK_BIND_HOOK( FUN_00b25088, CheckAllPartyMembersDead );
   SHK_BIND_HOOK( FUN_00650700, FUN_00650700Hook );
+  SHK_BIND_HOOK( FUN_00afc7f0, FUN_00afc7f0Hook );
+  SHK_BIND_HOOK( FUN_006c9c60, FUN_006c9c60Hook );
+  SHK_BIND_HOOK( FUN_00917934, FUN_00917934Hook );
+  SHK_BIND_HOOK( FUN_00b00cc8, FUN_00b00cc8Hook );
+  SHK_BIND_HOOK( FUN_00afdd78, FUN_00afdd78Hook );
+  SHK_BIND_HOOK( FUN_00afddb8, FUN_00afddb8Hook );
 }
 
 void dcShutdown( void )

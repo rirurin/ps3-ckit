@@ -48,6 +48,8 @@ SHK_HOOK( int, FUN_00b1bd50, struct_2_pointers* param_1, navi_dialogue_function_
 SHK_HOOK( void, FUN_00b18368, struct_2_pointers* param_1, navi_dialogue_function_a2* param_2, struct_2_pointers* param_3, u16 param_4, int param_5, int param_6 );
 SHK_HOOK( void, FUN_00b190a8, struct_2_pointers* param_1, navi_dialogue_function_a2* param_2, struct_2_pointers* param_3, u16 param_4, int param_5, int param_6 );
 SHK_HOOK( void, FUN_00b192e8, struct_2_pointers* param_1, navi_dialogue_function_a2* param_2, struct_2_pointers* param_3, u16 param_4, int param_5, int param_6 );
+SHK_HOOK( int, FUN_00436730, int a1 );
+SHK_HOOK( int, FUN_00425de0, partyMemberMenu* a1 );
 
 static bool isPartyMemberUnlocked( u16 unitID )
 {
@@ -57,6 +59,24 @@ static bool isPartyMemberUnlocked( u16 unitID )
     return GetSavedataBitflagAlt( 0x2138 );
   }
   else return SHK_CALL_HOOK( FUN_00425b0c, unitID );
+}
+
+static int BuildPartyMemberStatsMenu ( partyMemberMenu* partyMenu )
+{
+  int count = 1;
+  
+  partyMenu->partyMemberID[0] = 1;
+  for ( int i = 2; i <= 10; i++)
+  {
+    if ( isPartyMemberUnlocked(i) )
+    {
+      partyMenu->partyMemberID[count] = i;
+      //printf("Party Member %d added to the menu\n", i);
+      count += 1;
+    }
+  }
+  return count;
+  //return SHK_CALL_HOOK( FUN_00425de0, partyMenu );
 }
 
 static int JokerDied_NaviDialogue( struct_2_pointers* param_1, navi_dialogue_function_a2* param_2 )
@@ -999,6 +1019,7 @@ static void PartyMemberWarnAilment_NaviDialogue( struct_2_pointers* param_1, nav
 {
 
   FUNC_LOG("Loading PartyMemberWarnAilment_NaviDialogue\n");
+  
   if ( GetBtlPlayerUnitFromID( 1 )->currentHP == 0 )
   {
     return;
@@ -1491,6 +1512,7 @@ static void BattleEndSkillChecks( u64 a1, u64 a2, u64 a3 )
   UzukiDebuffDeffenseWarn = false;
   UzukiDebuffSpeedWarn = false;
   randomizedCombatOutfit = true;
+  currentActingUnit = 0;
 
   SetBitflagState( 0x209C, 0 ); // flag checked for ending twins encounter early
 
@@ -1566,6 +1588,24 @@ static void MonaNavi_LandedCrit_NaviDialogue( struct_2_pointers* param_1, navi_d
   return;
 }
 
+static int FUN_00436730Hook( int a1 )
+{
+  int result = 0;
+
+  if ( a1 == 1108082688 )
+  {
+    a1 = 52;
+  }
+  else if ( a1 == 1106247680 )
+  {
+    a1 = 53;
+  }
+  printf( "FUN_00436730 called; a1 -> %d\n", a1 );
+  result = SHK_CALL_HOOK( FUN_00436730, a1 );
+  printf( "FUN_00436730 result is -> 0x%x\n", result );
+  return result;
+}
+
 // The start function of the PRX. This gets executed when the loader loads the PRX at boot.
 // This means game data is not initialized yet! If you want to modify anything that is initialized after boot,
 // hook a function that is called after initialisation.
@@ -1597,6 +1637,8 @@ void KasumiInit( void )
   SHK_BIND_HOOK( FUN_00b18368, MonaNavi_KnockEnemyDown_NaviDialogue );
   SHK_BIND_HOOK( FUN_00b190a8, MonaNavi_ExploitedWeakness_NaviDialogue );
   SHK_BIND_HOOK( FUN_00b192e8, MonaNavi_LandedCrit_NaviDialogue );
+  SHK_BIND_HOOK( FUN_00436730, FUN_00436730Hook );
+  SHK_BIND_HOOK( FUN_00425de0, BuildPartyMemberStatsMenu );
 }
 
 void KasumiShutdown( void )

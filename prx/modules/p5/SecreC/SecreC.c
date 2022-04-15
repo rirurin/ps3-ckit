@@ -114,6 +114,7 @@ void FUN_005a4584Hook( int a1, int a2 )
 	SHK_CALL_HOOK( FUN_005a4584, a1, a2 );
 	int iVar4;
 	short ShopId = *(short *)(a2 + 0xc2);
+	u16 uVar2 = *(u16 *)(0xdf237c + (int)((s64)ShopId << 2)) & 0xff;
 	switch (ShopId){
 
 		case 77:

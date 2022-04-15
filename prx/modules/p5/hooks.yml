@@ -564,6 +564,38 @@ FUN_005a4584:
     addr: 0x5a4584
     replacedInstr: stdu  r1, -0x80(r1) 
 
+FUN_00afc7f0:
+    addr: 0xafc7f0
+    replacedInstr: stdu  r1, -0xb0(r1) 
+
+FUN_006c9c60:
+    addr: 0x6c9c60
+    replacedInstr: stdu  r1, -0xf0(r1)  
+
+FUN_00917934:
+    addr: 0x917934
+    replacedInstr: lbz  r0, 0x0(r3) 
+
+FUN_00b00cc8:
+    addr: 0xb00cc8
+    replacedInstr: stdu  r1, -0xb0(r1)  
+
+FUN_00afdd78:
+    addr: 0xafdd78
+    replacedInstr: stdu  r1, -0x70(r1)
+
+FUN_00afddb8:
+    addr: 0xafddb8
+    replacedInstr: stdu  r1, -0x70(r1)
+
+FUN_00436730:
+    addr: 0x436730
+    replacedInstr: lis r4, 0xda
+
 FUN_004e392c:
     addr: 0x4e392c
-    replacedInstr: stdu  r1, -0x80(r1)
+    replacedInstr: stdu  r1, -0x80(r1) 
+
+FUN_00425de0:
+    addr: 0x425de0
+    replacedInstr: stdu  r1, -0xA0(r1) 

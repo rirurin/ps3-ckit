@@ -22,7 +22,7 @@ elf:
 	$(CC) $(CCFLAGS) -nostartfiles -o $(BIN_DIR)\mod.elf
 
 prx:
-	$(CC) -mprx $(CCFLAGS) -o $(BIN_DIR)\mod.prx
+	$(CC) -mprx $(CCFLAGS) -o $(BIN_DIR)\mod.prx 
 
 preprocessed:
 	$(CC) $(CCFLAGS) -E -o $(BIN_DIR)\mod.i

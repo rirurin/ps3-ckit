@@ -48,8 +48,10 @@ SHK_HOOK( int, FUN_00b1bd50, struct_2_pointers* param_1, navi_dialogue_function_
 SHK_HOOK( void, FUN_00b18368, struct_2_pointers* param_1, navi_dialogue_function_a2* param_2, struct_2_pointers* param_3, u16 param_4, int param_5, int param_6 );
 SHK_HOOK( void, FUN_00b190a8, struct_2_pointers* param_1, navi_dialogue_function_a2* param_2, struct_2_pointers* param_3, u16 param_4, int param_5, int param_6 );
 SHK_HOOK( void, FUN_00b192e8, struct_2_pointers* param_1, navi_dialogue_function_a2* param_2, struct_2_pointers* param_3, u16 param_4, int param_5, int param_6 );
-SHK_HOOK( int, FUN_00436730, int a1 );
 SHK_HOOK( int, FUN_00425de0, partyMemberMenu* a1 );
+SHK_HOOK( int, FUN_00425c80, partyMemberMenu* a1 );
+SHK_HOOK( int, FUN_0034e128, int a1 );
+SHK_HOOK( int, FUN_0060dd98, int a1, char* a2, int a3, char* a4 );
 
 static bool isPartyMemberUnlocked( u16 unitID )
 {
@@ -77,6 +79,24 @@ static int BuildPartyMemberStatsMenu ( partyMemberMenu* partyMenu )
   }
   return count;
   //return SHK_CALL_HOOK( FUN_00425de0, partyMenu );
+}
+
+static int BuildPartyMemberItemsMenu ( partyMemberMenu* partyMenu )
+{
+  /*int count = 1;
+  
+  partyMenu->partyMemberID[0] = 1;
+  for ( int i = 2; i <= 10; i++)
+  {
+    if ( isPartyMemberUnlocked(i) )
+    {
+      partyMenu->partyMemberID[count] = i;
+      //printf("Party Member %d added to the menu\n", i);
+      count += 1;
+    }
+  }
+  return count;*/
+  return SHK_CALL_HOOK( FUN_00425c80, partyMenu );
 }
 
 static int JokerDied_NaviDialogue( struct_2_pointers* param_1, navi_dialogue_function_a2* param_2 )
@@ -1588,7 +1608,7 @@ static void MonaNavi_LandedCrit_NaviDialogue( struct_2_pointers* param_1, navi_d
   return;
 }
 
-static int FUN_00436730Hook( int a1 )
+/*static int FUN_00436730Hook( int a1 )
 {
   int result = 0;
 
@@ -1600,10 +1620,24 @@ static int FUN_00436730Hook( int a1 )
   {
     a1 = 53;
   }
-  printf( "FUN_00436730 called; a1 -> %d\n", a1 );
+  //printf( "FUN_00436730 called; a1 -> %d\n", a1 );
   result = SHK_CALL_HOOK( FUN_00436730, a1 );
-  printf( "FUN_00436730 result is -> 0x%x\n", result );
+  //printf( "FUN_00436730 result is -> 0x%x\n", result );
   return result;
+}*/
+
+static int FUN_0034e128Hook( int a1 )
+{
+  int result = SHK_CALL_HOOK( FUN_0034e128, a1 );
+
+  ReadKasumiData();
+  return result;
+}
+
+static int FUN_0060dd98Hook(int a1, char* a2, int a3, char* a4)
+{
+  WriteKasumiData();
+  return SHK_CALL_HOOK( FUN_0060dd98, a1, a2, a3, a4 );
 }
 
 // The start function of the PRX. This gets executed when the loader loads the PRX at boot.
@@ -1637,8 +1671,10 @@ void KasumiInit( void )
   SHK_BIND_HOOK( FUN_00b18368, MonaNavi_KnockEnemyDown_NaviDialogue );
   SHK_BIND_HOOK( FUN_00b190a8, MonaNavi_ExploitedWeakness_NaviDialogue );
   SHK_BIND_HOOK( FUN_00b192e8, MonaNavi_LandedCrit_NaviDialogue );
-  SHK_BIND_HOOK( FUN_00436730, FUN_00436730Hook );
   SHK_BIND_HOOK( FUN_00425de0, BuildPartyMemberStatsMenu );
+  SHK_BIND_HOOK( FUN_00425c80, BuildPartyMemberItemsMenu );
+  SHK_BIND_HOOK( FUN_0034e128, FUN_0034e128Hook );
+  SHK_BIND_HOOK( FUN_0060dd98, FUN_0060dd98Hook );
 }
 
 void KasumiShutdown( void )

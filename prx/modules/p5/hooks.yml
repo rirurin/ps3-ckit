@@ -588,14 +588,22 @@ FUN_00afddb8:
     addr: 0xafddb8
     replacedInstr: stdu  r1, -0x70(r1)
 
-FUN_00436730:
-    addr: 0x436730
-    replacedInstr: lis r4, 0xda
-
 FUN_004e392c:
     addr: 0x4e392c
     replacedInstr: stdu  r1, -0x80(r1) 
 
 FUN_00425de0:
     addr: 0x425de0
-    replacedInstr: stdu  r1, -0xA0(r1) 
+    replacedInstr: stdu  r1, -0xA0(r1)  
+
+FUN_00425c80:
+    addr: 0x425c80
+    replacedInstr: stdu  r1, -0x90(r1)
+
+FUN_0034e128:
+    addr: 0x0034e128
+    replacedInstr: stdu  r1, -0xD0(r1)
+
+FUN_0060dd98:
+    addr: 0x60dd98
+    replacedInstr: stdu  r1, -0x90(r1)

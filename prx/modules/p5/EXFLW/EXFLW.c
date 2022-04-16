@@ -894,6 +894,18 @@ static TtyCmdStatus ttyCallBattle( TtyCmd* cmd, const char** args, u32 argc, cha
   return TTY_CMD_STATUS_OK;
 }
 
+static TtyCmdStatus ttySaveKasumi( TtyCmd* cmd, const char** args, u32 argc, char** error )
+{
+  WriteKasumiData();
+  return TTY_CMD_STATUS_OK;
+}
+
+static TtyCmdStatus ttyLoadKasumi( TtyCmd* cmd, const char** args, u32 argc, char** error )
+{
+  ReadKasumiData();
+  return TTY_CMD_STATUS_OK;
+}
+
 static u64 LoadNaviSoundFileHook( u64 a1, u64 a2, char* acb_path, char* awb_path, u64 a5 )
 {
   FUNC_LOG("Loading LoadNaviSoundFileHook\n");
@@ -1046,6 +1058,10 @@ static TtyCmd ttyCommands[] =
 
   TTY_CMD( ttyGetPlayerInfo, "player", "Prints info of given player unit", TTY_CMD_FLAG_NONE,
     TTY_CMD_PARAM( "id", "unit id", TTY_CMD_PARAM_FLAG_REQUIRED, TTY_CMD_PARAM_TYPE_INT )),
+
+  TTY_CMD( ttySaveKasumi, "savekasumi", "Prints address and contents of currently saved enemy battle struct", TTY_CMD_FLAG_NONE ),
+
+  TTY_CMD( ttyLoadKasumi, "loadkasumi", "Prints address and contents of currently saved enemy battle struct", TTY_CMD_FLAG_NONE ),
 
   TTY_CMD_END(), 
 };
@@ -1492,6 +1508,12 @@ static int EX_PREVENT_PLAYER_LOSS( void )
   return 1;
 }
 
+static int EX_FORCE_LOAD_DLC_BGM( void )
+{
+  LoadDLCBGM();
+  return 1;
+}
+
 scrCommandTableEntry exCommandTable[] =
 {
   { EX_FLW_PRINTF, 1, "EX_PRINTF" },
@@ -1519,6 +1541,7 @@ scrCommandTableEntry exCommandTable[] =
   { EX_GET_PERSONA_INHERITANCE_TYPE, 1, "GET_PERSONA_INHERITANCE_TYPE" },
   { EX_SET_ENEMY_SKILL, 3, "SET_ENEMY_SKILL" },
   { EX_PREVENT_PLAYER_LOSS, 0, "PREVENT_PLAYER_LOSS" },
+  { EX_FORCE_LOAD_DLC_BGM, 0, "FORCE_LOAD_DLC_BGM" },
 };
 
 static scrCommandTableEntry* scrGetCommandFuncHook( u32 id )

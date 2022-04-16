@@ -2002,12 +2002,12 @@ static int FUN_006a75c4Hook( u64 a1 )
         || !isPlayerUnitDead(GetUnitIDFromPartySlot(2))
         || !isPlayerUnitDead(GetUnitIDFromPartySlot(3)))
       {
-        //DEBUG_LOG("Found alive party member, no game over\n");
+        DEBUG_LOG("Found alive party member, no game over\n");
         result = 0;
       }
-      else result = SHK_CALL_HOOK( FUN_006a75c4, a1 );
+      else return SHK_CALL_HOOK( FUN_006a75c4, a1 );
   }
-  else result = SHK_CALL_HOOK( FUN_006a75c4, a1 );
+  else return SHK_CALL_HOOK( FUN_006a75c4, a1 );
   
   if ( GetTotalUnitsOfType( 2 ) == 0 ) // failsafe for no enemies, force battle to end
   {
@@ -2036,25 +2036,15 @@ static bool CheckAllPartyMembersDead( void )
 {
   bool isGameOver = false;
 
-  if ( isPlayerUnitDead(GetUnitIDFromPartySlot(0))
-    && isPlayerUnitDead(GetUnitIDFromPartySlot(1))
-    && isPlayerUnitDead(GetUnitIDFromPartySlot(2))
-    && isPlayerUnitDead(GetUnitIDFromPartySlot(3)))
+  if ( isPlayerUnitDead(GetUnitIDFromPartySlot(0)) )
   {
     isGameOver = true; // all party units who were in combat are dead, game over
   }
 
-  if ( isGameOver && isPreventGameOver ) // allow no game over on loss under specific circumstances
+  if ( isPreventGameOver ) // allow no game over on loss under specific circumstances
   { 
     DEBUG_LOG("Preventing Game Over on player loss\n");
     isGameOver = false;
-  }
-  
-  if( isPlayerUnitDead( 1 ) && !isGameOver )
-  {
-    btlUnit_Unit* Joker = GetBtlPlayerUnitFromID(1); 
-    Joker->currentHP = 1;
-    Joker->StatusAilments = (Joker->StatusAilments & ~(1UL << 19)) | (0 << 19); // clear dead ailment
   }
 
   isPreventGameOver = false; // clear this even if the player wins
@@ -2193,6 +2183,7 @@ void dcInit( void )
 {
   randomizedCombatOutfit = true;
   ColorNew = 0;
+  isPreventGameOver = false;
   randomSetSeed( getTicks() );
   // Hooks must be 'bound' to a handler like this in the start function.
   // If you don't do this, the game will crash.

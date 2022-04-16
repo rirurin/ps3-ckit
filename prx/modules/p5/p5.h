@@ -2494,6 +2494,9 @@ rgb hsv2rgb(hsv in);
 float P5_SIN( float in );
 float ckit_sin( float in );
 
+void WriteKasumiData( void );
+void ReadKasumiData( void );
+
 #pragma pop
 #endif
 #endif

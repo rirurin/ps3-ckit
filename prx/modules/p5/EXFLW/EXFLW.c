@@ -1514,6 +1514,46 @@ static int EX_FORCE_LOAD_DLC_BGM( void )
   return 1;
 }
 
+static int EX_RESET_PARTY_MEMBER_PERSONA( void )
+{
+  int unitID = FLW_GetIntArg( 0 );
+  btlUnit_Unit* PartyMember = GetBtlPlayerUnitFromID( unitID );
+
+  PartyMemberLvUpThresholdExp* ExpThreshold = GetPartyMemberLvUpThreshold( unitID );
+  PersonaTBL_Segment0* playerPersona = PersonaTBL_GetPersonaStatsSegment0( 200 + unitID );
+
+  for ( int i = 0; i < 8; i++ )
+  {
+    PartyMember->StockPersona[0].SkillID[i] = 0;
+  }
+
+  PartyMember->StockPersona[0].personaID = 200 + unitID;
+  PartyMember->StockPersona[0].personaLv = playerPersona->BaseLevel;
+  PartyMember->StockPersona[0].personaExp = ExpThreshold->ExpRequired[playerPersona->BaseLevel - 2];
+  DEBUG_LOG("Resetting Player ID %d's Persona back to ID %d with base level %d\n", unitID, 200 + unitID, playerPersona->BaseLevel );
+
+  PartyMember->StockPersona[0].Stats[0] = playerPersona->Stats[0];
+  PartyMember->StockPersona[0].Stats[1] = playerPersona->Stats[1];
+  PartyMember->StockPersona[0].Stats[2] = playerPersona->Stats[2];
+  PartyMember->StockPersona[0].Stats[3] = playerPersona->Stats[3];
+  PartyMember->StockPersona[0].Stats[4] = playerPersona->Stats[4];
+  PartyMember->StockPersona[0].Stats[5] = playerPersona->Stats[5];
+
+  PartyMemberPersonaBlock* partyPersona = GetPartyMemberPersonaBlock( GetEquippedPersonaFunction( unitID ) );
+
+  int skillCount = 0;
+  for ( int i = 0; i < 31; i++ )
+  {
+    if ( partyPersona->skills[i].LvReq == 0 && partyPersona->skills[i].skillID > 0 )
+    {
+      PartyMember->StockPersona[0].SkillID[i] = partyPersona->skills[i].skillID;
+      skillCount += 1;
+    }
+  }
+  
+  return 1;
+}
+
 scrCommandTableEntry exCommandTable[] =
 {
   { EX_FLW_PRINTF, 1, "EX_PRINTF" },
@@ -1542,6 +1582,7 @@ scrCommandTableEntry exCommandTable[] =
   { EX_SET_ENEMY_SKILL, 3, "SET_ENEMY_SKILL" },
   { EX_PREVENT_PLAYER_LOSS, 0, "PREVENT_PLAYER_LOSS" },
   { EX_FORCE_LOAD_DLC_BGM, 0, "FORCE_LOAD_DLC_BGM" },
+  { EX_RESET_PARTY_MEMBER_PERSONA, 1, "RESET_PARTY_MEMBER_PERSONA" },
 };
 
 static scrCommandTableEntry* scrGetCommandFuncHook( u32 id )

@@ -50,6 +50,7 @@ SHK_HOOK( void, FUN_00b190a8, struct_2_pointers* param_1, navi_dialogue_function
 SHK_HOOK( void, FUN_00b192e8, struct_2_pointers* param_1, navi_dialogue_function_a2* param_2, struct_2_pointers* param_3, u16 param_4, int param_5, int param_6 );
 SHK_HOOK( int, FUN_00425de0, partyMemberMenu* a1 );
 SHK_HOOK( int, FUN_00425c80, partyMemberMenu* a1 );
+SHK_HOOK( int, FUN_00425d20, partyMemberMenu* a1 );
 SHK_HOOK( int, FUN_0034e128, int a1 );
 SHK_HOOK( int, FUN_0060dd98, int a1, char* a2, int a3, char* a4 );
 
@@ -77,26 +78,91 @@ static int BuildPartyMemberStatsMenu ( partyMemberMenu* partyMenu )
       count += 1;
     }
   }
+
   return count;
   //return SHK_CALL_HOOK( FUN_00425de0, partyMenu );
 }
 
 static int BuildPartyMemberItemsMenu ( partyMemberMenu* partyMenu )
 {
-  /*int count = 1;
+  u16* pad_val = 0x1166b10;
+  
+  int count = 1;
   
   partyMenu->partyMemberID[0] = 1;
-  for ( int i = 2; i <= 10; i++)
+
+  if ( isPartyMemberUnlocked(2) )
+  {
+    partyMenu->partyMemberID[count] = 2;
+    count += 1;
+  }
+
+  if ( ( (*pad_val) & 0x100 ) && isPartyMemberUnlocked(10) ) // is L2 being held down
+  {
+    partyMenu->partyMemberID[count] = 10;
+    count += 1;
+  }
+  else if ( isPartyMemberUnlocked(3) )
+  {
+    partyMenu->partyMemberID[count] = 3;
+    count += 1;
+  }
+
+  for ( int i = 4; i <= 7; i++)
   {
     if ( isPartyMemberUnlocked(i) )
     {
       partyMenu->partyMemberID[count] = i;
-      //printf("Party Member %d added to the menu\n", i);
       count += 1;
     }
   }
-  return count;*/
-  return SHK_CALL_HOOK( FUN_00425c80, partyMenu );
+
+  if ( isPartyMemberUnlocked(9) )
+  {
+    partyMenu->partyMemberID[count] = 9;
+    count += 1;
+  }
+
+  return count;
+  //return SHK_CALL_HOOK( FUN_00425c80, partyMenu );
+}
+
+static int BuildPartyMemberEquipMenu ( partyMemberMenu* partyMenu )
+{
+  u16* pad_val = 0x1166b10;
+  
+  int count = 1;
+  
+  partyMenu->partyMemberID[0] = 1;
+
+  if ( isPartyMemberUnlocked(2) )
+  {
+    partyMenu->partyMemberID[count] = 2;
+    count += 1;
+  }
+
+  if ( ( (*pad_val) & 0x100 ) && isPartyMemberUnlocked(10) ) // is L2 being held down
+  {
+    partyMenu->partyMemberID[count] = 10;
+    count += 1;
+  }
+  else if ( isPartyMemberUnlocked(3) )
+  {
+    partyMenu->partyMemberID[count] = 3;
+    count += 1;
+  }
+
+  for ( int i = 4; i <= 9; i++)
+  {
+    if ( isPartyMemberUnlocked(i) )
+    {
+      partyMenu->partyMemberID[count] = i;
+      count += 1;
+    }
+  }
+
+  return count;
+  //return SHK_CALL_HOOK( FUN_00425d20, partyMenu );
 }
 
 static int JokerDied_NaviDialogue( struct_2_pointers* param_1, navi_dialogue_function_a2* param_2 )
@@ -1675,6 +1741,7 @@ void KasumiInit( void )
   SHK_BIND_HOOK( FUN_00425c80, BuildPartyMemberItemsMenu );
   SHK_BIND_HOOK( FUN_0034e128, FUN_0034e128Hook );
   SHK_BIND_HOOK( FUN_0060dd98, FUN_0060dd98Hook );
+  SHK_BIND_HOOK( FUN_00425d20, BuildPartyMemberEquipMenu );
 }
 
 void KasumiShutdown( void )

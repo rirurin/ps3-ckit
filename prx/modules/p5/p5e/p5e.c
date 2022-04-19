@@ -126,12 +126,6 @@ static int GenericCharacterModelLoaderHook( char* result, u64 modelType, u64 cha
     }
     if ( characterID == 10 && modelID == 50 ) //for now copy Joker outfit to Kasumi
     {
-      if ( sequenceIDGlobal == 4 ) // fix for some boss battles not reloading joker model
-      {
-        modelID = PlayerUnitGetModelMinorID( 1, 50, 0 );
-      }
-      else modelID = JokerModel;
-
       if ( CONFIG_ENABLED( enableSumire ) )
       {
         modelSubID = 1;
@@ -399,10 +393,10 @@ static int GetCombatModelMinorIDFromOutfit( int unitID, int modelID_base, int a3
     return result;
   }
 
-  if ( unitID == 10)
+  /*if ( unitID == 10)
   {
     result = SHK_CALL_HOOK( FUN_00045d24, 1, modelID_base, a3 );
-  }
+  }*/
 
   if ( modelID_base == 50 ) // combat model
   {

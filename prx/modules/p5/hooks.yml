@@ -607,3 +607,7 @@ FUN_0034e128:
 FUN_0060dd98:
     addr: 0x60dd98
     replacedInstr: stdu  r1, -0x90(r1)
+
+FUN_00425d20:
+    addr: 0x425d20
+    replacedInstr: stdu  r1, -0xA0(r1)

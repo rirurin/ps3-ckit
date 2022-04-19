@@ -84,7 +84,7 @@ typedef struct navi_dialogue_function_a2
 
 typedef struct
 {
-    u16 partyMemberID[10];
+    u16 partyMemberID[11];
 }partyMemberMenu;
 
 void CheckKasumiEquipment(btlUnit_Unit* a1);

@@ -97,7 +97,7 @@ static int BuildPartyMemberItemsMenu ( partyMemberMenu* partyMenu )
     count += 1;
   }
 
-  if ( ( (*pad_val) & 0x100 ) && isPartyMemberUnlocked(10) ) // is L2 being held down
+  if ( ( (*pad_val) & 0x200 ) && isPartyMemberUnlocked(10) ) // is R2 being held down
   {
     partyMenu->partyMemberID[count] = 10;
     count += 1;
@@ -141,7 +141,7 @@ static int BuildPartyMemberEquipMenu ( partyMemberMenu* partyMenu )
     count += 1;
   }
 
-  if ( ( (*pad_val) & 0x100 ) && isPartyMemberUnlocked(10) ) // is L2 being held down
+  if ( ( (*pad_val) & 0x200 ) && isPartyMemberUnlocked(10) ) // is R2 being held down
   {
     partyMenu->partyMemberID[count] = 10;
     count += 1;

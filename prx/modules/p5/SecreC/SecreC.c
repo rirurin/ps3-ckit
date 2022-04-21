@@ -187,7 +187,7 @@ u8 GetConfidantAmount( u8 a1 ) // gets the amount of active confidants
 	return count;
 }
 
-u64 FUN_00548c8cHook( short a1 )
+u64 IsConfidantActiveForMenuHook( short a1 )
 {
 	int confCount = GetConfidantAmount(35);
 	printf("%d Active Confidants\n", confCount);
@@ -218,7 +218,7 @@ void SecreCInit( void )
   SHK_BIND_HOOK( FUN_003e8ff8, FUN_003e8ff8Hook );
   SHK_BIND_HOOK( FUN_005a4584, FUN_005a4584Hook );
   SHK_BIND_HOOK( FUN_004e392c, GroupChatIconHook );
-  SHK_BIND_HOOK( FUN_00548c8c, FUN_00548c8cHook );
+  SHK_BIND_HOOK( FUN_00548c8c, IsConfidantActiveForMenuHook );
 }
 
 void SecreCShutdown( void )

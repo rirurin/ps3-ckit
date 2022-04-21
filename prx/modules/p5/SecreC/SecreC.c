@@ -32,6 +32,7 @@ SHK_HOOK( void, FUN_0049ee38, int a1, char a2, u32 a3, char a4 );
 SHK_HOOK( int, FUN_003e8ff8, int a1 );
 SHK_HOOK( void, FUN_005a4584, int a1, int a2 );
 SHK_HOOK( undefined8, FUN_004e392c, short a1 );
+SHK_HOOK( u64, FUN_00548c8c, short a1 );
 
 // The start function of the PRX. This gets executed when the loader loads the PRX at boot.
 // This means game data is not initialized yet! If you want to modify anything that is initialized after boot,
@@ -171,6 +172,38 @@ undefined8 GroupChatIconHook( short a1 )
 	return result;
 }
 
+u8 GetConfidantAmount( u8 a1 ) // gets the amount of active confidants
+{
+	int i = 1;
+	int count;
+	do
+	{
+		if ( FUN_00548bd0(i) == 1 )
+		{
+			count += 1;
+		}
+		i += 1;
+	}while(i < a1 + 1); //will count confidant Ids through (inclusive) the Id specified by a1
+	return count;
+}
+
+u64 FUN_00548c8cHook( short a1 )
+{
+	int confCount = GetConfidantAmount(35);
+	printf("%d Active Confidants\n", confCount);
+	u64 result = SHK_CALL_HOOK( FUN_00548c8c, a1 );
+	u16* pad_val = 0x1166b10;
+	if (((*pad_val) & 0x200) && ( a1 == 21 && confCount == 23 )) // if R2 is being held down
+	{
+		return 0;
+	}
+	else if ((((*pad_val) & 0x200) == 0) && a1 == 24 && confCount == 23 ) // if R2 isn't being held down
+	{
+		return 0;
+	}
+	return result;
+}
+
 void SecreCInit( void )
 {
   // Hooks must be 'bound' to a handler like this in the start function.
@@ -185,6 +218,7 @@ void SecreCInit( void )
   SHK_BIND_HOOK( FUN_003e8ff8, FUN_003e8ff8Hook );
   SHK_BIND_HOOK( FUN_005a4584, FUN_005a4584Hook );
   SHK_BIND_HOOK( FUN_004e392c, GroupChatIconHook );
+  SHK_BIND_HOOK( FUN_00548c8c, FUN_00548c8cHook );
 }
 
 void SecreCShutdown( void )

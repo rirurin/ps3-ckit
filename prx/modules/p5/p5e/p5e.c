@@ -91,6 +91,7 @@ static CharModelReplacementTable charModelReplacementTableEntry[] =
   { 51, 81, 102, 10, 51 }, // 7
   { 51, 81, 102, 106, 51 }, // 8
   { 51, 52, 81, 102, 104 }, // 9
+  { 51, 102, 106, 107, 51 }, // 10
 };
 
 static int GenericCharacterModelLoaderHook( char* result, u64 modelType, u64 characterID, u64 modelID, u64 modelSubID )

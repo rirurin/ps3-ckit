@@ -685,6 +685,10 @@ u32 FUN_0031f35c( void ){
 s64 FUN_00967abc( u32 a1, int a2 ){
     SHK_FUNCTION_CALL_2( 0x967abc, s64, u32, a1, int, a2 );
 }
+
+undefined8 FUN_00548bd0( short a1 ){
+    SHK_FUNCTION_CALL_1( 0x548bd0, undefined8, short, a1 );
+}
 int GetRandom( int MaxValue )
 {
   int v0; // r31

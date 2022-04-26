@@ -2505,6 +2505,7 @@ void ReadKasumiData( void );
 
 void setBit( s32 index, bool value );
 bool GetBit( s32 index );
+s32 ReturnConvertedFlag( s32 BitFlag );
 
 #pragma pop
 #endif

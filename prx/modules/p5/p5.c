@@ -1152,7 +1152,7 @@ bool GetBit( s32 index )
   return (NewBits->Bits[index/8] & 1 << (index % 8)) != 0;
 }
 
-static s32 ReturnConvertedFlag( s32 BitFlag )
+s32 ReturnConvertedFlag( s32 BitFlag )
 {
     int FlagSection = BitFlag/0x10000000;
     

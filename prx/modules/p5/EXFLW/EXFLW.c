@@ -557,11 +557,11 @@ static TtyCmdStatus ttyGetCountCmd( TtyCmd* cmd, const char** args, u32 argc, ch
 static TtyCmdStatus ttyBITONCmd( TtyCmd* cmd, const char** args, u32 argc, char** error )
 {
   u32 bit = intParse( args[0] );
-  if ( bit > BIT_MAX )
+  /*if ( bit > BIT_MAX )
   {
     *error = "Bit ID should not exceed 8959";
     return TTY_CMD_STATUS_INVALID_ARG;
-  }
+  }*/
   SetBitflagState( bit, 1 );
   return TTY_CMD_STATUS_OK;
 }
@@ -569,11 +569,11 @@ static TtyCmdStatus ttyBITONCmd( TtyCmd* cmd, const char** args, u32 argc, char*
 static TtyCmdStatus ttyBITOFFCmd( TtyCmd* cmd, const char** args, u32 argc, char** error )
 {
   u32 bit = intParse( args[0] );
-  if ( bit > BIT_MAX )
+  /*if ( bit > BIT_MAX )
   {
     *error = "Bit ID should not exceed 8959";
     return TTY_CMD_STATUS_INVALID_ARG;
-  }
+  }*/
   SetBitflagState( bit, 0 );
   return TTY_CMD_STATUS_OK;
 }
@@ -581,11 +581,11 @@ static TtyCmdStatus ttyBITOFFCmd( TtyCmd* cmd, const char** args, u32 argc, char
 static TtyCmdStatus ttyGetBITCmd( TtyCmd* cmd, const char** args, u32 argc, char** error )
 {
   u32 bit = intParse( args[0] );
-  if ( bit > BIT_MAX )
+  /*if ( bit > BIT_MAX )
   {
     *error = "Bit ID should not exceed 8959";
     return TTY_CMD_STATUS_INVALID_ARG;
-  }
+  }*/
   printf( "BIT_CHK Bit %d returned %d\n", bit, GetBitflagState( bit ) );
   return TTY_CMD_STATUS_OK;
 }
@@ -1754,6 +1754,15 @@ static int EX_SET_PERSONA_LV ( void )
 
 static bool GetBitFlagStateHook( int a1 )
 {
+  if ( a1 >= 0x10000000 )
+  {
+    a1 = ReturnConvertedFlag( a1 );
+  }
+  if ( a1 > 12031 )
+  {
+    a1 = 12031; //bound checking
+  }
+  
   if ( a1 >= BIT_MAX )
   {
     return GetBit( a1 - BIT_MAX );
@@ -1763,6 +1772,15 @@ static bool GetBitFlagStateHook( int a1 )
 
 static bool SetBitFlagStateHook( int a1, bool a2 )
 {
+  if ( a1 >= 0x10000000 )
+  {
+    a1 = ReturnConvertedFlag( a1 );
+  }
+  if ( a1 > 12031 )
+  {
+    a1 = 12031; //bound checking
+  }
+  
   if ( a1 >= BIT_MAX )
   {
     setBit( a1 - BIT_MAX, a2 );

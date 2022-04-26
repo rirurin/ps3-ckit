@@ -1127,11 +1127,6 @@ void ReadKasumiData( void )
 
 void setBit(s32 index, bool value) 
 {
-  if ( index >= 0x10000000 )
-  {
-    index = ReturnConvertedFlag( index );
-  }
-  
   if (value) 
   {
     NewBits->Bits[index/8] |= 1 << (index % 8);
@@ -1144,11 +1139,6 @@ void setBit(s32 index, bool value)
 
 bool GetBit( s32 index )
 {
-    if ( index >= 0x10000000 )
-    {
-    index = ReturnConvertedFlag( index );
-    }
-  
   return (NewBits->Bits[index/8] & 1 << (index % 8)) != 0;
 }
 

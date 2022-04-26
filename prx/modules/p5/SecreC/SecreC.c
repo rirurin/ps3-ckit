@@ -174,8 +174,8 @@ undefined8 GroupChatIconHook( short a1 )
 
 u8 GetConfidantAmount( u8 a1 ) // gets the amount of active confidants
 {
-	int i = 1;
-	int count;
+	u8 i = 1;
+	u8 count;
 	do
 	{
 		if ( FUN_00548bd0(i) == 1 )
@@ -189,7 +189,7 @@ u8 GetConfidantAmount( u8 a1 ) // gets the amount of active confidants
 
 u64 IsConfidantActiveForMenuHook( short a1 )
 {
-	int confCount = GetConfidantAmount(35);
+	u8 confCount = GetConfidantAmount(35);
 	printf("%d Active Confidants\n", confCount);
 	u64 result = SHK_CALL_HOOK( FUN_00548c8c, a1 );
 	u16* pad_val = 0x1166b10;

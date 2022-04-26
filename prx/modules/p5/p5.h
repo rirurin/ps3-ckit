@@ -12,7 +12,6 @@ u16 EncounterIDGlobal;
 u16 LastUsedEncounterID;
 u16 sequenceIDGlobal;
 u32 EnemyPersona;
-u32 GlobalEnemyID;
 u32 GlobalCounts[256];
 bool isAmbush;
 bool isAmbushed;
@@ -39,6 +38,13 @@ typedef struct
   u32 modelID;
   u32 bgmId;
 } btlEquipBgmTableEntry;
+
+typedef struct
+{
+  u8 Bits[384];
+}ExtraBitsStruct;
+
+ExtraBitsStruct* NewBits;
 
 typedef struct
 {
@@ -2496,6 +2502,9 @@ float ckit_sin( float in );
 
 void WriteKasumiData( void );
 void ReadKasumiData( void );
+
+void setBit( s32 index, bool value );
+bool GetBit( s32 index );
 
 #pragma pop
 #endif

@@ -615,3 +615,11 @@ FUN_00425d20:
 FUN_00548c8c:
     addr: 0x548c8c
     replacedInstr: stdu  r1, -0x90(r1)
+
+FUN_0024beac:
+    addr: 0x24beac
+    replacedInstr: srawi r4, r3, 0x5
+
+FUN_0024bef8:
+    addr: 0x24bef8
+    replacedInstr: srawi r7, r3, 0x5

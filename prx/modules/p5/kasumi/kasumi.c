@@ -96,13 +96,10 @@ static int BuildPartyMemberItemsMenu ( partyMemberMenu* partyMenu )
     partyMenu->partyMemberID[count] = 2;
     count += 1;
   }
-
-  if ( ( (*pad_val) & 0x200 ) && isPartyMemberUnlocked(10) ) // is R2 being held down
-  {
-    partyMenu->partyMemberID[count] = 10;
-    count += 1;
-  }
-  else if ( isPartyMemberUnlocked(3) )
+  
+  bool isR2 = (*pad_val) & 0x200;
+  
+  if ( !isR2 && isPartyMemberUnlocked(3) )
   {
     partyMenu->partyMemberID[count] = 3;
     count += 1;
@@ -120,6 +117,14 @@ static int BuildPartyMemberItemsMenu ( partyMemberMenu* partyMenu )
   if ( isPartyMemberUnlocked(9) )
   {
     partyMenu->partyMemberID[count] = 9;
+    DEBUG_LOG("Akechi is unit %d\n", count );
+    count += 1;
+  }
+
+  if ( count <= 7 && isPartyMemberUnlocked(10) ) // add sumi without replacing anyone if list is not full
+  {
+    partyMenu->partyMemberID[count] = 10;
+    printf("Unit number %d is %d\n", partyMenu->partyMemberID[count], count );
     count += 1;
   }
 
@@ -141,12 +146,9 @@ static int BuildPartyMemberEquipMenu ( partyMemberMenu* partyMenu )
     count += 1;
   }
 
-  if ( ( (*pad_val) & 0x200 ) && isPartyMemberUnlocked(10) ) // is R2 being held down
-  {
-    partyMenu->partyMemberID[count] = 10;
-    count += 1;
-  }
-  else if ( isPartyMemberUnlocked(3) )
+  bool isR2 = (*pad_val) & 0x200;
+  
+  if ( !isR2 && isPartyMemberUnlocked(3) )
   {
     partyMenu->partyMemberID[count] = 3;
     count += 1;
@@ -157,8 +159,16 @@ static int BuildPartyMemberEquipMenu ( partyMemberMenu* partyMenu )
     if ( isPartyMemberUnlocked(i) )
     {
       partyMenu->partyMemberID[count] = i;
+      //printf("Unit number %d is %d\n", count, partyMenu->partyMemberID[count] );
       count += 1;
     }
+  }
+
+  if ( count <= 8 && isPartyMemberUnlocked(10) ) // add sumi without replacing anyone if list is not full
+  {
+    partyMenu->partyMemberID[count] = 10;
+    //printf("Unit number %d is %d\n", count, partyMenu->partyMemberID[count] );
+    count += 1;
   }
 
   return count;
@@ -189,11 +199,11 @@ static int JokerDied_NaviDialogue( struct_2_pointers* param_1, navi_dialogue_fun
         {
           if ( ActualGetCount( 511 ) < 50 )
           {
-              CALL_NAVI_DIALOGUE( 51, 1, 912, 1 );
+            CALL_NAVI_DIALOGUE( 51, 1, 912, 1 );
           }
           else 
           {
-              CALL_NAVI_DIALOGUE( 52, 1, 913, 1 );
+            CALL_NAVI_DIALOGUE( 52, 1, 913, 1 );
           }
         }
         result = 1;
@@ -201,8 +211,12 @@ static int JokerDied_NaviDialogue( struct_2_pointers* param_1, navi_dialogue_fun
       default:
         if ( GetBitflagState( 0x21c3 ) ) 
         {
-          messageIndex = FUN_0091da04();
+          messageIndex = randomIntBetween( 0, 2 );
           messageIndex = messageIndex % 3 + 0x31;
+        }
+        if ( 0x31 >= messageIndex )
+        {
+          messageIndex = 0x31;
         }
         if ((0x30 < messageIndex) && (messageIndex < 0x33)) 
         {

@@ -48,6 +48,8 @@ SHK_HOOK( undefined4*, LoadFutabaNaviBMD, void );
 SHK_HOOK( undefined4*, LoadMonaNaviBMD, void );
 SHK_HOOK( u64, LoadNaviSoundFile, u64 a1, u64 a2, char* acb_path, char* awb_path, u64 a5 );
 SHK_HOOK( void, FUN_0006ccc8, void );
+SHK_HOOK( bool, FUN_0024beac, int a1 );
+SHK_HOOK( void, FUN_0024bef8, int a1, bool a2 );
 
 static s32 setSeqHook( s32 seqId, void* params, s32 paramsSize, s32 r6 )
 {
@@ -551,7 +553,7 @@ static TtyCmdStatus ttyGetCountCmd( TtyCmd* cmd, const char** args, u32 argc, ch
   return TTY_CMD_STATUS_OK;
 }
 
-#define BIT_MAX 8959
+#define BIT_MAX 8960
 static TtyCmdStatus ttyBITONCmd( TtyCmd* cmd, const char** args, u32 argc, char** error )
 {
   u32 bit = intParse( args[0] );
@@ -585,6 +587,22 @@ static TtyCmdStatus ttyGetBITCmd( TtyCmd* cmd, const char** args, u32 argc, char
     return TTY_CMD_STATUS_INVALID_ARG;
   }
   printf( "BIT_CHK Bit %d returned %d\n", bit, GetBitflagState( bit ) );
+  return TTY_CMD_STATUS_OK;
+}
+
+static TtyCmdStatus ttyGetBITTEST( TtyCmd* cmd, const char** args, u32 argc, char** error )
+{
+  u32 bit = intParse( args[0] );
+  printf( "Bit %d returned %d\n", bit, GetBit( bit ) );
+  return TTY_CMD_STATUS_OK;
+}
+
+static TtyCmdStatus ttySetBITTEST( TtyCmd* cmd, const char** args, u32 argc, char** error )
+{
+  u32 bit = intParse( args[0] );
+  u32 status = intParse( args[1] );
+  setBit( bit, status );
+  printf( "Set Bit %d to %d\n", bit, status );
   return TTY_CMD_STATUS_OK;
 }
 
@@ -1062,6 +1080,13 @@ static TtyCmd ttyCommands[] =
   TTY_CMD( ttySaveKasumi, "savekasumi", "Prints address and contents of currently saved enemy battle struct", TTY_CMD_FLAG_NONE ),
 
   TTY_CMD( ttyLoadKasumi, "loadkasumi", "Prints address and contents of currently saved enemy battle struct", TTY_CMD_FLAG_NONE ),
+
+  TTY_CMD( ttySetBITTEST, "testsetbit", "Sets state of specified bit", TTY_CMD_FLAG_NONE,
+    TTY_CMD_PARAM( "bit", "BIT to get status from", TTY_CMD_PARAM_FLAG_REQUIRED, TTY_CMD_PARAM_TYPE_INT ),
+    TTY_CMD_PARAM( "state", "0 = off | 1 = on", TTY_CMD_PARAM_FLAG_REQUIRED, TTY_CMD_PARAM_TYPE_INT )),
+
+  TTY_CMD( ttyGetBITTEST, "testgetbit", "Returns the current state of the specified BIT", TTY_CMD_FLAG_NONE,
+    TTY_CMD_PARAM( "bit", "BIT to get status from", TTY_CMD_PARAM_FLAG_REQUIRED, TTY_CMD_PARAM_TYPE_INT )),
 
   TTY_CMD_END(), 
 };
@@ -1727,12 +1752,31 @@ static int EX_SET_PERSONA_LV ( void )
   return 1;
 }
 
+static bool GetBitFlagStateHook( int a1 )
+{
+  if ( a1 >= BIT_MAX )
+  {
+    return GetBit( a1 - BIT_MAX );
+  }
+  else return SHK_CALL_HOOK( FUN_0024beac, a1 );
+}
+
+static bool SetBitFlagStateHook( int a1, bool a2 )
+{
+  if ( a1 >= BIT_MAX )
+  {
+    setBit( a1 - BIT_MAX, a2 );
+  }
+  else SHK_CALL_HOOK( FUN_0024bef8, a1, a2 );
+}
+
 // The start function of the PRX. This gets executed when the loader loads the PRX at boot.
 // This means game data is not initialized yet! If you want to modify anything that is initialized after boot,
 // hook a function that is called after initialisation.
 void EXFLWInit( void )
 {
   randomSetSeed( getTicks() );
+  NewBits = &GetBtlPlayerUnitFromID( 8 )->StockPersona[4].Flags;
   printf("Expanded Flowscript Module loaded.\n");
   // Hooks must be 'bound' to a handler like this in the start function.
   // If you don't do this, the game will crash.
@@ -1760,6 +1804,8 @@ void EXFLWInit( void )
   SHK_BIND_HOOK( LoadMonaNaviBMD, LoadMonaNaviBMDHook );
   SHK_BIND_HOOK( LoadNaviSoundFile, LoadNaviSoundFileHook );
   SHK_BIND_HOOK( FUN_0006ccc8, LoadDLCBGM );
+  SHK_BIND_HOOK( FUN_0024beac, GetBitFlagStateHook );
+  SHK_BIND_HOOK( FUN_0024bef8, SetBitFlagStateHook );
 
   memset( &DLCBGMDataLocation, 0x0, sizeof( DLCBGMStruct ) );
   DEBUG_LOG("DLC BGM Data address is 0x%x\n", &DLCBGMDataLocation);

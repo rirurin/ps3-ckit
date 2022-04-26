@@ -1009,56 +1009,56 @@ void WriteKasumiData( void )
 
     DEBUG_LOG("Writing Kasumi Data to save\n");
 
-    Futaba->StockPersona[6].personaID = Kasumi->Field06;
-    Futaba->StockPersona[6]._x6 = Kasumi->Field1A;
-    Futaba->StockPersona[6].personaExp = Kasumi->currentHP;
-    Futaba->StockPersona[6]._x2C = Kasumi->currentSP;
-    Futaba->StockPersona[6].SkillID[0] = Kasumi->Field42;
-    Futaba->StockPersona[6].SkillID[1] = Kasumi->meleeID;
-    Futaba->StockPersona[6].SkillID[2] = Kasumi->protectorID;
-    Futaba->StockPersona[6].SkillID[3] = Kasumi->accessoryID;
-    Futaba->StockPersona[6].SkillID[4] = Kasumi->outfitID;
-    Futaba->StockPersona[6].SkillID[5] = Kasumi->rangedWeaponID;
+    Futaba->StockPersona[1].personaID = Kasumi->Field06;
+    Futaba->StockPersona[1]._x6 = Kasumi->Field1A;
+    Futaba->StockPersona[1].personaExp = Kasumi->currentHP;
+    Futaba->StockPersona[1]._x2C = Kasumi->currentSP;
+    Futaba->StockPersona[1].SkillID[0] = Kasumi->Field42;
+    Futaba->StockPersona[1].SkillID[1] = Kasumi->meleeID;
+    Futaba->StockPersona[1].SkillID[2] = Kasumi->protectorID;
+    Futaba->StockPersona[1].SkillID[3] = Kasumi->accessoryID;
+    Futaba->StockPersona[1].SkillID[4] = Kasumi->outfitID;
+    Futaba->StockPersona[1].SkillID[5] = Kasumi->rangedWeaponID;
 
-    Futaba->StockPersona[7].SkillID[0] = Kasumi->TacticsState;
-    Futaba->StockPersona[7].SkillID[1] = Kasumi->Field29A;
-    Futaba->StockPersona[7].SkillID[2] = Kasumi->HPGainNextLv;
-    Futaba->StockPersona[7].SkillID[3] = Kasumi->SPGainNextLv;
-    Futaba->StockPersona[7].personaExp = Kasumi->Field28E;
-    Futaba->StockPersona[7]._x2C = Kasumi->Field296;
+    Futaba->StockPersona[2].SkillID[0] = Kasumi->TacticsState;
+    Futaba->StockPersona[2].SkillID[1] = Kasumi->Field29A;
+    Futaba->StockPersona[2].SkillID[2] = Kasumi->HPGainNextLv;
+    Futaba->StockPersona[2].SkillID[3] = Kasumi->SPGainNextLv;
+    Futaba->StockPersona[2].personaExp = Kasumi->Field28E;
+    Futaba->StockPersona[2]._x2C = Kasumi->Field296;
 
-    Futaba->StockPersona[9].Flags = Kasumi->StockPersona[0].Flags;
-    Futaba->StockPersona[9].isUnlocked = Kasumi->StockPersona[0].isUnlocked;
-    Futaba->StockPersona[9].personaID = Kasumi->StockPersona[0].personaID;
-    Futaba->StockPersona[9].personaLv = Kasumi->StockPersona[0].personaLv;
-    Futaba->StockPersona[9]._x5 = Kasumi->StockPersona[0]._x5;
-    Futaba->StockPersona[9]._x6 = Kasumi->StockPersona[0]._x6;
-    Futaba->StockPersona[9].personaExp = Kasumi->StockPersona[0].personaExp;
-    Futaba->StockPersona[9].SkillID[0] = Kasumi->StockPersona[0].SkillID[0];
-    Futaba->StockPersona[9].SkillID[1] = Kasumi->StockPersona[0].SkillID[1];
-    Futaba->StockPersona[9].SkillID[2] = Kasumi->StockPersona[0].SkillID[2];
-    Futaba->StockPersona[9].SkillID[3] = Kasumi->StockPersona[0].SkillID[3];
-    Futaba->StockPersona[9].SkillID[4] = Kasumi->StockPersona[0].SkillID[4];
-    Futaba->StockPersona[9].SkillID[5] = Kasumi->StockPersona[0].SkillID[5];
-    Futaba->StockPersona[9].SkillID[6] = Kasumi->StockPersona[0].SkillID[6];
-    Futaba->StockPersona[9].SkillID[7] = Kasumi->StockPersona[0].SkillID[7];
-    Futaba->StockPersona[9].Stats[0] = Kasumi->StockPersona[0].Stats[0];
-    Futaba->StockPersona[9].Stats[1] = Kasumi->StockPersona[0].Stats[1];
-    Futaba->StockPersona[9].Stats[2] = Kasumi->StockPersona[0].Stats[2];
-    Futaba->StockPersona[9].Stats[3] = Kasumi->StockPersona[0].Stats[3];
-    Futaba->StockPersona[9].Stats[4] = Kasumi->StockPersona[0].Stats[4];
-    Futaba->StockPersona[9].StatsEx[0] = Kasumi->StockPersona[0].StatsEx[0];
-    Futaba->StockPersona[9].StatsEx[1] = Kasumi->StockPersona[0].StatsEx[1];
-    Futaba->StockPersona[9].StatsEx[2] = Kasumi->StockPersona[0].StatsEx[2];
-    Futaba->StockPersona[9].StatsEx[3] = Kasumi->StockPersona[0].StatsEx[3];
-    Futaba->StockPersona[9].StatsEx[4] = Kasumi->StockPersona[0].StatsEx[4];
-    Futaba->StockPersona[9].StatsExTemp[0] = Kasumi->StockPersona[0].StatsExTemp[0];
-    Futaba->StockPersona[9].StatsExTemp[1] = Kasumi->StockPersona[0].StatsExTemp[1];
-    Futaba->StockPersona[9].StatsExTemp[2] = Kasumi->StockPersona[0].StatsExTemp[2];
-    Futaba->StockPersona[9].StatsExTemp[3] = Kasumi->StockPersona[0].StatsExTemp[3];
-    Futaba->StockPersona[9].StatsExTemp[4] = Kasumi->StockPersona[0].StatsExTemp[4];
-    Futaba->StockPersona[9]._x2B = Kasumi->StockPersona[0]._x2B;
-    Futaba->StockPersona[9]._x2C = Kasumi->StockPersona[0]._x2C;
+    Futaba->StockPersona[3].Flags = Kasumi->StockPersona[0].Flags;
+    Futaba->StockPersona[3].isUnlocked = Kasumi->StockPersona[0].isUnlocked;
+    Futaba->StockPersona[3].personaID = Kasumi->StockPersona[0].personaID;
+    Futaba->StockPersona[3].personaLv = Kasumi->StockPersona[0].personaLv;
+    Futaba->StockPersona[3]._x5 = Kasumi->StockPersona[0]._x5;
+    Futaba->StockPersona[3]._x6 = Kasumi->StockPersona[0]._x6;
+    Futaba->StockPersona[3].personaExp = Kasumi->StockPersona[0].personaExp;
+    Futaba->StockPersona[3].SkillID[0] = Kasumi->StockPersona[0].SkillID[0];
+    Futaba->StockPersona[3].SkillID[1] = Kasumi->StockPersona[0].SkillID[1];
+    Futaba->StockPersona[3].SkillID[2] = Kasumi->StockPersona[0].SkillID[2];
+    Futaba->StockPersona[3].SkillID[3] = Kasumi->StockPersona[0].SkillID[3];
+    Futaba->StockPersona[3].SkillID[4] = Kasumi->StockPersona[0].SkillID[4];
+    Futaba->StockPersona[3].SkillID[5] = Kasumi->StockPersona[0].SkillID[5];
+    Futaba->StockPersona[3].SkillID[6] = Kasumi->StockPersona[0].SkillID[6];
+    Futaba->StockPersona[3].SkillID[7] = Kasumi->StockPersona[0].SkillID[7];
+    Futaba->StockPersona[3].Stats[0] = Kasumi->StockPersona[0].Stats[0];
+    Futaba->StockPersona[3].Stats[1] = Kasumi->StockPersona[0].Stats[1];
+    Futaba->StockPersona[3].Stats[2] = Kasumi->StockPersona[0].Stats[2];
+    Futaba->StockPersona[3].Stats[3] = Kasumi->StockPersona[0].Stats[3];
+    Futaba->StockPersona[3].Stats[4] = Kasumi->StockPersona[0].Stats[4];
+    Futaba->StockPersona[3].StatsEx[0] = Kasumi->StockPersona[0].StatsEx[0];
+    Futaba->StockPersona[3].StatsEx[1] = Kasumi->StockPersona[0].StatsEx[1];
+    Futaba->StockPersona[3].StatsEx[2] = Kasumi->StockPersona[0].StatsEx[2];
+    Futaba->StockPersona[3].StatsEx[3] = Kasumi->StockPersona[0].StatsEx[3];
+    Futaba->StockPersona[3].StatsEx[4] = Kasumi->StockPersona[0].StatsEx[4];
+    Futaba->StockPersona[3].StatsExTemp[0] = Kasumi->StockPersona[0].StatsExTemp[0];
+    Futaba->StockPersona[3].StatsExTemp[1] = Kasumi->StockPersona[0].StatsExTemp[1];
+    Futaba->StockPersona[3].StatsExTemp[2] = Kasumi->StockPersona[0].StatsExTemp[2];
+    Futaba->StockPersona[3].StatsExTemp[3] = Kasumi->StockPersona[0].StatsExTemp[3];
+    Futaba->StockPersona[3].StatsExTemp[4] = Kasumi->StockPersona[0].StatsExTemp[4];
+    Futaba->StockPersona[3]._x2B = Kasumi->StockPersona[0]._x2B;
+    Futaba->StockPersona[3]._x2C = Kasumi->StockPersona[0]._x2C;
 }
 
 void ReadKasumiData( void )
@@ -1068,61 +1068,121 @@ void ReadKasumiData( void )
 
     DEBUG_LOG("Loading Kasumi Data from save\n");
 
-    if ( Futaba->StockPersona[9].personaID == 0 )
+    if ( Futaba->StockPersona[3].personaID == 0 )
     {
         return;
     }
 
-    Kasumi->Field06 = Futaba->StockPersona[6].personaID;
-    Kasumi->Field1A = Futaba->StockPersona[6]._x6;
-    Kasumi->Field42 = Futaba->StockPersona[6].SkillID[0];
-    Kasumi->meleeID = Futaba->StockPersona[6].SkillID[1];
-    Kasumi->protectorID = Futaba->StockPersona[6].SkillID[2];
-    Kasumi->accessoryID = Futaba->StockPersona[6].SkillID[3];
-    Kasumi->outfitID = Futaba->StockPersona[6].SkillID[4];
-    Kasumi->rangedWeaponID = Futaba->StockPersona[6].SkillID[5];
+    Kasumi->Field06 = Futaba->StockPersona[1].personaID;
+    Kasumi->Field1A = Futaba->StockPersona[1]._x6;
+    Kasumi->Field42 = Futaba->StockPersona[1].SkillID[0];
+    Kasumi->meleeID = Futaba->StockPersona[1].SkillID[1];
+    Kasumi->protectorID = Futaba->StockPersona[1].SkillID[2];
+    Kasumi->accessoryID = Futaba->StockPersona[1].SkillID[3];
+    Kasumi->outfitID = Futaba->StockPersona[1].SkillID[4];
+    Kasumi->rangedWeaponID = Futaba->StockPersona[1].SkillID[5];
 
-    Kasumi->TacticsState = Futaba->StockPersona[7].SkillID[0];
-    Kasumi->Field29A = Futaba->StockPersona[7].SkillID[1];
-    Kasumi->HPGainNextLv = Futaba->StockPersona[7].SkillID[2];
-    Kasumi->SPGainNextLv = Futaba->StockPersona[7].SkillID[3];
-    Kasumi->Field28E = Futaba->StockPersona[7].personaExp;
-    Kasumi->Field296 = Futaba->StockPersona[7]._x2C;
+    Kasumi->TacticsState = Futaba->StockPersona[2].SkillID[0];
+    Kasumi->Field29A = Futaba->StockPersona[2].SkillID[1];
+    Kasumi->HPGainNextLv = Futaba->StockPersona[2].SkillID[2];
+    Kasumi->SPGainNextLv = Futaba->StockPersona[2].SkillID[3];
+    Kasumi->Field28E = Futaba->StockPersona[2].personaExp;
+    Kasumi->Field296 = Futaba->StockPersona[2]._x2C;
 
-    Kasumi->StockPersona[0].Flags = Futaba->StockPersona[9].Flags;
-    Kasumi->StockPersona[0].isUnlocked = Futaba->StockPersona[9].isUnlocked;
-    Kasumi->StockPersona[0].personaID = Futaba->StockPersona[9].personaID;
-    Kasumi->StockPersona[0].personaLv = Futaba->StockPersona[9].personaLv;
-    Kasumi->StockPersona[0]._x5 = Futaba->StockPersona[9]._x5;
-    Kasumi->StockPersona[0]._x6 = Futaba->StockPersona[9]._x6;
-    Kasumi->StockPersona[0].personaExp = Futaba->StockPersona[9].personaExp;
-    Kasumi->StockPersona[0].SkillID[0] = Futaba->StockPersona[9].SkillID[0];
-    Kasumi->StockPersona[0].SkillID[1] = Futaba->StockPersona[9].SkillID[1];
-    Kasumi->StockPersona[0].SkillID[2] = Futaba->StockPersona[9].SkillID[2];
-    Kasumi->StockPersona[0].SkillID[3] = Futaba->StockPersona[9].SkillID[3];
-    Kasumi->StockPersona[0].SkillID[4] = Futaba->StockPersona[9].SkillID[4];
-    Kasumi->StockPersona[0].SkillID[5] = Futaba->StockPersona[9].SkillID[5];
-    Kasumi->StockPersona[0].SkillID[6] = Futaba->StockPersona[9].SkillID[6];
-    Kasumi->StockPersona[0].SkillID[7] = Futaba->StockPersona[9].SkillID[7];
-    Kasumi->StockPersona[0].Stats[0] = Futaba->StockPersona[9].Stats[0];
-    Kasumi->StockPersona[0].Stats[1] = Futaba->StockPersona[9].Stats[1];
-    Kasumi->StockPersona[0].Stats[2] = Futaba->StockPersona[9].Stats[2];
-    Kasumi->StockPersona[0].Stats[3] = Futaba->StockPersona[9].Stats[3];
-    Kasumi->StockPersona[0].Stats[4] = Futaba->StockPersona[9].Stats[4];
-    Kasumi->StockPersona[0].StatsEx[0] = Futaba->StockPersona[9].StatsEx[0];
-    Kasumi->StockPersona[0].StatsEx[1] = Futaba->StockPersona[9].StatsEx[1];
-    Kasumi->StockPersona[0].StatsEx[2] = Futaba->StockPersona[9].StatsEx[2];
-    Kasumi->StockPersona[0].StatsEx[3] = Futaba->StockPersona[9].StatsEx[3];
-    Kasumi->StockPersona[0].StatsEx[4] = Futaba->StockPersona[9].StatsEx[4];
-    Kasumi->StockPersona[0].StatsExTemp[0] = Futaba->StockPersona[9].StatsExTemp[0];
-    Kasumi->StockPersona[0].StatsExTemp[1] = Futaba->StockPersona[9].StatsExTemp[1];
-    Kasumi->StockPersona[0].StatsExTemp[2] = Futaba->StockPersona[9].StatsExTemp[2];
-    Kasumi->StockPersona[0].StatsExTemp[3] = Futaba->StockPersona[9].StatsExTemp[3];
-    Kasumi->StockPersona[0].StatsExTemp[4] = Futaba->StockPersona[9].StatsExTemp[4];
-    Kasumi->StockPersona[0]._x2B = Futaba->StockPersona[9]._x2B;
-    Kasumi->StockPersona[0]._x2C = Futaba->StockPersona[9]._x2C;
-    Kasumi->currentHP = Futaba->StockPersona[6].personaExp;
-    Kasumi->currentSP = Futaba->StockPersona[6]._x2C;
+    Kasumi->StockPersona[0].Flags = Futaba->StockPersona[3].Flags;
+    Kasumi->StockPersona[0].isUnlocked = Futaba->StockPersona[3].isUnlocked;
+    Kasumi->StockPersona[0].personaID = Futaba->StockPersona[3].personaID;
+    Kasumi->StockPersona[0].personaLv = Futaba->StockPersona[3].personaLv;
+    Kasumi->StockPersona[0]._x5 = Futaba->StockPersona[3]._x5;
+    Kasumi->StockPersona[0]._x6 = Futaba->StockPersona[3]._x6;
+    Kasumi->StockPersona[0].personaExp = Futaba->StockPersona[3].personaExp;
+    Kasumi->StockPersona[0].SkillID[0] = Futaba->StockPersona[3].SkillID[0];
+    Kasumi->StockPersona[0].SkillID[1] = Futaba->StockPersona[3].SkillID[1];
+    Kasumi->StockPersona[0].SkillID[2] = Futaba->StockPersona[3].SkillID[2];
+    Kasumi->StockPersona[0].SkillID[3] = Futaba->StockPersona[3].SkillID[3];
+    Kasumi->StockPersona[0].SkillID[4] = Futaba->StockPersona[3].SkillID[4];
+    Kasumi->StockPersona[0].SkillID[5] = Futaba->StockPersona[3].SkillID[5];
+    Kasumi->StockPersona[0].SkillID[6] = Futaba->StockPersona[3].SkillID[6];
+    Kasumi->StockPersona[0].SkillID[7] = Futaba->StockPersona[3].SkillID[7];
+    Kasumi->StockPersona[0].Stats[0] = Futaba->StockPersona[3].Stats[0];
+    Kasumi->StockPersona[0].Stats[1] = Futaba->StockPersona[3].Stats[1];
+    Kasumi->StockPersona[0].Stats[2] = Futaba->StockPersona[3].Stats[2];
+    Kasumi->StockPersona[0].Stats[3] = Futaba->StockPersona[3].Stats[3];
+    Kasumi->StockPersona[0].Stats[4] = Futaba->StockPersona[3].Stats[4];
+    Kasumi->StockPersona[0].StatsEx[0] = Futaba->StockPersona[3].StatsEx[0];
+    Kasumi->StockPersona[0].StatsEx[1] = Futaba->StockPersona[3].StatsEx[1];
+    Kasumi->StockPersona[0].StatsEx[2] = Futaba->StockPersona[3].StatsEx[2];
+    Kasumi->StockPersona[0].StatsEx[3] = Futaba->StockPersona[3].StatsEx[3];
+    Kasumi->StockPersona[0].StatsEx[4] = Futaba->StockPersona[3].StatsEx[4];
+    Kasumi->StockPersona[0].StatsExTemp[0] = Futaba->StockPersona[3].StatsExTemp[0];
+    Kasumi->StockPersona[0].StatsExTemp[1] = Futaba->StockPersona[3].StatsExTemp[1];
+    Kasumi->StockPersona[0].StatsExTemp[2] = Futaba->StockPersona[3].StatsExTemp[2];
+    Kasumi->StockPersona[0].StatsExTemp[3] = Futaba->StockPersona[3].StatsExTemp[3];
+    Kasumi->StockPersona[0].StatsExTemp[4] = Futaba->StockPersona[3].StatsExTemp[4];
+    Kasumi->StockPersona[0]._x2B = Futaba->StockPersona[3]._x2B;
+    Kasumi->StockPersona[0]._x2C = Futaba->StockPersona[3]._x2C;
+    Kasumi->currentHP = Futaba->StockPersona[1].personaExp;
+    Kasumi->currentSP = Futaba->StockPersona[1]._x2C;
+}
+
+void setBit(s32 index, bool value) 
+{
+  if ( index >= 0x10000000 )
+  {
+    index = ReturnConvertedFlag( index );
+  }
+  
+  if (value) 
+  {
+    NewBits->Bits[index/8] |= 1 << (index % 8);
+  } 
+  else 
+  {
+    NewBits->Bits[index/8] &= ~(1 << (index % 8));
+  }
+}
+
+bool GetBit( s32 index )
+{
+    if ( index >= 0x10000000 )
+    {
+    index = ReturnConvertedFlag( index );
+    }
+  
+  return (NewBits->Bits[index/8] & 1 << (index % 8)) != 0;
+}
+
+static s32 ReturnConvertedFlag( s32 BitFlag )
+{
+    int FlagSection = BitFlag/0x10000000;
+    
+    if (FlagSection == 1)
+    {
+        BitFlag -= FlagSection * 0x10000000;
+        BitFlag += 2048;
+    }
+    else if (FlagSection == 2)
+    {
+        BitFlag -= FlagSection * 0x10000000;
+        BitFlag += 4096;
+    }
+    else if (FlagSection == 3)
+    {
+        BitFlag -= FlagSection * 0x10000000;
+        BitFlag += 8192;
+    }
+    else if (FlagSection == 4)
+    {
+        BitFlag -= FlagSection * 0x10000000;
+        BitFlag += 8448;
+    }
+    else if (FlagSection == 5)
+    {
+        BitFlag -= FlagSection * 0x10000000;
+        BitFlag += 8704;
+    }
+
+    return BitFlag;
 }
 
 #endif

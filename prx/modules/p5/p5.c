@@ -1149,27 +1149,62 @@ s32 ReturnConvertedFlag( s32 BitFlag )
     if (FlagSection == 1)
     {
         BitFlag -= FlagSection * 0x10000000;
-        BitFlag += 2048;
+        if ( BitFlag > 2048 )
+        {
+            BitFlag -= 2048; // section size
+            BitFlag += 8959; // p5 max
+        }
+        else BitFlag += 2048;
     }
     else if (FlagSection == 2)
     {
         BitFlag -= FlagSection * 0x10000000;
-        BitFlag += 4096;
+        if ( BitFlag > 4096 )
+        {
+            BitFlag -= 4096;  // section size
+            BitFlag += 394; // section 1 overflow
+            BitFlag += 8959; // p5 max
+        }
+        else BitFlag += 4096;
     }
     else if (FlagSection == 3)
     {
         BitFlag -= FlagSection * 0x10000000;
-        BitFlag += 8192;
+        if ( BitFlag > 256 )
+        {
+            BitFlag -= 256; // section size
+            BitFlag += 394; // section 1 overflow
+            BitFlag += 1024; // section 2 overflow
+            BitFlag += 8959; // p5 max
+        }
+        else BitFlag += 8192;
     }
     else if (FlagSection == 4)
     {
         BitFlag -= FlagSection * 0x10000000;
-        BitFlag += 8448;
+        if ( BitFlag > 256 )
+        {
+            BitFlag -= 256; // section size
+            BitFlag += 394; // section 1 overflow
+            BitFlag += 1024; // section 2 overflow
+            BitFlag += 256; // section 3 overflow
+            BitFlag += 8959; // p5 max
+        }
+        else BitFlag += 8448;
     }
     else if (FlagSection == 5)
     {
         BitFlag -= FlagSection * 0x10000000;
-        BitFlag += 8704;
+        if ( BitFlag > 256 )
+        {
+            BitFlag -= 256; // section size
+            BitFlag += 394; // section 1 overflow
+            BitFlag += 1024; // section 2 overflow
+            BitFlag += 256; // section 3 overflow
+            BitFlag += 256; // section 4 overflow
+            BitFlag += 8959; // p5 max
+        }
+        else BitFlag += 8704;
     }
 
     return BitFlag;

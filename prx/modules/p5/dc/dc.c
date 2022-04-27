@@ -990,15 +990,25 @@ static int isEnemyExist(u16 a1) // motionse dat file
   }
   else result = SHK_CALL_HOOK( FUN_0026b2b0, a1 );*/
 
+  if ( 0 >= a1 )
+  {
+    return 0;
+  }
+
   return SHK_CALL_HOOK( FUN_0026b2b0, 69 );
 }
 
 static int isEnemyExist2(u16 a1) // swordtrack pac file
 {
+  if ( 0 >= a1 )
+  {
+    return 0;
+  }
+
   int result;
   if ( a1 >= 254 )
   {
-    result = SHK_CALL_HOOK( FUN_0026b2e0, 69 );
+    result = 0;
   }
   else if ( a1 >= 114 && a1 <= 120 ) // original enemies not in exist
   {
@@ -1010,6 +1020,7 @@ static int isEnemyExist2(u16 a1) // swordtrack pac file
   }
   else result = SHK_CALL_HOOK( FUN_0026b2e0, a1 );
 
+  DEBUG_LOG("isEnemyExist2 result: %d\n", result);
   return result;
 }
 
@@ -1029,6 +1040,11 @@ static int isEnemyExist3( u16 a1, u16 a2 ) // motionse acb file
     result = SHK_CALL_HOOK( FUN_0026b320, 69 );
   }
   else result = SHK_CALL_HOOK( FUN_0026b320, a1 );*/
+
+  if ( 0 >= a1 )
+  {
+    return 0;
+  }
 
   return SHK_CALL_HOOK( FUN_0026b320, 69 );
 }

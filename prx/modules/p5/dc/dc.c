@@ -364,6 +364,18 @@ static void* LoadCombatCutinHook(char* a1 , char a2)
   {
     a1 = "battle/gui/bksk_p_bc0009_01.dds";
   }
+  // Palace ruler
+  if ( strcmp( a1, "calendar/P5_danger_cha08.dds") == 0 )
+  {
+	  if ( GetBitflagState( 12029 ) )
+    {
+      if ( GetBitflagState( 12030 ) )
+      {
+        a1 = "calendar/P5_danger_cha09_b.dds";
+      }
+      else a1 = "calendar/P5_danger_cha09_a.dds";
+    }
+  }
   return SHK_CALL_HOOK( LoadCombatCutin, a1, a2 );
 }
 
@@ -1843,9 +1855,10 @@ static int FUN_00060b90Hook( void )
 {
   FUNC_LOG("Loading FUN_00060b90Hook\n");
   int result = SHK_CALL_HOOK( FUN_00060b90 );
-  if ( GetBitflagState( 8285 ) )
+
+  if ( GetBitflagState( 12029 ) )
   {
-    result = 9;
+    result = 8;
   }
   return result;
 }

@@ -689,6 +689,22 @@ s64 FUN_00967abc( u32 a1, int a2 ){
 undefined8 FUN_00548bd0( short a1 ){
     SHK_FUNCTION_CALL_1( 0x548bd0, undefined8, short, a1 );
 }
+
+u8 GetActiveConfidantAmount( u8 a1 ) // gets the amount of active confidants
+{
+	u8 i = 1;
+	u8 count;
+	do
+	{
+		if ( FUN_00548bd0(i) == 1 )
+		{
+			count += 1;
+		}
+		i += 1;
+	}while(i < a1 + 1); //will count confidant Ids through (inclusive) the Id specified by a1
+	return count;
+}
+
 int GetRandom( int MaxValue )
 {
   int v0; // r31

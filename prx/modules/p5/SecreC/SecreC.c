@@ -41,9 +41,9 @@ SHK_HOOK( u64, FUN_00548c8c, short a1 );
 undefined8 SelPortraitFromModelID(int param_1)
 {
 	undefined8 result = SHK_CALL_HOOK( FUN_004eaca4, param_1 );
-	if ( GetBitflagState( 2815 ) == 1 && GetTotalDays() == 231 )
+	if ( GetBitflagState( 2815 ) == 1 && GetTotalDays() == 231 ) //If In-game day is 11/18 and flag 2815 is enabled
 	{
-		*(undefined *)(param_1 + 9) = 5;
+		*(undefined *)(param_1 + 9) = 5; //cutin_005_000.dds
 	}
 	return result;
 }
@@ -110,7 +110,7 @@ int FUN_003e8ff8Hook( int a1 ) // increase offset to pointer by 4 bytes when fld
 	return result;
 }
 
-void FUN_005a4584Hook( int a1, int a2 )
+void CallShopBannerHook( int a1, int a2 )
 {
 	SHK_CALL_HOOK( FUN_005a4584, a1, a2 );
 	int iVar4;
@@ -162,44 +162,29 @@ void FUN_005a4584Hook( int a1, int a2 )
 	return;
 }
 
-undefined8 GroupChatIconHook( short a1 )
+undefined8 BuildGroupChatIconListHook( short a1 )
 {	
 	undefined8 result = SHK_CALL_HOOK( FUN_004e392c, a1 );
-	if (a1 == 10 && GetBitflagState(1175) == 1 )
+	if (a1 == 10 && GetBitflagState(1175) == 1 ) // Check for flag 1175 before adding Kasumi to the PT group chat
 	{
-		result = 1;
+		result = 1; //add Kasumi to the Phantom Thieves Group chat
 	}
 	return result;
 }
 
-u8 GetConfidantAmount( u8 a1 ) // gets the amount of active confidants
+u64 BuildConfidantListHook( short a1 )
 {
-	u8 i = 1;
-	u8 count;
-	do
-	{
-		if ( FUN_00548bd0(i) == 1 )
-		{
-			count += 1;
-		}
-		i += 1;
-	}while(i < a1 + 1); //will count confidant Ids through (inclusive) the Id specified by a1
-	return count;
-}
-
-u64 IsConfidantActiveForMenuHook( short a1 )
-{
-	u8 confCount = GetConfidantAmount(35);
+	u8 confCount = GetActiveConfidantAmount(35); //returns how many confidants are active
 	printf("%d Active Confidants\n", confCount);
 	u64 result = SHK_CALL_HOOK( FUN_00548c8c, a1 );
 	u16* pad_val = 0x1166b10;
-	if (((*pad_val) & 0x200) && ( a1 == 21 && confCount == 23 )) // if R2 is being held down
+	if (((*pad_val) & 0x200) && ( a1 == 21 && confCount == 23 )) //Before Adding Sae to the Confidant list Check if all Confidants are active, and if R2 is being held down
 	{
-		return 0;
+		return 0; //remove Sae from the Confidant list
 	}
-	else if ((((*pad_val) & 0x200) == 0) && a1 == 24 && confCount == 23 ) // if R2 isn't being held down
+	else if ((((*pad_val) & 0x200) == 0) && a1 == 24 && confCount == 23 ) //Before Adding Maruki to the Confidant list Check if all Confidants are active, and if R2 is not being held down
 	{
-		return 0;
+		return 0; //remove Maruki from the confidant list
 	}
 	return result;
 }
@@ -216,9 +201,9 @@ void SecreCInit( void )
   SHK_BIND_HOOK( FUN_0049eb90, CharaTexHook );
   SHK_BIND_HOOK( FUN_0049ee38, CommuCardHook );
   SHK_BIND_HOOK( FUN_003e8ff8, FUN_003e8ff8Hook );
-  SHK_BIND_HOOK( FUN_005a4584, FUN_005a4584Hook );
-  SHK_BIND_HOOK( FUN_004e392c, GroupChatIconHook );
-  SHK_BIND_HOOK( FUN_00548c8c, IsConfidantActiveForMenuHook );
+  SHK_BIND_HOOK( FUN_005a4584, CallShopBannerHook );
+  SHK_BIND_HOOK( FUN_004e392c, BuildGroupChatIconListHook );
+  SHK_BIND_HOOK( FUN_00548c8c, BuildConfidantListHook );
 }
 
 void SecreCShutdown( void )

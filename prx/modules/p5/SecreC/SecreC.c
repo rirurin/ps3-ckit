@@ -101,11 +101,14 @@ void CommuCardHook( int a1, char a2, u32 a3, char a4 ) // makes Kasumi CardTex i
 int FUN_003e8ff8Hook( int a1 ) // increase offset to pointer by 4 bytes when fldMajor == 5
 {
 	int result = SHK_CALL_HOOK( FUN_003e8ff8, a1 );
-	u32 *puVar1 = FUN_0031f35c();
-    u32 fldMajor = (u32)*(u16 *)(puVar1[0xd] + 0x144);
-	if (fldMajor == 5)
+	if (result != -1)
 	{
-		result = 6;
+		u32 *puVar1 = FUN_0031f35c();
+    	u32 fldMajor = (u32)*(u16 *)(puVar1[0xd] + 0x144);
+		if (fldMajor == 5)
+		{
+			result = 6;
+		}
 	}
 	return result;
 }

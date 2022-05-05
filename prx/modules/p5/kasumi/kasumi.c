@@ -53,6 +53,12 @@ SHK_HOOK( int, FUN_00425c80, partyMemberMenu* a1 );
 SHK_HOOK( int, FUN_00425d20, partyMemberMenu* a1 );
 SHK_HOOK( int, FUN_0034e128, int a1 );
 SHK_HOOK( int, FUN_0060dd98, int a1, char* a2, int a3, char* a4 );
+//SHK_HOOK( void, FUN_00475e10, float* a1, int a2, int a3 );
+//SHK_HOOK( u64, FUN_0047de54, int a1, u64 a2, u64 a3 );
+SHK_HOOK( u64, FUN_00449c6c, int a1, u64 a2, u64 a3 );
+SHK_HOOK( u64, FUN_0047f91c, int a1, u64 a2, u64 a3 );
+SHK_HOOK( void, FUN_00480cc0, u64* a1 );
+SHK_HOOK( void, FUN_0044a5d8, u64 a1 );
 
 static bool isPartyMemberUnlocked( u16 unitID )
 {
@@ -71,66 +77,73 @@ static int BuildPartyMemberStatsMenu ( partyMemberMenu* partyMenu )
   partyMenu->partyMemberID[0] = 1;
   for ( int i = 2; i <= 10; i++)
   {
-    if ( isPartyMemberUnlocked(i) )
+    if (isPartyMemberUnlocked(i))
+    //if (true)
     {
       partyMenu->partyMemberID[count] = i;
-      //printf("Party Member %d added to the menu\n", i);
+      printf("Party Member %d added to the menu\n", i);
       count += 1;
     }
   }
-
   return count;
-  //return SHK_CALL_HOOK( FUN_00425de0, partyMenu );
 }
 
 static int BuildPartyMemberItemsMenu ( partyMemberMenu* partyMenu )
 {
   u16* pad_val = 0x1166b10;
+  partyMemberListAddress = partyMenu;
+  partyListTotal = 0;
+
+  for (int i = 1; i <= 10; i++)
+  {
+    //if (true && i != 8)
+    if (isPartyMemberUnlocked(i) && i != 8)
+    {
+      partyListTotal++;
+    }
+  }
+  printf("%d party members available\n", partyListTotal);
+  int partyListLength = partyListTotal;
+  if (partyListLength > 7) partyListLength = 7;
   
+  int index = partyListOffset;
+  int count = 0;
+  while (count < partyListLength)
+  {
+    if (index != 7) {
+      partyMenu->partyMemberID[count] = index + 1;
+      printf("Party Member %d added to the menu\n", index);
+      count += 1;
+    }
+    index++;
+  }
+ 
+  return count;
+}
+
+
+// This doesn't work if you have anything but 10 members in the party
+// ScrollThroughEquipPartyList refuses to get called when you press up/down if you do
+// *dies of cringe*
+/*
+static int BuildPartyMemberEquipMenu ( partyMemberMenu* partyMenu )
+{
   int count = 1;
   
   partyMenu->partyMemberID[0] = 1;
-
-  if ( isPartyMemberUnlocked(2) )
-  {
-    partyMenu->partyMemberID[count] = 2;
-    count += 1;
-  }
   
-  bool isR2 = (*pad_val) & 0x200;
-  
-  if ( !isR2 && isPartyMemberUnlocked(3) )
+  for ( int i = 2; i <= 8; i++)
   {
-    partyMenu->partyMemberID[count] = 3;
-    count += 1;
-  }
-
-  for ( int i = 4; i <= 7; i++)
-  {
-    if ( isPartyMemberUnlocked(i) )
+    //if (isPartyMemberUnlocked(i))
+    if ( true )
     {
       partyMenu->partyMemberID[count] = i;
+      printf("Party Member %d added to the menu\n", i);
       count += 1;
     }
   }
-
-  if ( isPartyMemberUnlocked(9) )
-  {
-    partyMenu->partyMemberID[count] = 9;
-    DEBUG_LOG("Akechi is unit %d\n", count );
-    count += 1;
-  }
-
-  if ( count <= 7 && isPartyMemberUnlocked(10) ) // add sumi without replacing anyone if list is not full
-  {
-    partyMenu->partyMemberID[count] = 10;
-    printf("Unit number %d is %d\n", partyMenu->partyMemberID[count], count );
-    count += 1;
-  }
-
   return count;
-  //return SHK_CALL_HOOK( FUN_00425c80, partyMenu );
-}
+}*/
 
 static int BuildPartyMemberEquipMenu ( partyMemberMenu* partyMenu )
 {
@@ -173,6 +186,143 @@ static int BuildPartyMemberEquipMenu ( partyMemberMenu* partyMenu )
 
   return count;
   //return SHK_CALL_HOOK( FUN_00425d20, partyMenu );
+}
+
+// Fixes Party Text position in equip menu with 10 members
+/*
+static void SetPartyTextPosition(float* a1, int a2, int a3)
+{
+  f32* baseAddress = 0xd9ef4c;
+  u16* partyMembers = a3 + 0x32;
+  u16 adjustedPartyMembers = (*partyMembers == 10) ? *partyMembers - 1 : *partyMembers;
+
+  f32 xpos = a2 * -12.0 + *(baseAddress + (adjustedPartyMembers << 1));
+  f32 ypos = a2 * 38.0 + *((baseAddress + 1) + (adjustedPartyMembers << 1));
+  
+  a1[0] = xpos;
+  a1[1] = ypos;
+}*/
+// Also only relevant with 10 party slots in equip menu
+/*
+static u64 ScrollThroughEquipPartyList(int a1, u64 a2, u64 a3)
+{
+  
+  u16* partyMembers = a1 + 0x46;
+  u32* selectedPartyMember = a1 + 0x20;
+  u16* pad_val = 0x1166b10;
+  printf("%d, %d\n", *partyMembers, *selectedPartyMember + 1);
+  if (a2 == 0) // a2 specifies the type of action happening on the equip menu
+  // 0 - switching between party members
+  // 1 - switching between gear
+  // 2 - exiting a submenu
+  {
+    if (*pad_val & 0x40 || *pad_val & 0x800)
+    {
+      if (*selectedPartyMember == *partyMembers - 1)
+      {
+        a3 = 0;
+      } else 
+      {
+        a3 = *selectedPartyMember + 1;
+      }
+    } else if (*pad_val & 0x10 || *pad_val & 0x400)
+    {
+      if (*selectedPartyMember == 0)
+      {
+        a3 = *partyMembers - 1;
+      } else 
+      {
+        a3 = *selectedPartyMember - 1;
+      }
+    }
+  }
+  printf("%x, %x, %x\n", a1, a2, a3);
+  return SHK_CALL_HOOK( FUN_0047de54, a1, a2, a3 );
+}*/
+
+static u64 ScrollThroughSkillPartyList(int a1, u64 a2, u64 a3)
+{
+  u16* pad_val = 0x1166b10;
+  int scrollMax = partyListTotal - 7; // 7 players on screen at a time
+  //printf("%x, %x, %x\n", a1, a2, a3);
+  if (a2 == 0 && scrollMax > 0) {
+    if (a3 == 0 && *pad_val & 0x10) // if going to the top of the list and pressing up
+    {
+      if (partyListOffset > 0)
+      {
+        a3 = 1;
+        partyListOffset--;
+      }
+    }
+    if (a3 == 6 && *pad_val & 0x10) // if going to the bottom of the list and pressing up
+    {
+      partyListOffset = scrollMax;
+    }
+    if (a3 == 6 && *pad_val & 0x40) // if going to the bottom of the list and pressing down
+    {
+      if (partyListOffset < scrollMax)
+      {
+        a3 = 5;
+        partyListOffset++;
+      }
+    }
+    if (a3 == 0 && *pad_val & 0x40) // if going to the top of the list and pressing up
+    {
+      partyListOffset = 0;
+    }
+    BuildPartyMemberItemsMenu(partyMemberListAddress);
+  }
+  return SHK_CALL_HOOK( FUN_00449c6c, a1, a2, a3 );
+}
+
+static u64 ScrollThroughItemPartyList(int a1, u64 a2, u64 a3)
+{
+  u16* pad_val = 0x1166b10;
+  int scrollMax = partyListTotal - 7; // 7 players on screen at a time
+  //printf("%x, %x, %x\n", a1, a2, a3);
+  if (a2 == 3 && scrollMax > 0) { // a2 = 3 to check up/down in party list
+    
+    if ((a3 == 0) && *pad_val & 0x10) // if going to the top of the list and pressing up
+    {
+      if (partyListOffset > 0)
+      {
+        a3 = 1;
+        partyListOffset--;
+      }
+    }
+    if (a3 == 6 && *pad_val & 0x10) // if going to the bottom of the list and pressing up
+    {
+      partyListOffset = scrollMax;
+    }
+    if (a3 == 6 && *pad_val & 0x40) // if going to the bottom of the list and pressing down
+    {
+      if (partyListOffset < scrollMax)
+      {
+        a3 = 5;
+        partyListOffset++;
+      }
+    }
+    if (a3 == 0 && *pad_val & 0x40) // if going to the top of the list and pressing up
+    {
+      partyListOffset = 0;
+    }
+    BuildPartyMemberItemsMenu(partyMemberListAddress);
+  }
+  return SHK_CALL_HOOK( FUN_0047f91c, a1, a2, a3 );
+}
+
+static void ItemMenuInit(u64* a1)
+{
+  partyListOffset = 0;
+  printf("Reset party list offset\n");
+  return SHK_CALL_HOOK(FUN_00480cc0, a1);
+}
+
+static void SkillMenuInit(u64 a1)
+{
+  partyListOffset = 0;
+  printf("Reset party list offset\n");
+  return SHK_CALL_HOOK(FUN_0044a5d8, a1);
 }
 
 static int JokerDied_NaviDialogue( struct_2_pointers* param_1, navi_dialogue_function_a2* param_2 )
@@ -1756,6 +1906,12 @@ void KasumiInit( void )
   SHK_BIND_HOOK( FUN_0034e128, FUN_0034e128Hook );
   SHK_BIND_HOOK( FUN_0060dd98, FUN_0060dd98Hook );
   SHK_BIND_HOOK( FUN_00425d20, BuildPartyMemberEquipMenu );
+  //SHK_BIND_HOOK( FUN_00475e10, SetPartyTextPosition );
+  //SHK_BIND_HOOK( FUN_0047de54, ScrollThroughEquipPartyList );
+  SHK_BIND_HOOK( FUN_00449c6c, ScrollThroughSkillPartyList );
+  SHK_BIND_HOOK( FUN_0047f91c, ScrollThroughItemPartyList );
+  SHK_BIND_HOOK( FUN_00480cc0, ItemMenuInit );
+  SHK_BIND_HOOK( FUN_0044a5d8, SkillMenuInit );
 }
 
 void KasumiShutdown( void )

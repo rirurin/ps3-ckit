@@ -53,8 +53,8 @@ SHK_HOOK( int, FUN_00425c80, partyMemberMenu* a1 );
 SHK_HOOK( int, FUN_00425d20, partyMemberMenu* a1 );
 SHK_HOOK( int, FUN_0034e128, int a1 );
 SHK_HOOK( int, FUN_0060dd98, int a1, char* a2, int a3, char* a4 );
-//SHK_HOOK( void, FUN_00475e10, float* a1, int a2, int a3 );
-//SHK_HOOK( u64, FUN_0047de54, int a1, u64 a2, u64 a3 );
+SHK_HOOK( void, FUN_00475e10, float* a1, int a2, int a3 );
+SHK_HOOK( u64, FUN_0047de54, int a1, u64 a2, u64 a3 );
 SHK_HOOK( u64, FUN_00449c6c, int a1, u64 a2, u64 a3 );
 SHK_HOOK( u64, FUN_0047f91c, int a1, u64 a2, u64 a3 );
 SHK_HOOK( void, FUN_00480cc0, u64* a1 );
@@ -121,21 +121,18 @@ static int BuildPartyMemberItemsMenu ( partyMemberMenu* partyMenu )
   return count;
 }
 
-
-// This doesn't work if you have anything but 10 members in the party
-// ScrollThroughEquipPartyList refuses to get called when you press up/down if you do
-// *dies of cringe*
-/*
 static int BuildPartyMemberEquipMenu ( partyMemberMenu* partyMenu )
 {
+  partyMenu->partyMemberID[9] = 10; // this fixes it for *some* reason
+
   int count = 1;
   
   partyMenu->partyMemberID[0] = 1;
   
-  for ( int i = 2; i <= 8; i++)
+  for ( int i = 2; i <= 10; i++)
   {
-    //if (isPartyMemberUnlocked(i))
-    if ( true )
+    if (isPartyMemberUnlocked(i))
+    //if ( true )
     {
       partyMenu->partyMemberID[count] = i;
       printf("Party Member %d added to the menu\n", i);
@@ -143,53 +140,10 @@ static int BuildPartyMemberEquipMenu ( partyMemberMenu* partyMenu )
     }
   }
   return count;
-}*/
-
-static int BuildPartyMemberEquipMenu ( partyMemberMenu* partyMenu )
-{
-  u16* pad_val = 0x1166b10;
-  
-  int count = 1;
-  
-  partyMenu->partyMemberID[0] = 1;
-
-  if ( isPartyMemberUnlocked(2) )
-  {
-    partyMenu->partyMemberID[count] = 2;
-    count += 1;
-  }
-
-  bool isR2 = (*pad_val) & 0x200;
-  
-  if ( !isR2 && isPartyMemberUnlocked(3) )
-  {
-    partyMenu->partyMemberID[count] = 3;
-    count += 1;
-  }
-
-  for ( int i = 4; i <= 9; i++)
-  {
-    if ( isPartyMemberUnlocked(i) )
-    {
-      partyMenu->partyMemberID[count] = i;
-      //printf("Unit number %d is %d\n", count, partyMenu->partyMemberID[count] );
-      count += 1;
-    }
-  }
-
-  if ( count <= 8 && isPartyMemberUnlocked(10) ) // add sumi without replacing anyone if list is not full
-  {
-    partyMenu->partyMemberID[count] = 10;
-    //printf("Unit number %d is %d\n", count, partyMenu->partyMemberID[count] );
-    count += 1;
-  }
-
-  return count;
-  //return SHK_CALL_HOOK( FUN_00425d20, partyMenu );
 }
 
 // Fixes Party Text position in equip menu with 10 members
-/*
+
 static void SetPartyTextPosition(float* a1, int a2, int a3)
 {
   f32* baseAddress = 0xd9ef4c;
@@ -201,9 +155,8 @@ static void SetPartyTextPosition(float* a1, int a2, int a3)
   
   a1[0] = xpos;
   a1[1] = ypos;
-}*/
-// Also only relevant with 10 party slots in equip menu
-/*
+}
+
 static u64 ScrollThroughEquipPartyList(int a1, u64 a2, u64 a3)
 {
   
@@ -238,7 +191,7 @@ static u64 ScrollThroughEquipPartyList(int a1, u64 a2, u64 a3)
   }
   printf("%x, %x, %x\n", a1, a2, a3);
   return SHK_CALL_HOOK( FUN_0047de54, a1, a2, a3 );
-}*/
+}
 
 static u64 ScrollThroughSkillPartyList(int a1, u64 a2, u64 a3)
 {
@@ -1906,8 +1859,8 @@ void KasumiInit( void )
   SHK_BIND_HOOK( FUN_0034e128, FUN_0034e128Hook );
   SHK_BIND_HOOK( FUN_0060dd98, FUN_0060dd98Hook );
   SHK_BIND_HOOK( FUN_00425d20, BuildPartyMemberEquipMenu );
-  //SHK_BIND_HOOK( FUN_00475e10, SetPartyTextPosition );
-  //SHK_BIND_HOOK( FUN_0047de54, ScrollThroughEquipPartyList );
+  SHK_BIND_HOOK( FUN_00475e10, SetPartyTextPosition );
+  SHK_BIND_HOOK( FUN_0047de54, ScrollThroughEquipPartyList );
   SHK_BIND_HOOK( FUN_00449c6c, ScrollThroughSkillPartyList );
   SHK_BIND_HOOK( FUN_0047f91c, ScrollThroughItemPartyList );
   SHK_BIND_HOOK( FUN_00480cc0, ItemMenuInit );

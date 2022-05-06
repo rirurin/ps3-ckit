@@ -33,6 +33,10 @@ u16 KasumiModelSubID;
 u16 LastLoadedFieldMajorID;
 u16 LastLoadedFieldMinorID;
 
+int partyMemberListAddress;
+int partyListOffset;
+int partyListTotal;
+
 typedef struct
 {
   u32 modelID;

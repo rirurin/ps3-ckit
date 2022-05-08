@@ -15,6 +15,9 @@
 #define DEBUG_LOG( msg, ... ) \
   if ( CONFIG_ENABLED( debug ) ) printf( "DEBUG: " msg, ##__VA_ARGS__ )
 
+int partyListOffset = 0;
+int partyListTotal = 0;
+
 btlEquipBgmTableEntry btlEquipBgmTable[] =
 {
   { 159, 1 }, // DLC_001

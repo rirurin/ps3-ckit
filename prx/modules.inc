@@ -5,6 +5,7 @@
 #include "modules/p5/EXFLW/EXFLW.h"
 #include "modules/p5/scarltz/scarltz.h"
 #include "modules/p5/SecreC/SecreC.h"
+#include "modules/p5/rirurin/rirurin.h"
 
 static ModuleInfo sModules[] =
 {
@@ -20,5 +21,6 @@ static ModuleInfo sModules[] =
     {   "kasumi",   "Kasumi Module",         "enableKasumiModule", KasumiInit,      KasumiShutdown,            { "EXFLW" } },  
     {   "scarltz",  "Scarltz Module",    "enableScarltzModule", scarltzInit,          scarltzShutdown,            { "EXFLW" } },
 	{	"SecreC",	"SecreC Module",	"enableSecreCModule",	SecreCInit,	SecreCShutdown,	NULL    },
+    {   "rirurin",  "Rirurin Module",   "enableRirurinModule",  rirurinInit,    rirurinShutdown,    NULL    },
 #endif
 };

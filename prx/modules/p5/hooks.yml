@@ -624,6 +624,30 @@ FUN_0024bef8:
     addr: 0x24bef8
     replacedInstr: srawi r7, r3, 0x5
 
+FUN_00475e10:
+    addr: 0x475e10
+    emitTrampoline: no
+
+FUN_0047de54:
+    addr: 0x47de54
+    replacedInstr: stdu r1, -0x90(r1)
+
+FUN_00449c6c:
+    addr: 0x449c6c
+    replacedInstr: stdu r1, -0x70(r1)
+
+FUN_0047f91c:
+    addr: 0x47f91c
+    replacedInstr: stdu r1, -0x70(r1)
+
+FUN_00480cc0:
+    addr: 0x480cc0
+    replacedInstr: stdu r1, -0x140(r1)
+
+FUN_0044a5d8:
+    addr: 0x44a5d8
+    replacedInstr: stdu r1, -0x110(r1)
+    
 FUN_00397f4c:
     addr: 0x397f4c
     replacedInstr: li  r4,-0x1

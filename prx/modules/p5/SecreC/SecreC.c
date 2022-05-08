@@ -33,6 +33,7 @@ SHK_HOOK( int, FUN_003e8ff8, int a1 );
 SHK_HOOK( void, FUN_005a4584, int a1, int a2 );
 SHK_HOOK( undefined8, FUN_004e392c, short a1 );
 SHK_HOOK( u64, FUN_00548c8c, short a1 );
+SHK_HOOK( u64, FUN_00397f4c, int a1 );
 
 // The start function of the PRX. This gets executed when the loader loads the PRX at boot.
 // This means game data is not initialized yet! If you want to modify anything that is initialized after boot,
@@ -192,6 +193,16 @@ u64 BuildConfidantListHook( short a1 )
 	return result;
 }
 
+u64 LmapIdtoPointerList( int a1 )
+{
+	int result = SHK_CALL_HOOK( FUN_00397f4c, a1 );
+	if ( a1 == 7 ) //Lmap Id 7 = Kichijoji
+	{
+		return 7; //pointer to field Id list at 0xd010b4 * 7 * 4
+	}
+	return result; // :hee_shake:
+}
+
 void SecreCInit( void )
 {
   // Hooks must be 'bound' to a handler like this in the start function.
@@ -207,6 +218,7 @@ void SecreCInit( void )
   SHK_BIND_HOOK( FUN_005a4584, CallShopBannerHook );
   SHK_BIND_HOOK( FUN_004e392c, BuildGroupChatIconListHook );
   SHK_BIND_HOOK( FUN_00548c8c, BuildConfidantListHook );
+  SHK_BIND_HOOK( FUN_00397f4c, LmapIdtoPointerList );
 }
 
 void SecreCShutdown( void )

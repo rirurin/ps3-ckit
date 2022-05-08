@@ -623,3 +623,7 @@ FUN_0024beac:
 FUN_0024bef8:
     addr: 0x24bef8
     replacedInstr: srawi r7, r3, 0x5
+
+FUN_00397f4c:
+    addr: 0x397f4c
+    replacedInstr: li  r4,-0x1

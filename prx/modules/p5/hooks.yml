@@ -647,3 +647,7 @@ FUN_00480cc0:
 FUN_0044a5d8:
     addr: 0x44a5d8
     replacedInstr: stdu r1, -0x110(r1)
+    
+FUN_00397f4c:
+    addr: 0x397f4c
+    replacedInstr: li  r4,-0x1

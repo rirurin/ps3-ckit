@@ -168,6 +168,30 @@ void CallShopBannerHook( int a1, int a2 )
 
 undefined8 BuildGroupChatIconListHook( short a1 )
 {	
+	//pseudo function replacing GetBitflagState at 0xaf81c for Lmap Confidant Indicators
+	if ( a1 >= 2671 ) 
+	{
+		if( a1 == 2704 ) // Kasumi
+		{
+			if ( GetBitflagState (3583) == 1 ) return 1;
+			return GetBitflagState( 2694 );
+		}
+		else if( a1 == 2706 ) //Maruki
+		{
+			if ( GetBitflagState (3583) == 1 ) return 1;
+			return GetBitflagState( 2695 );
+		}
+		else if( a1 == 2680 ) //Akechi
+		{
+			if ( GetBitflagState (3583) == 1 ) return 1;
+			return GetBitflagState( 2680 );
+		}
+		else
+		{
+			return GetBitflagState( a1 );
+		}
+	}
+	//pseudo function end
 	undefined8 result = SHK_CALL_HOOK( FUN_004e392c, a1 );
 	if (a1 == 10 && GetBitflagState(1175) == 1 ) // Check for flag 1175 before adding Kasumi to the PT group chat
 	{

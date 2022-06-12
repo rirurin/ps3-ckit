@@ -693,6 +693,37 @@ undefined8 FUN_00548bd0( short a1 ){
     SHK_FUNCTION_CALL_1( 0x548bd0, undefined8, short, a1 );
 }
 
+u64 GetMoneyCount( void ){
+    SHK_FUNCTION_CALL_0( 0x24b340, u64 );
+}
+
+void SetMoney( u32 a1 ){
+    SHK_FUNCTION_CALL_1( 0x24b350, void, u32, a1 );
+}
+
+u64 AddMoneyAndReturn( int a1 ){
+    SHK_FUNCTION_CALL_1( 0x24b374, u64, int, a1 );
+}
+
+void SET_ITEM_NUM( u32 a1, u32 a2 ){
+    SHK_FUNCTION_CALL_2( 0x260340, void, u32, a1, u32, a2 );
+}
+
+u16 GET_ITEM_NUM( u32 a1 ){
+    SHK_FUNCTION_CALL_1( 0x26028c, u16, u32, a1 );
+}
+
+u32 GetMessageScript(void){
+    SHK_FUNCTION_CALL_0( 0x1f2954, u32 );
+}
+
+void PlayFromSystemACB( undefined8 a1 ){
+    SHK_FUNCTION_CALL_1( 0x6d42c, void, undefined8, a1 );
+}
+
+void PlayFromSinglewordACB( u64 a1, undefined8 a2 ){
+    SHK_FUNCTION_CALL_2( 0x6d0bc, void, u64, a1, undefined8, a2 ); //first arg needs to be 2
+}
 u8 GetActiveConfidantAmount( u8 a1 ) // gets the amount of active confidants
 {
 	u8 i = 1;

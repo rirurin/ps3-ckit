@@ -25,7 +25,7 @@
   if ( CONFIG_ENABLED( functest ) ) printf( "DEBUG: " msg, ##__VA_ARGS__ )
 
 #define FILE_LOG( msg, ... ) \
-  if ( CONFIG_ENABLED( enableFileAccessLogging ) ) printf( "DEBUG: " msg, ##__VA_ARGS__ )
+  if ( CONFIG_ENABLED( enableFileAccessLogging ) ) printf( msg, ##__VA_ARGS__ )
 
 // You need to declare hooks with SHK_HOOK before you can use them.
 SHK_HOOK( void, setBlackMaskCueID, CueIDThingy* param_1, u32 param_2, u16 skill_ID );
@@ -67,6 +67,7 @@ SHK_HOOK( int, FUN_0026b1fc, u16 a1, u16 a2 );
 // EXIST end
 SHK_HOOK( int, FUN_00262258, u16 a1 );
 SHK_HOOK( int, ParseUNITTBL, u64 a1 );
+SHK_HOOK( void, ParseELSAITBL, u64 a1 );
 SHK_HOOK( int, FUN_00af3cb0, int a1 );
 SHK_HOOK( int, FUN_0003a6e4, int a1 );
 SHK_HOOK( int, FUN_0003a70c, int a1 );
@@ -75,6 +76,9 @@ SHK_HOOK( u64*, ReturnAddressOfUNITTBL_EnemyStats, s64 a1 );
 SHK_HOOK( u16, ReturnAddressOfUNITTBL_EnemyAffinities, u32 a1, u16 a2 );
 SHK_HOOK( u16, ReturnAddressOfUNITTBL_PersonaAffinities, u32 a1, u16 a2 );
 SHK_HOOK( u64*, ReturnAddressOfUNITTBL_Segment3, s64 a1 );
+SHK_HOOK( u16, ReturnAddressOfUNITTBL_VisualSegmentPersona, s64 a1 );
+SHK_HOOK( u16, ReturnAddressOfUNITTBL_VisualSegmentModel, s64 a1 );
+SHK_HOOK( u64*, ReturnAddressOfELSAITBL_Segment0, u32 a1 );
 SHK_HOOK( u64*, ReturnAddressOfELSAITBL_Segment1, u32 a1 );
 SHK_HOOK( u64, CalculateShdPersonaEnemyEntry, shdHelper* a1, u32 a2 );
 SHK_HOOK( void, FUN_003735d8, fechance* a1, u64 a2, u64 a3, u64 a4, u64 a5 );
@@ -697,7 +701,6 @@ static int LoadAnimationPackHook( u64 param_1, int animationID, char* result, in
 static int ParseUNITTBLHook( u64 param_1 )
 {
   FUNC_LOG("Loading ParseUNITTBLHook\n");
-  memset( &NewSegment2TBL, 0x0, sizeof( NewSegment2TBL ) );
   memset( &NewEnemyStatsTBL, 0x69, sizeof( NewEnemyStatsTBL ) );
   memset( &NewEnemyAffinityTBL, 0x69, sizeof( NewEnemyAffinityTBL ) );
   memset( &NewPersonaAffinityTBL, 0x69, sizeof( NewPersonaAffinityTBL ) );
@@ -805,7 +808,7 @@ static int ParseUNITTBLHook( u64 param_1 )
     local_40[0] = local_40[0] << 0x18 |
                   (local_40[0] & 0xff00) << 8 | local_40[0] >> 0x18 | local_40[0] >> 8 & 0xff00;
   }
-  puVar5 = (u16 *)FUN_0090053c((u32)0x00d79a2c,uVar3 + 4 & 0xffffffff,(u64)local_40[0]);
+  puVar5 = (u16 *)FUN_0090053c(&NewVisualIndexTBL,uVar3 + 4 & 0xffffffff,(u64)local_40[0]);
   if (bVar17 != 0) {
     iVar7 = 0;
     do {
@@ -909,8 +912,9 @@ static int ParseUNITTBLHook( u64 param_1 )
       puVar13 = puVar13 + 0x18;
     } while (iVar18 < 999);
     lVar19 = 999;
-    puVar16 = 0x00d79a2c;
-    puVar15 = 0x00d79a2e;
+    //puVar16 = 0x00d79a2c;
+    puVar16 = &NewVisualIndexTBL;
+    puVar15 = puVar16 + 2;
     do {
       puVar5 = puVar15 + 2;
       *puVar16 = *puVar16 >> 8 | *puVar16 << 8;
@@ -943,19 +947,196 @@ static u64* ReturnAddressOfUNITTBL_Segment3Hook( s64 a1 )
   return &NewSegment3TBL.unit[a1];
 }
 
-static u64* ReturnAddressOfELSAITBL_Segment1Hook( u32 a1 )
+static u16 ReturnAddressOfUNITTBL_VisualSegmentPersonaHook( s64 a1 )
 {
-  if ( a1 >= 350 )
+  if ( a1 >= 1000 || a1 <= 0 )
   {
-    NewSegment2TBL.entry[a1-350].ScriptID = a1;
-    return &NewSegment2TBL.entry[a1-350];
+    return 0;
+  }
+
+  u16 result = NewVisualIndexTBL.unitVisualIndex[a1].personaID;
+
+  if ( result == 0 )
+  {
+    NewVisualIndexTBL.unitVisualIndex[a1].personaID = a1;
+    result = a1;
+  }
+  //printf("ReturnAddressOfUNITTBL_VisualSegmentPersona called for unit %d; expected result is %d; actual result is %d\n", a1, SHK_CALL_HOOK( ReturnAddressOfUNITTBL_VisualSegmentPersona, a1 ), NewVisualIndexTBL.unitVisualIndex[a1].personaID);
+  return result;
+}
+
+static u16 ReturnAddressOfUNITTBL_VisualSegmentModelHook( s64 a1 )
+{
+  if ( a1 >= 1000 || a1 <= 0 )
+  {
+    return 0;
+  }
+
+  u16 result = NewVisualIndexTBL.unitVisualIndex[a1].modelID;
+
+  if ( result == 0 )
+  {
+    NewVisualIndexTBL.unitVisualIndex[a1].modelID = a1;
+    result = a1;
+  }
+  //printf("ReturnAddressOfUNITTBL_VisualSegmentModel called for unit %d; expected result is %d; actual result is %d\n", a1, SHK_CALL_HOOK( ReturnAddressOfUNITTBL_VisualSegmentModel, a1 ), NewVisualIndexTBL.unitVisualIndex[a1].modelID);
+  return result;
+}
+
+static u64* ReturnAddressOfELSAITBL_Segment0Hook( u32 a1 )
+{
+  /*if ( a1 >= 350 )
+  {
+    NewSegment0TBL.entry[a1-350].ScriptID = a1;
+    return &NewSegment0TBL.entry[a1-350];
   }
   else
   {
-    u64* returnVal = SHK_CALL_HOOK( ReturnAddressOfELSAITBL_Segment1, a1);
-    //DEBUG_LOG("ReturnAddressOfELSAITBL_Segment1Hook return val from %d (a1)\nExpected -> 0x%08x\n", a1, returnVal);
+    u64* returnVal = SHK_CALL_HOOK( ReturnAddressOfELSAITBL_Segment0, a1);
+    //DEBUG_LOG("ReturnAddressOfELSAITBL_Segment0Hook return val from %d (a1)\nExpected -> 0x%08x\n", a1, returnVal);
     return returnVal;
+  }*/
+
+  //printf("AI BF ID for enemy %d is %d\n", a1, NewSegment0TBL.entry[a1].BF_Script_ID);
+
+
+  /*if ( a1 == 129 )
+  {
+    for ( int i = 0; i < 10; i++ )
+    {
+      NewSegment0TBL.entry[a1].GenericBehaviorIDs[i] = NewSegment0TBL.entry[763].GenericBehaviorIDs[i];
+    }
+  }*/
+  
+
+  if ( NewSegment0TBL.entry[a1].BF_Script_ID == 0 )
+  {
+    printf("Generic Enemy Behaviors for Enemy %d are:\n", a1);
+    for ( int i = 0; i < 10; i++ )
+    {
+      printf("%d\n", NewSegment0TBL.entry[a1].GenericBehaviorIDs[i]);
+    }
   }
+
+  return &NewSegment0TBL.entry[a1];
+}
+
+static u64* ReturnAddressOfELSAITBL_Segment1Hook( u32 a1 )
+{
+  return &NewSegment1TBL.entry[a1 - 1];
+}
+
+static void ParseELSAITBLHook( u64 param_1 )
+{
+  FUNC_LOG("Loading ParseELSAITBLHook\n");
+  memset( &NewSegment0TBL, 0x0, sizeof( NewSegment0TBL ) );
+  memset( &NewSegment1TBL, 0x0, sizeof( NewSegment1TBL ) );
+
+  u16 uVar1;
+  u32 uVar2;
+  u32* puVar3;
+  u32* puVar4;
+  u64 uVar5;
+  u64 uVar6;
+  u32* puVar7;
+  u32* puVar8;
+  u64 uVar9;
+  int iVar11;
+  u64 lVar10;
+  u8 bVar12;
+  int iVar13;
+  s64 lVar14;
+  u32 local_30[2];
+  u32 SizeOfELSAITbl;
+  
+  FUN_0090053c((u32)local_30,param_1,4);
+  iVar13 = 0;
+  uVar6 = __builtin_clz(0);
+  bVar12 = (u8)((u32)uVar6 >> 5) & 1 ^ 1;
+  if (bVar12 != 0) 
+  {
+    local_30[0] = local_30[0] << 0x18 | (local_30[0] & 0xff00) << 8 | local_30[0] >> 0x18 | local_30[0] >> 8 & 0xff00;
+  }
+  uVar5 = param_1 + 4 & 0xffffffff;
+  puVar7 = (u32 *)&NewSegment0TBL;
+  FUN_0090053c((u32)&NewSegment0TBL,uVar5,(u64)local_30[0]);
+  uVar9 = (u64)local_30[0] + 4;
+  iVar11 = (int)uVar9;
+  uVar6 = __builtin_clz(iVar11 + ((iVar11 >> 4) + (u32)(iVar11 < 0 && (uVar9 & 0xf) != 0)) * -0x10);
+  lVar10 = ((u64)(u32)(iVar11 >> 4) + ((u64)((u32)uVar6 >> 5 & 1) ^ 1)) * 0x10 - uVar9;
+  lVar14 = 0;
+  if (0 < (int)lVar10) 
+  {
+    lVar14 = lVar10;
+  }
+  uVar5 = uVar5 + local_30[0] + lVar14 & 0xffffffff;
+  FUN_0090053c((u32)local_30,uVar5,4);
+  if (bVar12 != 0) 
+  {
+    local_30[0] = local_30[0] << 0x18 | (local_30[0] & 0xff00) << 8 | local_30[0] >> 0x18 | local_30[0] >> 8 & 0xff00;
+  }
+  
+  FUN_0090053c( (u32)&NewSegment1TBL, uVar5 + 4, local_30[0]);
+  
+  SizeOfELSAITbl = local_30[0];
+  printf("SizeOfELSAITbl is %d\n", SizeOfELSAITbl);
+  if (bVar12 != 0) 
+  {
+    iVar11 = 0;
+    do 
+    {
+      lVar14 = 10;
+      uVar1 = *(u16 *)((int)puVar7 + 2);
+      *(u16 *)((int)puVar7 + 2) = uVar1 >> 8 | uVar1 << 8;
+      puVar8 = puVar7;
+      do 
+      {
+        puVar8 = puVar8 + 1;
+        uVar2 = *puVar8;
+        *puVar8 = uVar2 << 0x18 | (uVar2 & 0xff00) << 8 | uVar2 >> 0x18 | uVar2 >> 8 & 0xff00;
+        lVar14 = lVar14 + -1;
+      } while (lVar14 != 0);
+
+      iVar11 = iVar11 + 1;
+      puVar7 = puVar7 + 0xb;
+
+    } while (iVar11 < 999);
+
+    iVar11 = 0;
+    if ((local_30[0] / 0x140 & 0xffff) != 0) 
+    {
+      do 
+      {
+        lVar14 = 10;
+        puVar7 = (u32 *)((int)&NewSegment1TBL + iVar13);
+        do 
+        {
+          uVar2 = *puVar7;
+          *puVar7 = uVar2 << 0x18 | (uVar2 & 0xff00) << 8 | uVar2 >> 0x18 | uVar2 >> 8 & 0xff00;
+          uVar2 = puVar7[1];
+          puVar8 = puVar7 + 4;
+          puVar7[1] = uVar2 << 0x18 | (uVar2 & 0xff00) << 8 | uVar2 >> 0x18 | uVar2 >> 8 & 0xff00;
+          uVar2 = puVar7[3];
+          puVar3 = puVar7 + 5;
+          puVar7[3] = uVar2 << 0x18 | (uVar2 & 0xff00) << 8 | uVar2 >> 0x18 | uVar2 >> 8 & 0xff00;
+          uVar2 = *puVar8;
+          puVar4 = puVar7 + 6;
+          puVar7 = puVar7 + 8;
+          *puVar8 = uVar2 << 0x18 | (uVar2 & 0xff00) << 8 | uVar2 >> 0x18 | uVar2 >> 8 & 0xff00;
+          uVar2 = *puVar3;
+          *puVar3 = uVar2 << 0x18 | (uVar2 & 0xff00) << 8 | uVar2 >> 0x18 | uVar2 >> 8 & 0xff00;
+          uVar2 = *puVar4;
+          *puVar4 = uVar2 << 0x18 | (uVar2 & 0xff00) << 8 | uVar2 >> 0x18 | uVar2 >> 8 & 0xff00;
+          lVar14 = lVar14 + -1;
+        } while (lVar14 != 0);
+
+        iVar11 = iVar11 + 1;
+        iVar13 = iVar13 + 0x140;
+
+      } while (iVar11 < (int)(SizeOfELSAITbl / 0x140 & 0xffff));
+    }
+  }
+  return;
 }
 
 static u64 CalculateShdPersonaEnemyEntryHook( shdHelper* param_1, u32 enemyID )
@@ -1178,6 +1359,8 @@ static int SetUpEncounterFlagsHook( EncounterFuncStruct* a1, EncounterStructShor
   SetBitflagState( 8348, 0 ); // disable early end flag
   int encounterIDReal = a2->encounterIDLocal;
   EncounterIDGlobal = encounterIDReal;
+  isRound3 = false;
+  isChallengeBtl = false;
   int result = SHK_CALL_HOOK( SetUpEncounterFlags, a1, a2 );
 
   int CurrentEncounterBGMID = GetEncounterEntryFromTBL(encounterIDReal)->BGMID;
@@ -2236,7 +2419,9 @@ void dcInit( void )
   SHK_BIND_HOOK( ReturnAddressOfUNITTBL_EnemyAffinities, ReturnAddressOfUNITTBL_EnemyAffinitiesHook );
   SHK_BIND_HOOK( ReturnAddressOfUNITTBL_PersonaAffinities, ReturnAddressOfUNITTBL_PersonaAffinitiesHook );
   SHK_BIND_HOOK( ReturnAddressOfUNITTBL_Segment3, ReturnAddressOfUNITTBL_Segment3Hook );
-  SHK_BIND_HOOK( ReturnAddressOfELSAITBL_Segment1, ReturnAddressOfELSAITBL_Segment1Hook );
+  SHK_BIND_HOOK( ReturnAddressOfUNITTBL_VisualSegmentPersona, ReturnAddressOfUNITTBL_VisualSegmentPersonaHook );
+  SHK_BIND_HOOK( ReturnAddressOfUNITTBL_VisualSegmentModel, ReturnAddressOfUNITTBL_VisualSegmentModelHook );
+  SHK_BIND_HOOK( ReturnAddressOfELSAITBL_Segment0, ReturnAddressOfELSAITBL_Segment0Hook );
   SHK_BIND_HOOK( CalculateShdPersonaEnemyEntry, CalculateShdPersonaEnemyEntryHook );
   SHK_BIND_HOOK( SetUpEncounterFlags, SetUpEncounterFlagsHook );
   SHK_BIND_HOOK( FUN_0026b390, isPersonaExist );
@@ -2291,6 +2476,8 @@ void dcInit( void )
   SHK_BIND_HOOK( FUN_00b00cc8, FUN_00b00cc8Hook );
   SHK_BIND_HOOK( FUN_00afdd78, FUN_00afdd78Hook );
   SHK_BIND_HOOK( FUN_00afddb8, FUN_00afddb8Hook );
+  SHK_BIND_HOOK( ParseELSAITBL, ParseELSAITBLHook );
+  SHK_BIND_HOOK( ReturnAddressOfELSAITBL_Segment1, ReturnAddressOfELSAITBL_Segment1Hook );
 }
 
 void dcShutdown( void )

@@ -81,7 +81,7 @@ static int BuildPartyMemberStatsMenu ( partyMemberMenu* partyMenu )
     //if (true)
     {
       partyMenu->partyMemberID[count] = i;
-      printf("Party Member %d added to the menu\n", i);
+      //DEBUG_LOG("Party Member %d added to the menu\n", i);
       count += 1;
     }
   }
@@ -102,7 +102,7 @@ static int BuildPartyMemberItemsMenu ( partyMemberMenu* partyMenu )
       partyListTotal++;
     }
   }
-  printf("%d party members available\n", partyListTotal);
+  //DEBUG_LOG("%d party members available\n", partyListTotal);
   int partyListLength = partyListTotal;
   if (partyListLength > 7) partyListLength = 7;
   
@@ -112,7 +112,7 @@ static int BuildPartyMemberItemsMenu ( partyMemberMenu* partyMenu )
   {
     if (index != 7) {
       partyMenu->partyMemberID[count] = index + 1;
-      printf("Party Member %d added to the menu\n", index);
+      //DEBUG_LOG("Party Member %d added to the menu\n", index);
       count += 1;
     }
     index++;
@@ -135,7 +135,7 @@ static int BuildPartyMemberEquipMenu ( partyMemberMenu* partyMenu )
     //if ( true )
     {
       partyMenu->partyMemberID[count] = i;
-      printf("Party Member %d added to the menu\n", i);
+      //DEBUG_LOG("Party Member %d added to the menu\n", i);
       count += 1;
     }
   }
@@ -189,7 +189,7 @@ static u64 ScrollThroughEquipPartyList(int a1, u64 a2, u64 a3)
       }
     }
   }
-  printf("%x, %x, %x\n", a1, a2, a3);
+  //printf("%x, %x, %x\n", a1, a2, a3);
   return SHK_CALL_HOOK( FUN_0047de54, a1, a2, a3 );
 }
 
@@ -267,14 +267,14 @@ static u64 ScrollThroughItemPartyList(int a1, u64 a2, u64 a3)
 static void ItemMenuInit(u64* a1)
 {
   partyListOffset = 0;
-  printf("Reset party list offset\n");
+  //printf("Reset party list offset\n");
   return SHK_CALL_HOOK(FUN_00480cc0, a1);
 }
 
 static void SkillMenuInit(u64 a1)
 {
   partyListOffset = 0;
-  printf("Reset party list offset\n");
+  ///printf("Reset party list offset\n");
   return SHK_CALL_HOOK(FUN_0044a5d8, a1);
 }
 

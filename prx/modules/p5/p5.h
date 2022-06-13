@@ -21,6 +21,8 @@ bool hasSumiEndured;
 bool isLoadScheduler;
 bool randomizedCombatOutfit;
 bool isPreventGameOver;
+bool isRound3;
+bool isChallengeBtl;
 int rngBGM;
 int FrameTiming;
 float ColorNew;
@@ -1385,14 +1387,25 @@ typedef struct
 
 typedef struct
 {
-  u32 ScriptID;
-  u8 stuff[0x28];
-}ELSAI_Segment2;
+  u16 Unused;
+  u16 BF_Script_ID;
+  int GenericBehaviorIDs[10];
+}ELSAI_Segment0;
 
 typedef struct
 {
-  ELSAI_Segment2 entry[651];
-}ELSAI_Segment2TBL;
+  ELSAI_Segment0 entry[999];
+}ELSAI_Segment0TBL;
+
+typedef struct
+{
+  u16 Unknown[160];
+}ELSAI_Segment1;
+
+typedef struct
+{
+  ELSAI_Segment1 entry[2000];
+}ELSAI_Segment1TBL;
 
 typedef struct
 {
@@ -2069,7 +2082,8 @@ EnemyAffinityTBL NewEnemyAffinityTBL;
 PersonaAffinityTBL NewPersonaAffinityTBL;
 unitTBLSegment3 NewSegment3TBL;
 unitTBLVisualIndex NewVisualIndexTBL;
-ELSAI_Segment2TBL NewSegment2TBL;
+ELSAI_Segment0TBL NewSegment0TBL;
+ELSAI_Segment1TBL NewSegment1TBL;
 
 btlUnit_Unit* enemyBtlUnit;
 btlUnit_Unit* currentActingUnit;
@@ -2510,6 +2524,73 @@ void ReadKasumiData( void );
 void setBit( s32 index, bool value );
 bool GetBit( s32 index );
 s32 ReturnConvertedFlag( s32 BitFlag );
+
+typedef struct UnkHelperStruct
+{
+  u16 field00;
+  u16 field02;
+  u16 field04;
+  u16 field06;
+  u16 field08;
+  u16 field0a;
+  u16 field0c;
+  u16 field0e;
+  u16 field10;
+  u16 field12;
+  u16 field14;
+  u16 field16;
+  u16 field18;
+  u16 field1a;
+  u16 field1c;
+  u16 field1e;
+  u16 field20;
+  u16 field22;
+  u16 field24;
+  u16 field26;
+  u16 field28;
+  u16 field2a;
+  u16 field2c;
+  u16 field2e;
+  u16 field30;
+  u16 field32;
+  u16 field34;
+  u16 field36;
+  u16 field38;
+  u16 field3a;
+  u16 field3c;
+  u16 field3e;
+  u16 field40;
+  u16 field42;
+  u16 field44;
+  u16 field46;
+  u16 field48;
+  u16 field4a;
+  u16 field4c;
+  u16 field4e;
+  u16 field50;
+  u16 field52;
+  u16 field54;
+  u16 field56;
+  u16 field58;
+  u16 field5a;
+  u16 field5c;
+  u16 field5e;
+  u16 field60;
+  u16 field62;
+  u16 field64;
+  u8 field66;
+  u8 field67;
+  u16 field68;
+  u16 field6a;
+  u16 field6c;
+  u16 field6e;
+  u16 field70;
+  u16 field72;
+  u16 field74;
+  u16 field76;
+} UnkHelperStruct;
+
+UnkHelperStruct* FUN_000af304( int a1, u16 a2, int a3, u16 a4, u16 a5, u16 a6, u16 a7 );
 
 #pragma pop
 #endif

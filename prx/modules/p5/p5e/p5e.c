@@ -73,6 +73,7 @@ static void setBgmHook( int id )
   else if ( id == 340 ) //Victory Screen
   {
     randomizedCombatOutfit = true;
+    currentActingUnit = GetBtlPlayerUnitFromID( 1 );
   }
 
   FILE_LOG("SetBGM Called with BGM ID -> %d\n", id);
@@ -200,6 +201,20 @@ static int LoadEPLHook( char* EPL, u8 a2 )
       char newOutfitEPL[64];
       sprintf(newOutfitEPL, "battle/event/BCD/j_sien/bes_j_htb_%03d.EPL", FutabaOutfit);
       return SHK_CALL_HOOK( LoadEPL, newOutfitEPL, a2 );
+    }
+  }
+  else if ( strcmp( EPL, "battle/gui/UIenemy_effect.EPL" ) == 0 && isChallengeBtl )
+  {
+    if ( !isRound3 )
+    {
+      isRound3 = true;
+      return SHK_CALL_HOOK( LoadEPL, "battle/gui/bes_challege_round_02.EPL", a2 );
+    }
+    else
+    {
+      isRound3 = false;
+      isChallengeBtl = false;
+      return SHK_CALL_HOOK( LoadEPL, "battle/gui/bes_challege_round_03.EPL", a2 );
     }
   }
   return SHK_CALL_HOOK( LoadEPL, EPL, a2 );

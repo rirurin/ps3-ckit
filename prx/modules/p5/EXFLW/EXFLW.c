@@ -1579,6 +1579,12 @@ static int EX_RESET_PARTY_MEMBER_PERSONA( void )
   return 1;
 }
 
+static int EX_SET_CHALLENGE_BATTLE( void )
+{
+  isChallengeBtl = true;
+  return 1;
+}
+
 scrCommandTableEntry exCommandTable[] =
 {
   { EX_FLW_PRINTF, 1, "EX_PRINTF" },
@@ -1608,6 +1614,7 @@ scrCommandTableEntry exCommandTable[] =
   { EX_PREVENT_PLAYER_LOSS, 0, "PREVENT_PLAYER_LOSS" },
   { EX_FORCE_LOAD_DLC_BGM, 0, "FORCE_LOAD_DLC_BGM" },
   { EX_RESET_PARTY_MEMBER_PERSONA, 1, "RESET_PARTY_MEMBER_PERSONA" },
+  { EX_SET_CHALLENGE_BATTLE, 0, "SET_CHALLENGE_BATTLE" },
 };
 
 static scrCommandTableEntry* scrGetCommandFuncHook( u32 id )

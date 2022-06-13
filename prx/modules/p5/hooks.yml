@@ -124,7 +124,15 @@ ReturnAddressOfUNITTBL_Segment3:
     addr: 0x2637ac
     emitTrampoline: no
 
-ReturnAddressOfELSAITBL_Segment1:
+ReturnAddressOfUNITTBL_VisualSegmentPersona:
+    addr: 0x263700
+    replacedInstr: lis r4, 0xd8
+
+ReturnAddressOfUNITTBL_VisualSegmentModel:
+    addr: 0x263714
+    replacedInstr: lis r4, 0xd8
+
+ReturnAddressOfELSAITBL_Segment0:
     addr: 0x263DF8
     replacedInstr: rlwinm  r3, r3, 0x0, 0x10, 0x1f
 
@@ -651,3 +659,11 @@ FUN_0044a5d8:
 FUN_00397f4c:
     addr: 0x397f4c
     replacedInstr: li  r4,-0x1
+
+ParseELSAITBL:
+    addr: 0x2677a4
+    emitTrampoline: no
+
+ReturnAddressOfELSAITBL_Segment1:
+    addr: 0x263e20
+    replacedInstr: rlwinm  r3, r3, 0x0, 0x10, 0x1f

@@ -1260,4 +1260,9 @@ s32 ReturnConvertedFlag( s32 BitFlag )
     return BitFlag;
 }
 
+UnkHelperStruct* FUN_000af304( int a1, u16 a2, int a3, u16 a4, u16 a5, u16 a6, u16 a7 )
+{ 
+    SHK_FUNCTION_CALL_7( 0xaf304, UnkHelperStruct*, int, a1, u16, a2, int, a3, u16, a4, u16, a5, u16, a6, u16, a7 ); 
+}
+
 #endif

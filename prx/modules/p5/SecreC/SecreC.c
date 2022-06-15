@@ -290,6 +290,7 @@ undefined8 BuildGroupChatIconListHook( short a1 )
 		return GetLmapBitFlag( a1 );
 	}
 	//pseudo function end
+	
 	undefined8 result = SHK_CALL_HOOK( FUN_004e392c, a1 );
 	if (a1 == 10 && GetBitflagState(1175) == 1 ) // Check for flag 1175 before adding Kasumi to the PT group chat
 	{

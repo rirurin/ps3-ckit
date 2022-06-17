@@ -41,6 +41,7 @@ typedef struct
     u32 field04;
     u32 field08;
     EnemyPersonaFunctionStruct2* field0c;
+    EnemyPersonaFunctionStruct2* field10;
 } EnemyPersonaFunctionStruct1;
 
 typedef struct EncounterFuncStruct

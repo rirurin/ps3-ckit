@@ -259,8 +259,8 @@ static int criFs_InitializeHook( void )
     criFsBinder_BindCpkHook(acStack288);
   }
 
-  pcVar2 = FUN_00968be8();
-  pcVar3 = FUN_00968bf4();
+  pcVar2 = FUN_00968be8(); // Get PS3 internal Path
+  pcVar3 = FUN_00968bf4(); // Get Game/Region ID
   
   if ( CONFIG_ENABLED( enableModCPK ) )
   {

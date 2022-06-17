@@ -1213,33 +1213,35 @@ static int isEnemyExist2(u16 a1) // swordtrack pac file
   }
   else result = SHK_CALL_HOOK( FUN_0026b2e0, a1 );
 
-  DEBUG_LOG("isEnemyExist2 result: %d\n", result);
+  //DEBUG_LOG("isEnemyExist2 result: %d\n", result);
   return result;
 }
 
+short ValidEnemyMotionSEACBID[75] = { 4, 7, 9, 12, 13, 16, 18, 19, 21, 23, 
+                                    28, 33, 59, 61, 68, 69, 76, 84, 103, 121, 
+                                    126, 127, 143, 144, 170, 171, 172, 173, 174, 175, 
+                                    190, 201, 210, 213, 214, 218, 219, 221, 222, 223, 
+                                    224, 225, 226, 227, 229, 230, 233, 236, 237, 238, 
+                                    239, 246, 251, 253, 254, 256, 261, 262, 263, 264, 
+                                    274, 284, 289, 291, 294, 308, 310, 311, 321, 202,
+                                    351, 352, 438, 439, 0 };
+
 static int isEnemyExist3( u16 a1, u16 a2 ) // motionse acb file
 {
-  /*int result;
-  if ( a1 >= 350 )
-  {
-    result = SHK_CALL_HOOK( FUN_0026b320, 69 );
-  }
-  else if ( a1 >= 114 && a1 <= 120 ) // original enemies not in exist
-  {
-    result = SHK_CALL_HOOK( FUN_0026b320, 69 );
-  }
-  else if ( a1 >= 145 && a1 <= 169 && a1 != 157 ) // big range, exclude reaper
-  {
-    result = SHK_CALL_HOOK( FUN_0026b320, 69 );
-  }
-  else result = SHK_CALL_HOOK( FUN_0026b320, a1 );*/
-
-  if ( 0 >= a1 )
+  if ( 0 >= a1 ) // invalid IDs
   {
     return 0;
   }
 
-  return SHK_CALL_HOOK( FUN_0026b320, 69 );
+  for ( int i = 0; i < 75; i++)
+  {
+    if ( a1 == ValidEnemyMotionSEACBID[i] )
+    {
+      return 1;
+    }
+  }
+
+  return 0; // no valid ID found
 }
 
 static int isPartyMemberExist( u16 a1, u16 a2 )
@@ -2214,7 +2216,7 @@ static int FUN_006a75c4Hook( u64 a1 )
         || !isPlayerUnitDead(GetUnitIDFromPartySlot(2))
         || !isPlayerUnitDead(GetUnitIDFromPartySlot(3)))
       {
-        DEBUG_LOG("Found alive party member, no game over\n");
+        //DEBUG_LOG("Found alive party member, no game over\n");
         result = 0;
       }
       else return SHK_CALL_HOOK( FUN_006a75c4, a1 );
@@ -2287,8 +2289,6 @@ static int FUN_006c9c60Hook( structA* a1, int a2, int a3, int a4 )
 {
   int result = SHK_CALL_HOOK( FUN_006c9c60, a1, a2, a3, a4 );
 
-  currentActingUnit = a1->Field18->btlUnitPointer;
-
   FrameTiming = randomIntBetween( 0, 360 * 4 );
   return result;
 }
@@ -2296,20 +2296,20 @@ static int FUN_006c9c60Hook( structA* a1, int a2, int a3, int a4 )
 static int FUN_00b00cc8Hook( structA* a1, int a2, int a3, int a4 ) // Player AoA Animation Start function
 {
   currentActingUnit = 0;
-  return SHK_CALL_HOOK( FUN_00b00cc8, a1, a2, a3, a4 );;
+  return SHK_CALL_HOOK( FUN_00b00cc8, a1, a2, a3, a4 );
 }
 
 static int FUN_00afdd78Hook( structA* a1, int a2, int a3, int a4 ) // Player Jump Back Animation function
 {
   currentActingUnit = 0;
-  return SHK_CALL_HOOK( FUN_00afdd78, a1, a2, a3, a4 );;
+  return SHK_CALL_HOOK( FUN_00afdd78, a1, a2, a3, a4 );
 }
 
 
 static int FUN_00afddb8Hook( structA* a1, int a2, int a3, int a4 ) // Player Jump Back Animation function
 {
   currentActingUnit = 0;
-  return SHK_CALL_HOOK( FUN_00afddb8, a1, a2, a3, a4 );;
+  return SHK_CALL_HOOK( FUN_00afddb8, a1, a2, a3, a4 );
 }
 
 static int FUN_00917934Hook( int a1 )

@@ -909,6 +909,22 @@ bool isPlayerUnitDead( u32 unitID )
     return result;
 }
 
+bool isBtlUnitPlayerUnitDead( btlUnit_Unit* PlayerUnit )
+{
+    bool result = false;
+    
+    if ( btlUnitHasAilment( PlayerUnit, 0x80000 ) ) // check for Dead ailment
+    {
+        result = true;
+    }
+    else if ( PlayerUnit->currentHP == 0 )
+    {
+        result = true;
+    }
+
+    return result;
+}
+
 hsv rgb2hsv(rgb in)
 {
     hsv         out;

@@ -142,8 +142,7 @@ short OracleModelIDs[26];
 short CrowModelIDs[26];
 short VioletModelIDs[39];
 
-int sVanillaBits[6];
-int sRoyalBits[6];
+short ValidEnemyMotionSEACBID[75];
 
 typedef struct
 {
@@ -2499,6 +2498,7 @@ PersonaTBL_Segment0* PersonaTBL_GetPersonaStatsSegment0( int PersonaID );
 int GetTotalUnitsOfType( u32 TargetUnitType );
 
 bool isPlayerUnitDead( u32 unitID );
+bool isBtlUnitPlayerUnitDead( btlUnit_Unit* Player );
 
 typedef struct {
   float r;       // a fraction between 0 and 1

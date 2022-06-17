@@ -660,6 +660,34 @@ FUN_00397f4c:
     addr: 0x397f4c
     replacedInstr: li  r4,-0x1
 
+FUN_0059bb98:
+    addr: 0x59bb98
+    replacedInstr: stdu  r1, -0xd0(r1)
+
+FUN_005a7098:
+    addr: 0x5a7098
+    replacedInstr: stdu  r1, -0x100(r1)
+
+FUN_00597740:
+    addr: 0x597740
+    replacedInstr: addic  r3,r3,0x11f4
+
+FUN_005a6b78:
+    addr: 0x5a6b78
+    replacedInstr: stdu  r1, -0xb0(r1)
+
+FUN_005a5130:
+    addr: 0x5a5130
+    replacedInstr: stdu  r1, -0x130(r1)
+
+FUN_00260340:
+    addr: 0x260340
+    replacedInstr: stdu  r1, -0xa0(r1)
+
+FUN_000503d0:
+    addr: 0x503d0
+    replacedInstr: stdu  r1, -0xb0(r1)
+    
 ParseELSAITBL:
     addr: 0x2677a4
     emitTrampoline: no

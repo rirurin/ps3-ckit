@@ -17,6 +17,7 @@
 
 int partyListOffset = 0;
 int partyListTotal = 0;
+bool partyMembers[10] = {false};
 
 btlEquipBgmTableEntry btlEquipBgmTable[] =
 {

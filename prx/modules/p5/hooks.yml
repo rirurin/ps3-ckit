@@ -695,3 +695,7 @@ ParseELSAITBL:
 ReturnAddressOfELSAITBL_Segment1:
     addr: 0x263e20
     replacedInstr: rlwinm  r3, r3, 0x0, 0x10, 0x1f
+
+SoundManagerPlaySound:
+    addr: 0x10f0d4
+    replacedInstr: stdu  r1, -0xb0(r1)

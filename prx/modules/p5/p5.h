@@ -142,7 +142,7 @@ short OracleModelIDs[26];
 short CrowModelIDs[26];
 short VioletModelIDs[39];
 
-short ValidEnemyMotionSEACBID[75];
+short ValidEnemyMotionSEACBID[80];
 
 typedef struct
 {

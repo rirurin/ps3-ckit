@@ -1717,6 +1717,12 @@ static void BattleEndSkillChecks( u64 a1, u64 a2, u64 a3 )
   randomizedCombatOutfit = true;
   currentActingUnit = 0;
 
+  btlUnit_Unit* Joker = GetBtlPlayerUnitFromID(1);
+  if ( Joker->currentHP == 0 && isPreventGameOver )
+  {
+    Joker->currentHP = 1;
+  }
+
   SetBitflagState( 0x209C, 0 ); // flag checked for ending twins encounter early
 
   return;

@@ -1217,14 +1217,14 @@ static int isEnemyExist2(u16 a1) // swordtrack pac file
   return result;
 }
 
-short ValidEnemyMotionSEACBID[75] = { 4, 7, 9, 12, 13, 16, 18, 19, 21, 23, 
+short ValidEnemyMotionSEACBID[80] = { 4, 7, 9, 12, 13, 16, 18, 19, 21, 23, 
                                     28, 33, 59, 61, 68, 69, 76, 84, 103, 121, 
                                     126, 127, 143, 144, 170, 171, 172, 173, 174, 175, 
                                     190, 201, 210, 213, 214, 218, 219, 221, 222, 223, 
                                     224, 225, 226, 227, 229, 230, 233, 236, 237, 238, 
                                     239, 246, 251, 253, 254, 256, 261, 262, 263, 264, 
                                     274, 284, 289, 291, 294, 308, 310, 311, 321, 202,
-                                    351, 352, 438, 439, 0 };
+                                    351, 352, 353, 438, 439,   0,   0,   0,   0,   0 };
 
 static int isEnemyExist3( u16 a1, u16 a2 ) // motionse acb file
 {
@@ -1356,6 +1356,7 @@ static int SetUpEncounterFlagsHook( EncounterFuncStruct* a1, EncounterStructShor
   //FUNC_LOG("Loading SetUpEncounterFlagsHook\n");
   PrepareDLCBGM(); // Load DLC BGM
   PrepareDLCBGM(); // Load DLC BGM
+  isPreventGameOver = false; // clear this even if the player wins
   currentActingUnit = 0;
   ColorNew = 0;
   SetBitflagState( 8348, 0 ); // disable early end flag
@@ -2261,8 +2262,6 @@ static bool CheckAllPartyMembersDead( void )
     isGameOver = false;
   }
 
-  isPreventGameOver = false; // clear this even if the player wins
-
   return isGameOver;
 }
 
@@ -2288,6 +2287,7 @@ static int FUN_00afc7f0Hook( CueIDThingy* a1, double a2, double a3 )
 static int FUN_006c9c60Hook( structA* a1, int a2, int a3, int a4 )
 {
   int result = SHK_CALL_HOOK( FUN_006c9c60, a1, a2, a3, a4 );
+  currentActingUnit = a1->Field18->btlUnitPointer;
 
   FrameTiming = randomIntBetween( 0, 360 * 4 );
   return result;

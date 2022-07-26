@@ -47,6 +47,7 @@ SHK_HOOK( int, FUN_002625d4, int a1, int a2 );
 SHK_HOOK( int, FUN_00045d24, int unitID, int modelID_base, int a3 );
 SHK_HOOK( int, FUN_000bee20, char* a1, u32 a2, u32 a3 );
 SHK_HOOK( int, FUN_00332b4c, u32 a1, u32 a2, u32 a3 );
+SHK_HOOK( int, SoundManagerPlaySound, int a0, int a1, int a2, int a3, int a4, int a5 );
 
 static void setBgmHook( int id )
 {
@@ -520,6 +521,17 @@ static int FUN_00332b4cHook( u32 a1, u32 a2, u32 a3 )
   return SHK_CALL_HOOK( FUN_00332b4c, a1, a2, a3 );
 }
 
+static int SoundManagerPlaySoundHook( int a1, int a2, int cueID, int a4, int a5, int a6 )
+{
+  //printf("SoundManagerPlaySound called; a1 -> 0x%x; a2 -> 0x%x; Cue ID -> %d; a4 -> %d; a5 -> %d; a6 -> %d\n", a1, a2, cueID, a4, a5, a6 );
+  if ( a1 == 0xA &&  ( a2 == 0xA || a2 == 0x2 ) )
+  {
+    a1 = 3;
+    a2 = 0;
+  }
+  return SHK_CALL_HOOK( SoundManagerPlaySound, a1, a2, cueID, a4, a5, a6 );
+}
+
 // The start function of the PRX. This gets executed when the loader loads the PRX at boot.
 // This means game data is not initialized yet! If you want to modify anything that is initialized after boot,
 // hook a function that is called after initialisation.
@@ -547,6 +559,7 @@ void p5eInit( void )
   SHK_BIND_HOOK( FUN_00045d24, GetCombatModelMinorIDFromOutfit );
   SHK_BIND_HOOK( FUN_000bee20, FUN_000bee20Hook );
   SHK_BIND_HOOK( FUN_00332b4c, FUN_00332b4cHook );
+  SHK_BIND_HOOK( SoundManagerPlaySound, SoundManagerPlaySoundHook );
   titleScreenBGM = 99;
   RandomizeTitleScreenBGM();
 }

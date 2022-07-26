@@ -92,32 +92,28 @@ static int BuildPartyMemberItemsMenu ( partyMemberMenu* partyMenu )
 {
   u16* pad_val = 0x1166b10;
   partyMemberListAddress = partyMenu;
-  partyListTotal = 0;
-
+  scrollMax = 0;
   for (int i = 1; i <= 10; i++)
   {
-    //if (true && i != 8)
+    //if (true && i != 8 && i != 9)
     if (isPartyMemberUnlocked(i) && i != 8)
     {
-      partyListTotal++;
+      partyMembers[i-1] = true;
+      scrollMax++;
     }
   }
-  //DEBUG_LOG("%d party members available\n", partyListTotal);
-  int partyListLength = partyListTotal;
-  if (partyListLength > 7) partyListLength = 7;
-  
-  int index = partyListOffset;
+  scrollMax = scrollMax - 7;
   int count = 0;
-  while (count < partyListLength)
-  {
-    if (index != 7) {
-      partyMenu->partyMemberID[count] = index + 1;
-      //DEBUG_LOG("Party Member %d added to the menu\n", index);
-      count += 1;
+  int index = partyListOffset;
+  for (int i = partyListOffset; i <= 10; i++) {
+    if (partyMembers[i]) {
+      partyMenu->partyMemberID[count] = i + 1;
+      count++;
     }
-    index++;
+    if (count == 7) {
+      break;
+    }
   }
- 
   return count;
 }
 
@@ -132,10 +128,10 @@ static int BuildPartyMemberEquipMenu ( partyMemberMenu* partyMenu )
   for ( int i = 2; i <= 10; i++)
   {
     if (isPartyMemberUnlocked(i))
-    //if ( true )
+    //if ( i != 9 )
     {
       partyMenu->partyMemberID[count] = i;
-      //DEBUG_LOG("Party Member %d added to the menu\n", i);
+      DEBUG_LOG("Party Member %d added to the menu\n", i);
       count += 1;
     }
   }
@@ -196,7 +192,6 @@ static u64 ScrollThroughEquipPartyList(int a1, u64 a2, u64 a3)
 static u64 ScrollThroughSkillPartyList(int a1, u64 a2, u64 a3)
 {
   u16* pad_val = 0x1166b10;
-  int scrollMax = partyListTotal - 7; // 7 players on screen at a time
   //printf("%x, %x, %x\n", a1, a2, a3);
   if (a2 == 0 && scrollMax > 0) {
     if (a3 == 0 && *pad_val & 0x10) // if going to the top of the list and pressing up
@@ -231,7 +226,6 @@ static u64 ScrollThroughSkillPartyList(int a1, u64 a2, u64 a3)
 static u64 ScrollThroughItemPartyList(int a1, u64 a2, u64 a3)
 {
   u16* pad_val = 0x1166b10;
-  int scrollMax = partyListTotal - 7; // 7 players on screen at a time
   //printf("%x, %x, %x\n", a1, a2, a3);
   if (a2 == 3 && scrollMax > 0) { // a2 = 3 to check up/down in party list
     
@@ -264,7 +258,7 @@ static u64 ScrollThroughItemPartyList(int a1, u64 a2, u64 a3)
   return SHK_CALL_HOOK( FUN_0047f91c, a1, a2, a3 );
 }
 
-static void ItemMenuInit(u64* a1)
+static void ItemMenuInit(u64 a1)
 {
   partyListOffset = 0;
   //printf("Reset party list offset\n");

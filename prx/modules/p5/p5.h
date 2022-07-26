@@ -37,7 +37,8 @@ u16 LastLoadedFieldMinorID;
 
 int partyMemberListAddress;
 int partyListOffset;
-int partyListTotal;
+int scrollMax;
+bool partyMembers[10];
 
 typedef struct
 {

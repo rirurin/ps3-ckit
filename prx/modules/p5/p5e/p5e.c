@@ -524,11 +524,11 @@ static int FUN_00332b4cHook( u32 a1, u32 a2, u32 a3 )
 static int SoundManagerPlaySoundHook( int a1, int a2, int cueID, int a4, int a5, int a6 )
 {
   //printf("SoundManagerPlaySound called; a1 -> 0x%x; a2 -> 0x%x; Cue ID -> %d; a4 -> %d; a5 -> %d; a6 -> %d\n", a1, a2, cueID, a4, a5, a6 );
-  if ( a1 == 0xA &&  ( a2 == 0xA || a2 == 0x2 ) )
+  /*if ( a1 == 0xA &&  ( a2 == 0xA || a2 == 0x2 ) )
   {
     a1 = 3;
     a2 = 0;
-  }
+  }*/
   return SHK_CALL_HOOK( SoundManagerPlaySound, a1, a2, cueID, a4, a5, a6 );
 }
 

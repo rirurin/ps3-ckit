@@ -951,12 +951,6 @@ static void LoadDLCBGM( void )
 {
   FUNC_LOG("Loading LoadDLCBGM\n");
   
-  if ( !CONFIG_ENABLED( ambushOverDLC ) )
-  {
-    isAmbush = false;
-    isAmbushed = false;
-  }
-  
   char new_acb_path[128];
   char new_awb_path[128];
   u32 targetBGMACBID = 0;
@@ -987,6 +981,12 @@ static void LoadDLCBGM( void )
     {
       targetBGMACBID = targetOutfitBGM; // read outfit tbl value and use it as the ACB ID
     }
+  }
+
+  if ( !CONFIG_ENABLED( ambushOverDLC ) && targetBGMACBID != 0 )
+  {
+    isAmbush = false;
+    isAmbushed = false;
   }
 
   sprintf( new_acb_path, "sound/bgm_%02d.acb", targetBGMACBID );

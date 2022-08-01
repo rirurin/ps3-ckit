@@ -143,7 +143,7 @@ static int BuildPartyMemberEquipMenu ( partyMemberMenu* partyMenu )
 static void SetPartyTextPosition(float* a1, int a2, int a3)
 {
   f32* baseAddress = 0xd9ef4c;
-  u16* partyMembers = a3 + 0x32;
+  u16* partyMembers = a3 + 0x30;
   u16 adjustedPartyMembers = (*partyMembers == 10) ? *partyMembers - 1 : *partyMembers;
 
   f32 xpos = a2 * -12.0 + *(baseAddress + (adjustedPartyMembers << 1));
@@ -156,7 +156,7 @@ static void SetPartyTextPosition(float* a1, int a2, int a3)
 static u64 ScrollThroughEquipPartyList(int a1, u64 a2, u64 a3)
 {
   
-  u16* partyMembers = a1 + 0x46;
+  u16* partyMembers = a1 + 0x44;
   u32* selectedPartyMember = a1 + 0x20;
   u16* pad_val = 0x1166b10;
   printf("%d, %d\n", *partyMembers, *selectedPartyMember + 1);

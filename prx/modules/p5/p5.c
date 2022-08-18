@@ -1322,4 +1322,8 @@ void FUN_0044f448( int a1, u32 a2 ) {
     SHK_FUNCTION_CALL_2( 0x44f448, void, int, a1, u32, a2 );
 }
 
+u64 FUN_004495c0( int a1, int a2 ) {
+    SHK_FUNCTION_CALL_2( 0x4495c0, u64, int, a1, int, a2 );
+}
+
 #endif

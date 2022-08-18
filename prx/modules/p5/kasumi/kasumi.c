@@ -267,7 +267,7 @@ static u64 SkillMenuHealingSkillInit( u32* a1, s16 a2, u64 a3, int a4 ) {
     printf("Skill selected: %d\n", (u32)*(u16*)(a4 + iVar3 * 0xc + 0x1ea));
     if (iVar3 == 0) {
       ScrollThroughSkillPartyList(a4, 3, 0);
-      //Battle::Skill::HealingItemInfoDisplay(a4,5);
+      FUN_004495c0(a4,5);
       printf("Healing item for one player\n");
       if (a1 != (u32*)0x0) {
         *a1 = 7;
@@ -275,7 +275,7 @@ static u64 SkillMenuHealingSkillInit( u32* a1, s16 a2, u64 a3, int a4 ) {
     }
     else if ((iVar3 == 2) || (iVar3 == 1)) {
       ScrollThroughSkillPartyList(a4, 3, -1);
-      //Battle::Skill::HealingItemInfoDisplay(a4,7);
+      FUN_004495c0(a4,7);
       printf("Healing item for all players\n");
       if (a1 != (u32*)0x0) {
         *a1 = 9;

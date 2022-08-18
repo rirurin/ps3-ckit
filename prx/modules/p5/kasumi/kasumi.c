@@ -59,6 +59,8 @@ SHK_HOOK( u64, FUN_00449c6c, int a1, u64 a2, u64 a3 );
 SHK_HOOK( u64, FUN_0047f91c, int a1, u64 a2, u64 a3 );
 SHK_HOOK( void, FUN_00480cc0, u64* a1 );
 SHK_HOOK( void, FUN_0044a5d8, u64 a1 );
+SHK_HOOK( u64, FUN_0044f7ac, u32* a1, s16 a2, u64 a3, int a4 );
+SHK_HOOK( u64, FUN_0044f8e0, short a1, short a2, int a3, int a4 );
 
 static bool isPartyMemberUnlocked( u16 unitID )
 {
@@ -95,18 +97,23 @@ static int BuildPartyMemberItemsMenu ( partyMemberMenu* partyMenu )
   scrollMax = 0;
   for (int i = 1; i <= 10; i++)
   {
-    //if (true && i != 8 && i != 9)
+    partyMembers[i-1] = false;
+    //if (true && i != 8)
     if (isPartyMemberUnlocked(i) && i != 8)
     {
       partyMembers[i-1] = true;
+      //printf("player %d is available\n", i);
       scrollMax++;
     }
   }
-  scrollMax = scrollMax - 7;
+  if (scrollMax < 7) scrollMax = 0;
+  else scrollMax = scrollMax - 7;
   int count = 0;
   int index = partyListOffset;
-  for (int i = partyListOffset; i <= 10; i++) {
+  for (int i = partyListOffset; i < 10; i++) {
+    //printf("%d\n", i);
     if (partyMembers[i]) {
+      //printf("adding player %d to slot %d\n", i + 1, count);
       partyMenu->partyMemberID[count] = i + 1;
       count++;
     }
@@ -192,35 +199,270 @@ static u64 ScrollThroughEquipPartyList(int a1, u64 a2, u64 a3)
 static u64 ScrollThroughSkillPartyList(int a1, u64 a2, u64 a3)
 {
   u16* pad_val = 0x1166b10;
-  //printf("%x, %x, %x\n", a1, a2, a3);
-  if (a2 == 0 && scrollMax > 0) {
-    if (a3 == 0 && *pad_val & 0x10) // if going to the top of the list and pressing up
-    {
-      if (partyListOffset > 0)
-      {
+  
+  if (scrollMax > 0 && (a2 == 0 || a2 == 3)) {
+   if (*pad_val & 0x10) { // going up
+      if (a3 == 0 && partyListOffset > 0) { // can keep scrolling up
         a3 = 1;
         partyListOffset--;
       }
-    }
-    if (a3 == 6 && *pad_val & 0x10) // if going to the bottom of the list and pressing up
-    {
-      partyListOffset = scrollMax;
-    }
-    if (a3 == 6 && *pad_val & 0x40) // if going to the bottom of the list and pressing down
-    {
-      if (partyListOffset < scrollMax)
-      {
+      if (a3 == 6 && partyListOffset == 0) { // top of list, go to bottom
+        partyListOffset = scrollMax;
+      }
+   }
+   else if (*pad_val & 0x40) { // going down
+      if (a3 == 6 && partyListOffset < scrollMax) { // can keep scrolling down
         a3 = 5;
         partyListOffset++;
       }
-    }
-    if (a3 == 0 && *pad_val & 0x40) // if going to the top of the list and pressing up
-    {
-      partyListOffset = 0;
-    }
+      if (a3 == 0 && partyListOffset == scrollMax) { // bottom of list, go to top
+        partyListOffset = 0;
+      }
+   }
     BuildPartyMemberItemsMenu(partyMemberListAddress);
   }
+  int skillActivePartyMember = a3 + partyListOffset;
+  /*
+  int skillActivePartyMember = 0;
+  for (int i = 0; i < a3 + partyListOffset;) {
+    if (partyMembers[skillActivePartyMember]) i++;
+    skillActivePartyMember++;
+  }
+  */
+  if (a2 == 0 || a2 == 3) {
+    //printf("%x, %x, %x\n", a3, partyListOffset, scrollMax);
+    /*
+    printf("%d, %d\n", GetBtlPlayerUnitFromID(skillActivePartyMember)->currentHP
+    , GetBtlPlayerUnitFromID(skillActivePartyMember)->currentSP);
+    */
+   /*
+   printf("Player %d: %d, %d\n", skillActivePartyMember + 1, GetBtlPlayerUnitFromID(skillActivePartyMember + 1)->currentHP
+    , GetBtlPlayerUnitFromID(skillActivePartyMember + 1)->currentSP);
+    */
+  }
+
   return SHK_CALL_HOOK( FUN_00449c6c, a1, a2, a3 );
+}
+
+static u64 SkillMenuHealingSkillInit( u32* a1, s16 a2, u64 a3, int a4 ) {
+  u64 uVar1;
+  u64 uVar2;
+  int iVar3;
+  //printf("%x, %d, %d, %d\n", a1, a2, a3, a4);
+  // this is most likely a struct of some kind but idc lol
+  iVar3 = (int)*(short*)(a4 + 0x26) + (int)*(short*)(a4 + 0x24);
+  printf("FUN_0044f6a8: %d, %d, %d\n", a2, iVar3, a4);
+  skillMenuPartyMemberSource = a2;
+  // a2 is the character ID
+  // iVar3 determines if the skill affects all players
+  // a4 points towards the address 0x10de178
+  uVar1 = FUN_0044f6a8(a2,iVar3,a4);
+  if ((int)uVar1 == 0) { // if can't use healing item
+    PlayFromSystemACB(4);
+    printf("Cannot use healing item\n");
+    uVar2 = 0;
+  }
+  else { // if can use healing item
+    iVar3 = FUN_0042f5c4((u32)*(u16*)(a4 + iVar3 * 0xc + 0x1ea));
+    printf("Skill selected: %d\n", (u32)*(u16*)(a4 + iVar3 * 0xc + 0x1ea));
+    if (iVar3 == 0) {
+      ScrollThroughSkillPartyList(a4, 3, 0);
+      FUN_004495c0(a4,5);
+      printf("Healing item for one player\n");
+      if (a1 != (u32*)0x0) {
+        *a1 = 7;
+      }
+    }
+    else if ((iVar3 == 2) || (iVar3 == 1)) {
+      ScrollThroughSkillPartyList(a4, 3, -1);
+      FUN_004495c0(a4,7);
+      printf("Healing item for all players\n");
+      if (a1 != (u32*)0x0) {
+        *a1 = 9;
+      }
+    }
+    PlayFromSystemACB(1);
+    uVar2 = 1;
+  }
+  return uVar2;
+}
+
+static u64 SkillMenuUseHealingSkill(short srcPlayer,short tgtPlayer,int param_3,int param_4)
+
+{
+  short sVar1;
+  u16 skillID;
+  short sVar3;
+  bool bVar4;
+  short sVar9;
+  int iVar7;
+  int iVar8;
+  u64 uVar5;
+  u64 uVar6;
+  int iVar10;
+  u32 uVar11;
+  int iVar13;
+  bool bVar14;
+  u64 uVar15;
+  u32 uVar16;
+  
+  bVar14 = false;
+  uVar15 = 1;
+  iVar10 = param_4 + param_3 * 0xc;
+  sVar9 = -1;
+  sVar1 = *(short *)(iVar10 + 0x1e8);
+  uVar11 = 0;
+  iVar8 = *(int *)(iVar10 + 0x1ec);
+  skillID = *(u16 *)(iVar10 + 0x1ea);
+  uVar16 = (int)srcPlayer & 0xffff;
+  iVar10 = *(int *)(iVar10 + 0x1f0);
+  printf("%d, %d, %d, %d\n", srcPlayer, tgtPlayer, param_3, param_4);
+  srcPlayer = skillMenuPartyMemberSource;
+  printf("Adjusted source player: %d\n", srcPlayer);
+  if (sVar1 != -1) {
+    //sVar9 = FUN_0025dcfc(uVar16);
+    sVar9 = GetBtlPlayerUnitFromID(uVar16)->EquippedPersonaIndex;
+    FUN_0025d624(uVar16,sVar1);
+  }
+  iVar7 = FUN_0042f344((int)srcPlayer,(u32)skillID);
+  if (iVar7 != 1) {
+    uVar15 = 0;
+    goto LAB_0044fcec;
+  }
+  if (skillID == 0x187) { // Traesto
+    uVar15 = 0;
+    iVar7 = FUN_004260c4();
+    if (iVar7 != 0) {
+      uVar15 = 3;
+    }
+    if ((int)uVar15 == 0) goto LAB_0044fcec;
+  }
+  else {
+    if (tgtPlayer == -1) {
+      // heal all players
+      iVar13 = 0;
+      iVar7 = param_4;
+      for (int i = 0; i < 10; i++) {
+        if (partyMembers[i]) {
+          printf("Healing player %d using skill %d\n", i + 1, (u32)skillID);
+          uVar6 = FUN_0042f5ec(srcPlayer, i + 1, (u32)skillID, 0); 
+          if (uVar6 == 0) {
+              FUN_0042f3ec((int)srcPlayer, i + 1, (u32)skillID, 0);
+              iVar13++;
+          }
+        }
+      }
+      printf("Characters that can heal: %d\n", iVar13);
+      if (iVar13 != 0) {
+        // now that we've healed some players, take some health away from the source player
+        uVar5 = FUN_0042f994((u32)skillID);
+        uVar11 = (u32)uVar5;
+        goto LAB_0044fb20;
+      }
+      uVar15 = 0;
+      goto LAB_0044fcec;
+    } else {
+      // heal one player
+      uVar6 = FUN_0042f5ec((int)srcPlayer,(int)tgtPlayer,(u32)skillID,0);
+      printf("Health left to heal: %d\n", uVar6);
+      if ((int)uVar6 != 0) {
+        uVar15 = 0;
+        goto LAB_0044fcec;
+      }
+      FUN_0042f3ec((int)srcPlayer,(int)tgtPlayer,(u32)skillID,0);
+      uVar5 = FUN_0042f994((u32)skillID);
+      uVar11 = (u32)uVar5;
+    }
+  }
+LAB_0044fb20:
+  sVar1 = (short)iVar8;
+  printf("iVar8: %d\n", iVar8);
+  if (iVar8 > 0) {
+    iVar8 = ActualGetCount(0xfe);
+    // remove HP from character
+    if (iVar8 < 1) {
+      btlUnit_Unit* pUnit = GetBtlPlayerUnitFromID(srcPlayer); // get player
+      int health = uVar6 - sVar1;
+      printf("health taken away: %d\n", health);
+      if (health > 999 && pUnit->unitID != 2) health = 999;
+      pUnit->currentHP += health; // change health
+    }
+    else {
+      iVar8 = ActualGetCount(0xfe);
+      ActualSetCount(0xfe,iVar8 + -1);
+      bVar14 = true;
+    }
+  }
+  sVar3 = (short)iVar10;
+  printf("SP change: %d\n", iVar10);
+  bVar4 = false;
+  if (iVar10 > 0) {
+    // remove SP from character
+    iVar8 = ActualGetCount(0xff);
+    if (iVar8 < 1) {
+      btlUnit_Unit* pUnit = GetBtlPlayerUnitFromID(srcPlayer); // get current player
+      int sp = uVar6 - sVar3;
+      printf("SP change of %d to player %d, %d SP remaining\n", sp, srcPlayer, pUnit->currentSP + sp);
+      if (sp > 999 && pUnit->unitID != 2) sp = 999;
+      pUnit->currentSP += sp; // change sp
+
+      bVar4 = false;
+    }
+    else {
+      iVar8 = ActualGetCount(0xff);
+      ActualSetCount(0xff,iVar8 + -1);
+      bVar4 = true;
+    }
+  }
+  if ((int)uVar15 == 3) {
+      if (bVar14) {
+        iVar8 = ActualGetCount(0xfe);
+        ActualSetCount(0xfe,iVar8 + 1);
+      }
+      // increase health
+      else {
+        btlUnit_Unit* pUnit = GetBtlPlayerUnitFromID(srcPlayer); // get player
+        int health = uVar6 + sVar1;
+        printf("health added: %d\n", health);
+        if (health > 999 && pUnit->unitID != 2) health = 999;
+        pUnit->currentHP += health; // change health
+        
+      }
+      if (bVar4) {
+        iVar8 = ActualGetCount(0xff);
+        ActualSetCount(0xff,iVar8 + 1);
+      }
+      // increase SP
+      else {
+        btlUnit_Unit* pUnit = GetBtlPlayerUnitFromID(srcPlayer); // get current player
+        int sp = uVar6 + sVar3;
+        printf("sp added: %d\n", sp);
+        if (sp > 999 && pUnit->unitID != 2) sp = 999;
+        pUnit->currentSP += sp; // change SP
+      }
+      //PlayfromSystemACB(7);
+    FUN_00116ad0(0x2213);
+  }
+  else {
+    uVar6 = FUN_0044f6a8(srcPlayer,param_3,param_4);
+    if ((int)uVar6 == 0) {
+      uVar15 = 2;
+    }
+    else {
+      FUN_0044f448(param_4,uVar11);
+    }
+  }
+LAB_0044fcec:
+  if (sVar9 != -1) {
+    FUN_0025d624(uVar16,sVar9);
+  }
+  uVar16 = (u32)uVar15;
+  if (uVar16 == 0) {
+    //PlayfromSystemACB(4);
+  } else if (uVar16 < 4) {
+    //PlayfromSystemACB(7);
+  }
+  return uVar15;
 }
 
 static u64 ScrollThroughItemPartyList(int a1, u64 a2, u64 a3)
@@ -1865,6 +2107,8 @@ void KasumiInit( void )
   SHK_BIND_HOOK( FUN_0047f91c, ScrollThroughItemPartyList );
   SHK_BIND_HOOK( FUN_00480cc0, ItemMenuInit );
   SHK_BIND_HOOK( FUN_0044a5d8, SkillMenuInit );
+  SHK_BIND_HOOK( FUN_0044f7ac, SkillMenuHealingSkillInit );
+  SHK_BIND_HOOK( FUN_0044f8e0, SkillMenuUseHealingSkill );
 }
 
 void KasumiShutdown( void )

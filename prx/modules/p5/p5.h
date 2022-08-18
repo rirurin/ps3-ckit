@@ -39,6 +39,7 @@ int partyMemberListAddress;
 int partyListOffset;
 int scrollMax;
 bool partyMembers[10];
+int skillMenuPartyMemberSource;
 
 typedef struct
 {

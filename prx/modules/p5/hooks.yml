@@ -699,3 +699,11 @@ ReturnAddressOfELSAITBL_Segment1:
 SoundManagerPlaySound:
     addr: 0x10f0d4
     replacedInstr: stdu  r1, -0xb0(r1)
+
+FUN_0044f7ac:
+    addr: 0x44f7ac
+    emitTrampoline: no
+
+FUN_0044f8e0:
+    addr: 0x44f8e0
+    emitTrampoline: no

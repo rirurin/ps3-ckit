@@ -18,6 +18,7 @@
 int partyListOffset = 0;
 int partyListTotal = 0;
 bool partyMembers[10] = {false};
+int skillMenuPartyMemberSource = 0;
 
 btlEquipBgmTableEntry btlEquipBgmTable[] =
 {
@@ -1280,6 +1281,45 @@ s32 ReturnConvertedFlag( s32 BitFlag )
 UnkHelperStruct* FUN_000af304( int a1, u16 a2, int a3, u16 a4, u16 a5, u16 a6, u16 a7 )
 { 
     SHK_FUNCTION_CALL_7( 0xaf304, UnkHelperStruct*, int, a1, u16, a2, int, a3, u16, a4, u16, a5, u16, a6, u16, a7 ); 
+}
+
+u64 FUN_0044f6a8( s16 a1, int a2, int a3 ) {
+    SHK_FUNCTION_CALL_3( 0x44f6a8, u64, s16, a1, int, a2, int, a3 );
+}
+void FUN_0042f5c4( u32 a1 ) {
+    SHK_FUNCTION_CALL_1( 0x42f5c4, void, u32, a1 );
+}
+
+u64 FUN_0025d624( u32 a1, short a2 ) {
+    SHK_FUNCTION_CALL_2( 0x25d624, u64, u32, a1, short, a2 );
+}
+
+int FUN_0042f344( u32 a1, u32 a2 ) {
+    SHK_FUNCTION_CALL_2( 0x42f344, int, u32, a1, u32, a2 );
+}
+
+u64 FUN_004260c4() {
+    SHK_FUNCTION_CALL_0( 0x4260c4, u64 );
+}
+
+u64 FUN_0042f5ec( u32 a1, u32 a2, u32 a3, u32 a4 ) {
+    SHK_FUNCTION_CALL_4( 0x42f5ec, u64, u32, a1, u32, a2, u32, a3, u32, a4 );
+}
+
+u64 FUN_0042f3ec( u32 a1, u32 a2, u32 a3, u32 a4 ) {
+    SHK_FUNCTION_CALL_4( 0x42f3ec, u64, u32, a1, u32, a2, u32, a3, u32, a4 );
+}
+
+u64 FUN_0042f994( u32 a1 ) {
+    SHK_FUNCTION_CALL_1( 0x42f994, u64, u32, a1 );
+}
+
+void FUN_00116ad0( u32 a1 ) {
+    SHK_FUNCTION_CALL_1( 0x116ad0, void, u32, a1 );
+}
+
+void FUN_0044f448( int a1, u32 a2 ) {
+    SHK_FUNCTION_CALL_2( 0x44f448, void, int, a1, u32, a2 );
 }
 
 #endif

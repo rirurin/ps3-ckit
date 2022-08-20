@@ -341,7 +341,7 @@ u64 FUN_000503d0Hook( int a1 )
 		if (*(undefined4 *)(a1 + 0x3314) == 2) ActualSetCount( 321, 0 );
 		if (*(undefined4 *)(a1 + 0x3314) == 3 && ActualGetCount(321) == 0)
 		{
-			if ( GetBitflagState( 4182 ) == 1 )
+			if ( GetBitflagState( 4182 ) == 1  && GetTotalDays() < 233 && GetTotalDays() > 237 )
 			{
 				PlayFromSinglewordACB( 2, 51 );
 			}

@@ -707,3 +707,7 @@ FUN_0044f7ac:
 FUN_0044f8e0:
     addr: 0x44f8e0
     emitTrampoline: no
+
+FUN_00487c58:
+    addr: 0x487c58
+    emitTrampoline: no

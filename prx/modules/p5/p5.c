@@ -1326,4 +1326,72 @@ u64 FUN_004495c0( int a1, int a2 ) {
     SHK_FUNCTION_CALL_2( 0x4495c0, u64, int, a1, int, a2 );
 }
 
+void FUN_002604cc( u32 a1 ) {
+    SHK_FUNCTION_CALL_1( 0x2604cc, void, u32, a1 );
+}
+
+void FUN_00260780( u32 a1 ) {
+    SHK_FUNCTION_CALL_1( 0x260780, void, u32, a1 );
+}
+
+u64 FUN_00261400( u32 a1 ) {
+    SHK_FUNCTION_CALL_1( 0x261400, u64, u32, a1 );
+}
+
+void FUN_0042f24c( u32 a1 ) {
+    SHK_FUNCTION_CALL_1( 0x42f24c, void, u32, a1 );
+}
+
+void FUN_00260894( u32 a1 ) {
+    SHK_FUNCTION_CALL_1( 0x260894, void, u32, a1 );
+}
+
+u64 FUN_00296394( u32 a1 ) {
+    SHK_FUNCTION_CALL_1( 0x296394, u64, u32, a1 );
+}
+
+void FUN_0026090c( u32 a1 ) {
+    SHK_FUNCTION_CALL_1( 0x26090c, void, u32, a1 );
+}
+
+u64 FUN_002604bc( u32 a1 ) {
+    SHK_FUNCTION_CALL_1( 0x2604bc, u64, u32, a1 );
+}
+
+void FUN_0040f370( int a1, short a2 ) {
+    SHK_FUNCTION_CALL_2( 0x40f370, void, int, a1, short, a2 );
+}
+
+void FUN_0026028c( u32 a1 ) {
+    SHK_FUNCTION_CALL_1( 0x26028c, void, u32, a1 );
+}
+
+void FUN_004873c4( int a1, int a2 ) {
+    SHK_FUNCTION_CALL_2( 0x4873c4, void, int, a1, int, a2 );
+}
+
+void FUN_00480a20( int a1 ) {
+    SHK_FUNCTION_CALL_1( 0x480a20, void, int, a1 );
+}
+
+void FUN_0029793c( u32 a1 ) {
+    SHK_FUNCTION_CALL_1( 0x29793c, void, u32, a1 );
+}
+
+void FUN_00480a28( int a1 ) {
+    SHK_FUNCTION_CALL_1( 0x480a28, void, int, a1 );
+}
+
+void FUN_004e35e0( u32 a1 ) {
+    SHK_FUNCTION_CALL_1( 0x4e35e0, void, u32, a1 );
+}
+
+void FUN_004e3610( u32 a1 ) {
+    SHK_FUNCTION_CALL_1( 0x4e3610, void, u32, a1 );
+}
+
+void FUN_004e3640( u32 a1 ) {
+    SHK_FUNCTION_CALL_1( 0x4e3640, void, u32, a1 );
+}
+
 #endif

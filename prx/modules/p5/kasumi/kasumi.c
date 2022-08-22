@@ -62,7 +62,6 @@ SHK_HOOK( void, FUN_0044a5d8, u64 a1 );
 SHK_HOOK( u64, FUN_0044f7ac, u32* a1, s16 a2, u64 a3, int a4 );
 SHK_HOOK( u64, FUN_0044f8e0, short a1, short a2, int a3, int a4 );
 SHK_HOOK( u64, FUN_00487c58, short a1, short a2, short* a3 );
-SHK_HOOK( void, FUN_00393828, int a1, int a2 );
 
 static bool isPartyMemberUnlocked( u16 unitID )
 {

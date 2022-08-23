@@ -61,6 +61,7 @@ SHK_HOOK( void, FUN_00480cc0, u64* a1 );
 SHK_HOOK( void, FUN_0044a5d8, u64 a1 );
 SHK_HOOK( u64, FUN_0044f7ac, u32* a1, s16 a2, u64 a3, int a4 );
 SHK_HOOK( u64, FUN_0044f8e0, short a1, short a2, int a3, int a4 );
+SHK_HOOK( u64, FUN_00487c58, short a1, short a2, short* a3 );
 
 static bool isPartyMemberUnlocked( u16 unitID )
 {
@@ -440,7 +441,7 @@ LAB_0044fb20:
         if (sp > 999 && pUnit->unitID != 2) sp = 999;
         pUnit->currentSP += sp; // change SP
       }
-      //PlayfromSystemACB(7);
+      PlayFromSystemACB(7);
     FUN_00116ad0(0x2213);
   }
   else {
@@ -458,9 +459,9 @@ LAB_0044fcec:
   }
   uVar16 = (u32)uVar15;
   if (uVar16 == 0) {
-    //PlayfromSystemACB(4);
+    PlayFromSystemACB(4);
   } else if (uVar16 < 4) {
-    //PlayfromSystemACB(7);
+    PlayFromSystemACB(7);
   }
   return uVar15;
 }
@@ -2033,6 +2034,176 @@ static void MonaNavi_LandedCrit_NaviDialogue( struct_2_pointers* param_1, navi_d
   return;
 }
 
+static u64 ItemMenuUseHealingSkill(short srcPlayer, short tgtPlayer, short* a3) {
+  printf("FUN_00487c58: %d, %d, %x\n", srcPlayer, tgtPlayer, a3);
+  short sVar1;
+  short sVar2;
+  u16 uVar3;
+  u32 skillID;
+  u32 uVar7;
+  int iVar8;
+  int iVar9;
+  int iVar10;
+  u64 uVar4;
+  u64 uVar5;
+  short sVar11;
+  s64 lVar12;
+  short *psVar13;
+  u32 uVar14;
+  u64 uVar15;
+  int iVar16;
+  
+  uVar15 = 1;
+  iVar10 = 0;
+  uVar14 = 0;
+  sVar1 = a3[0x11];
+  sVar2 = a3[0x10];
+  uVar3 = a3[((int)sVar1 + (int)sVar2) * 2 + 0xf8];
+  skillID = FUN_0026090c((u32)uVar3);
+  uVar7 = FUN_002604cc((u32)uVar3);
+  if ((uVar7 & 0x8000000) == 0) {
+    uVar5 = FUN_002604bc((u32)uVar3);
+    if ((int)uVar5 == 6) {
+      uVar15 = 4;
+LAB_0048829c:
+      iVar10 = FUN_0026028c((u32)uVar3);
+      SET_ITEM_NUM_Hook((u32)uVar3,iVar10 - 1U & 0xff);
+      iVar10 = (int)uVar15;
+      if (iVar10 == 3) {
+        uVar4 = 1;
+        if ((int)uVar4 == 0) {
+          iVar10 = FUN_0026028c((u32)uVar3);
+          SET_ITEM_NUM_Hook((u32)uVar3,iVar10 + 1U & 0xff);
+          PlayFromSystemACB(7);
+        }
+        FUN_00116ad0(0x2213);
+        goto LAB_004883ec;
+      }
+      if (iVar10 == 5 || iVar10 == 6) goto LAB_004883ec;
+      FUN_004873c4((int)a3,uVar14);
+      sVar11 = a3[((int)sVar1 + (int)sVar2) * 2 + 0xf9] + -1;
+      a3[((int)sVar1 + (int)sVar2) * 2 + 0xf9] = sVar11;
+      if (sVar11 != 0) goto LAB_004883ec;
+      FUN_00480a28((int)a3);
+      if (a3[0x120f6] < 8) {
+        ScrollThroughItemPartyList((int)a3,1,0);
+        if ((int)((s64)a3[0x120f6] + -1) < (int)a3[0x10]) {
+          ScrollThroughItemPartyList((int)a3,0,(s64)a3[0x120f6] + -1);
+        }
+      }
+      else {
+        lVar12 = (s64)a3[0x120f6] + -8;
+        if ((int)lVar12 < (int)a3[0x11]) {
+          ScrollThroughItemPartyList((int)a3,1,lVar12);
+        }
+      }
+      uVar15 = 2;
+    }
+    else {
+      if (skillID != 0x187) {
+        uVar7 = FUN_00260780((u32)uVar3);
+        if ((uVar7 & 8) != 0) {
+          lVar12 = 0xc - 0x80;
+          memzero((void *)lVar12,0x14);
+          return lVar12;
+        }
+        if (tgtPlayer == -1) {
+          iVar10 = 0;
+          iVar16 = 0;
+          psVar13 = a3;
+          if (a3[0x12100] > 0) {
+            printf("Healing all members\n");
+            for (int i = 0; i < 10; i++) {
+              if (partyMembers[i]) {
+                btlUnit_Unit* pUnit = GetBtlPlayerUnitFromID(i + 1);
+                uVar5 = FUN_0042f5ec(srcPlayer,i + 1,skillID,1);
+                if ((int)uVar5 == 0) {
+                  FUN_0042f3ec(srcPlayer,i + 1,skillID,1);
+                  iVar16++;
+                }
+              }
+            }
+            if (iVar16 != 0) {
+              uVar4 = FUN_0042f994(skillID);
+              uVar14 = (u32)uVar4;
+              goto LAB_0048829c;
+            }
+          }
+          uVar15 = 0;
+          PlayFromSystemACB(4);
+          return uVar15;
+        }
+        printf("Healing for team member %d\n", tgtPlayer);
+        uVar5 = FUN_0042f5ec(srcPlayer,tgtPlayer,skillID,1);
+        if ((int)uVar5 != 0) {
+          uVar15 = 0;
+          PlayFromSystemACB(4);
+          return uVar15;
+        }
+        FUN_0042f3ec(srcPlayer,tgtPlayer,skillID,1);
+        uVar4 = FUN_0042f994(skillID);
+        uVar14 = (u32)uVar4;
+        goto LAB_0048829c;
+      }
+      uVar15 = 0;
+      uVar5 = FUN_004260c4();
+      if ((int)uVar5 != 0) {
+        uVar15 = 3;
+      }
+      if ((int)uVar15 != 0) goto LAB_0048829c;
+LAB_004883ec:
+      skillID = (u32)uVar15;
+      if (skillID == 4 || skillID > 6) return uVar15;
+      else if (skillID == 5 || skillID > 2) {
+        PlayFromSystemACB(7);
+        return uVar15;
+      } else if (skillID == 0) {
+        PlayFromSystemACB(4);
+        return uVar15;
+      }
+    }
+    uVar5 = FUN_002604bc((u32)uVar3);
+    if ((int)uVar5 != 6) PlayFromSystemACB(7);
+  }
+  else {
+    if (uVar3 != 0x3152) {
+      FUN_0029793c((u32)uVar3);
+      uVar15 = 6;
+      goto LAB_0048829c;
+    }
+    iVar16 = 0;
+    psVar13 = a3;
+    if (0 < a3[0x12100]) {
+LAB_00487d40:
+      iVar8 = FUN_004e35e0((int)psVar13[0x120f7]);
+      iVar9 = FUN_004e3610((int)psVar13[0x120f7]);
+      if (iVar9 <= iVar8) {
+        iVar16 = iVar16 + 1;
+        psVar13 = psVar13 + 1;
+        if (a3[0x12100] <= iVar16) {
+          uVar15 = 0;
+          PlayFromSystemACB(4);
+          return uVar15;
+        }
+        goto LAB_00487d40;
+      }
+      psVar13 = a3;
+      if (0 < a3[0x12100]) {
+        do {
+          FUN_004e3640((int)psVar13[0x120f7]);
+          iVar10 = iVar10 + 1;
+          psVar13 = psVar13 + 1;
+        } while (iVar10 < a3[0x12100]);
+      }
+      uVar14 = 4;
+      goto LAB_0048829c;
+    }
+    uVar15 = 0;
+    PlayFromSystemACB(4);
+  }
+  return uVar15;
+}
+
 /*static int FUN_00436730Hook( int a1 )
 {
   int result = 0;
@@ -2109,6 +2280,7 @@ void KasumiInit( void )
   SHK_BIND_HOOK( FUN_0044a5d8, SkillMenuInit );
   SHK_BIND_HOOK( FUN_0044f7ac, SkillMenuHealingSkillInit );
   SHK_BIND_HOOK( FUN_0044f8e0, SkillMenuUseHealingSkill );
+  SHK_BIND_HOOK( FUN_00487c58, ItemMenuUseHealingSkill );
 }
 
 void KasumiShutdown( void )

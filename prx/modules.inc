@@ -23,6 +23,6 @@ static ModuleInfo sModules[] =
 	{	"SecreC",	"SecreC Module",	"enableSecreCModule",	SecreCInit,	SecreCShutdown,	NULL    },
 #endif
 #ifdef GAME_XRD664
-    {   "p5_2014",  "Persona 5 June 2014 Patches",  "enableXrd664", p52014Init, p52014Shutdown, NULL}
+    {   "p5_2014",  "Persona 5 June 2014 Patches",  "enableXrd664", p52014Init, p52014Shutdown, NULL},
 #endif
 };

@@ -23,13 +23,19 @@
 // You need to declare hooks with SHK_HOOK before you can use them.
 
 SHK_HOOK( u32, initReadUpdate, gfdTask* id, float deltaTime );
+SHK_HOOK( u32, fldMainUpdate, gfdTask* id, float deltaTime );
 
 static u32 initReadUpdateHook( gfdTask* id, float deltaTime ) {
     u32 ret = SHK_CALL_HOOK( initReadUpdate, id, deltaTime );
-    //char* initReadText = "CKIT TEST: initReadUpdate work at %x\n";
-    //u32 updateTaskAddr = (u32)(id->workData);
-    //SHK_FUNCTION_CALL_2( 0x824cf8, int, char*, initReadText, u32, updateTaskAddr );
     return ret;
+}
+
+static u32 fldMainUpdateHook( gfdTask* id, float deltaTime ) {
+    fldMainWork* fmwk = (fldMainWork*)id->workData;
+    if (fmwk != NULL) {
+        //printf("field work: addr 0x%x, state %d", (u32)fmwk, fmwk->state);
+    }
+    return SHK_CALL_HOOK( fldMainUpdate, id, deltaTime );
 }
 
 // The start function of the PRX. This gets executed when the loader loads the PRX at boot.
@@ -37,6 +43,7 @@ static u32 initReadUpdateHook( gfdTask* id, float deltaTime ) {
 // hook a function that is called after initialisation.
 void p52014Init( void ) {
     SHK_BIND_HOOK( initReadUpdate, initReadUpdateHook );
+    SHK_BIND_HOOK( fldMainUpdate, fldMainUpdateHook );
 }
 
 void p52014Shutdown( void )

@@ -7,3 +7,7 @@ _shk_prx_elf_substitute:
 initReadUpdate:
   addr: 0x3d8a80
   replacedInstr: stdu r1, -0x1a0(r1)
+
+fldMainUpdate:
+  addr: 0x2fd178
+  replacedInstr: stdu r1, -0xe0(r1)

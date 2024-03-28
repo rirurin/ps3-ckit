@@ -5,6 +5,7 @@
 #include "modules/p5/EXFLW/EXFLW.h"
 #include "modules/p5/scarltz/scarltz.h"
 #include "modules/p5/SecreC/SecreC.h"
+#include "modules/xrd664/p5_2014.h"
 
 static ModuleInfo sModules[] =
 {
@@ -20,5 +21,8 @@ static ModuleInfo sModules[] =
     {   "kasumi",   "Kasumi Module",         "enableKasumiModule", KasumiInit,      KasumiShutdown,            { "EXFLW" } },  
     {   "scarltz",  "Scarltz Module",    "enableScarltzModule", scarltzInit,          scarltzShutdown,            { "EXFLW" } },
 	{	"SecreC",	"SecreC Module",	"enableSecreCModule",	SecreCInit,	SecreCShutdown,	NULL    },
+#endif
+#ifdef GAME_XRD664
+    {   "p5_2014",  "Persona 5 June 2014 Patches",  "enableXrd664", p52014Init, p52014Shutdown, NULL}
 #endif
 };

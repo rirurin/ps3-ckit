@@ -39,3 +39,6 @@ BIT_CHK flags to ignore when logging (2): [ 0x2101, 0x22ff, 0x2216, 0x2110, 0x21
 COUNT entries to ignore when logging: [ 14, 135, 254, 255, 139, 149, 131, 151, 150, 146, 147, 145, 148, 152, 144, 31,  22, 155 ]
 
 BIT_SET flags to ignore when logging: [ 0x006b, 0x21ce, 0x2235 ]
+
+# XRD664
+Enable XRD664 Log: yes

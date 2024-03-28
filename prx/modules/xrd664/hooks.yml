@@ -1,0 +1,9 @@
+# ASM function ported to PRX to make room for the loader
+# Don't remove this
+_shk_prx_elf_substitute:
+  addr: 0xa7bddc
+  emitTrampoline: no
+
+initReadUpdate:
+  addr: 0x3d8a80
+  replacedInstr: stdu r1, -0x1a0(r1)

@@ -69,4 +69,7 @@ CONFIG_START()
     CONFIG_SETTING_ARRAY( FLOAT,      testFloatAray,   "Test float array",               0 )
     CONFIG_SETTING_ARRAY( STRING,     testRmotd,       "Test random message of the day", 4,                "Hi", "Hello", "Hello World", "Bonjour" )
 #endif
+#ifdef GAME_XRD664
+    CONFIG_SETTING( BOOL, enableXrd664, "Enable Persona 5 June 2014 patches", true )
+#endif
 CONFIG_END()

@@ -21,7 +21,12 @@ include config_$(GAME).mk
 PATCH_FILE ?= $(RPCS3_DIR)\patches\patch.yml
 
 # handle GAME/DISC category
-ifeq ($(GAME_CAT), HDD)
+
+ifeq ($(GAME), P5)
+GAME_DIR ?= D:\persona\PERSONA5_PS3\PERSONA 5 BLUS31604\BLUS31604[Persona 5]\PS3_GAME\USRDIR
+else ifeq ($(GAME), XRD664)
+GAME_DIR ?= D:\persona\Persona 5 [June 2014]\PS3_GAME\USRDIR
+else ifeq ($(GAME_CAT), HDD)
 GAME_DIR ?= $(RPCS3_DIR)\dev_hdd0\game\$(GAME_ID)\USRDIR
 else
 GAME_DIR ?= $(RPCS3_DIR)\dev_hdd0\disc\$(GAME_ID)\PS3_GAME\USRDIR

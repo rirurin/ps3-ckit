@@ -1,0 +1,18 @@
+  Mod SPRX:
+    Games:
+      "XRD664":
+        TEST00000: [ All ]
+    Author: Rirurin
+    Notes:
+    Patch Version: 1.0
+    Patch:
+      - [ be32, 0xdf5400, 0x26090058 ] # replace _sys_heap_delete_heap with sys_prx_load_module
+      - [ be32, 0xdf53dc, 0x9f18429d ] # replace _sys_heap_malloc with sys_prx_start_module
+      - [ byte, 0xdf56c2, 0 ] # set cellSail import count to 0
+
+      # inject loader code into main
+      # bin2rpcs3patch begin shk_elf_loader_XRD664
+      # bin2rpcs3patch end
+
+      # bin2rpcs3patch begin shk_elf_inject_XRD664
+      # bin2rpcs3patch end

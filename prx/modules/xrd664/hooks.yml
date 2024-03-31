@@ -19,3 +19,23 @@ gfdAnimationStreamRead:
 shdPersonaModelUpdate:
   addr: 0x4af390
   replacedInstr: stdu r1, -0x190(r1)
+
+fldCrowdLayoutReadSync:
+  addr: 0x7c4d0
+  replacedInstr: stdu r1, -0xf0(r1)
+
+syncRoadmapFixedData:
+  addr: 0xc12f0
+  replacedInstr: stdu r1, -0x90(r1)
+
+fldPanelRoadMapGetLayerNum:
+  addr: 0xc0c7c
+  replacedInstr: stdu r1, -0x80(r1)
+
+datGetFlag:
+  addr: 0x2a5938
+  replacedInstr: stdu r1, -0x80(r1)
+
+btlAiXlsTablebtlAICheckConditional:
+  addr: 0x6b2178
+  replacedInstr: stdu r1, -0xc0(r1)
